@@ -24,6 +24,7 @@
   "name":"Light's Out Test",
   "resources":[
     {"id":{"name":"ReadMe","path":"notes/ReadMe/ReadMe.yy",},},
+    {"id":{"name":"obj_wall","path":"objects/obj_wall/obj_wall.yy",},},
     {"id":{"name":"Player","path":"objects/Player/Player.yy",},},
     {"id":{"name":"Room1","path":"rooms/Room1/Room1.yy",},},
     {"id":{"name":"spr_battle_screen","path":"sprites/spr_battle_screen/spr_battle_screen.yy",},},
