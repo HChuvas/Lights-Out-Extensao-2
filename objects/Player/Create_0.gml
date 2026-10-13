@@ -1,1 +1,2 @@
- player_speed = 4
+player_speed = 1
+facing = "down"
