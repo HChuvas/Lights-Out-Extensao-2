@@ -8,7 +8,7 @@ var _vspd = (_down - _up) * player_speed;
 
 if (_hspd != 0 || _vspd != 0)
 {
-	move_and_collide(_hspd, _vspd, obj_wall);
+	move_and_collide(_hspd, _vspd, wall_map);
     x = round(x);
     y = round(y);
 }
