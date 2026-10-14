@@ -29,10 +29,11 @@
     {"id":{"name":"ReadMe","path":"notes/ReadMe/ReadMe.yy",},},
     {"id":{"name":"Balloon","path":"objects/Balloon/Balloon.yy",},},
     {"id":{"name":"Clown","path":"objects/Clown/Clown.yy",},},
+    {"id":{"name":"obj_camera","path":"objects/obj_camera/obj_camera.yy",},},
     {"id":{"name":"obj_controller","path":"objects/obj_controller/obj_controller.yy",},},
     {"id":{"name":"obj_wall","path":"objects/obj_wall/obj_wall.yy",},},
     {"id":{"name":"Player","path":"objects/Player/Player.yy",},},
-    {"id":{"name":"Room1","path":"rooms/Room1/Room1.yy",},},
+    {"id":{"name":"MovementTest","path":"rooms/MovementTest/MovementTest.yy",},},
     {"id":{"name":"TesteRoom","path":"rooms/TesteRoom/TesteRoom.yy",},},
     {"id":{"name":"Home","path":"sprites/Home/Home.yy",},},
     {"id":{"name":"spr_balloon","path":"sprites/spr_balloon/spr_balloon.yy",},},
@@ -60,8 +61,8 @@
   "resourceType":"GMProject",
   "resourceVersion":"2.0",
   "RoomOrderNodes":[
+    {"roomId":{"name":"MovementTest","path":"rooms/MovementTest/MovementTest.yy",},},
     {"roomId":{"name":"TesteRoom","path":"rooms/TesteRoom/TesteRoom.yy",},},
-    {"roomId":{"name":"Room1","path":"rooms/Room1/Room1.yy",},},
   ],
   "templateType":"game",
   "TextureGroups":[
