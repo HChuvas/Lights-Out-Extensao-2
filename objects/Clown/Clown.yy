@@ -31,7 +31,10 @@
   "resourceType":"GMObject",
   "resourceVersion":"2.0",
   "solid":false,
-  "spriteId":null,
+  "spriteId":{
+    "name":"spr_clown",
+    "path":"sprites/spr_clown/spr_clown.yy",
+  },
   "spriteMaskId":null,
   "visible":true,
 }

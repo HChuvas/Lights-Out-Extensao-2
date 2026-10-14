@@ -29,7 +29,10 @@
   "resourceType":"GMObject",
   "resourceVersion":"2.0",
   "solid":false,
-  "spriteId":null,
+  "spriteId":{
+    "name":"spr_balloon",
+    "path":"sprites/spr_balloon/spr_balloon.yy",
+  },
   "spriteMaskId":null,
   "visible":true,
 }

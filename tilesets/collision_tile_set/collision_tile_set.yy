@@ -3,9 +3,10 @@
   "%Name":"collision_tile_set",
   "autoTileSets":[],
   "macroPageTiles":{
-    "SerialiseHeight":0,
-    "SerialiseWidth":0,
-    "TileSerialiseData":[],
+    "SerialiseHeight":52,
+    "SerialiseWidth":60,
+    "TileCompressedData":[-3120,0,],
+    "TileDataFormat":1,
   },
   "name":"collision_tile_set",
   "out_columns":1,
