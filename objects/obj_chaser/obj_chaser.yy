@@ -43,8 +43,8 @@
   "resourceVersion":"2.0",
   "solid":true,
   "spriteId":{
-    "name":"spr_enemy_base",
-    "path":"sprites/spr_enemy_base/spr_enemy_base.yy",
+    "name":"spr_chaser_idle_down",
+    "path":"sprites/spr_chaser_idle_down/spr_chaser_idle_down.yy",
   },
   "spriteMaskId":null,
   "visible":true,

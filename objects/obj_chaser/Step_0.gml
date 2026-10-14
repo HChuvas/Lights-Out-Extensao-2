@@ -14,3 +14,4 @@ if (CURRENT_STATE != "rest" and CURRENT_STATE != "attack" ){
 }
 
 state_behavior();
+change_sprite();

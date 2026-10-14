@@ -4,7 +4,8 @@ CHASE_VISION_RANGE = [80, 125];
 
 //movement params
 VEL = 1.0;
-ACE = 0.2;
+ACE = 0.15;
+direction = 0;
 
 //stamina param
 STAMINA = 2.0;
@@ -18,7 +19,7 @@ WATCH_TIME_RANGE = [4, 8];		//set watch time: range 4s - 8s
 MAX_PATROL_TIME_DURATION = 10;		//max time doing a patrol / avoid patrol to too long
 PERCEPTION_INTEVAL_TIME = 0.25;		//time inteval to do a perception / avoid calling the perception funtion each step
 REST_INTEVAL_TIME = 0.5;		//time inteval to rest_regen stamina / avoid regen stamina per step
-ATTACK_DELAY_TIME = 0.2;        //Duh
+ATTACK_DELAY_TIME = 0.2;        //DUH  / avoid apam attacks
 
 //alarm for watch state
 alarm[0] = -1;
@@ -184,7 +185,8 @@ function path_move(target_x = noone, target_y = noone){
 		path_point_index += 1;
 	} else {
 		var dir = point_direction(self.x, self.y, _x, _y);
-	
+		direction = dir;
+		
         var dx = lengthdir_x(VEL, dir);
         var dy = lengthdir_y(VEL, dir);
 
@@ -196,4 +198,19 @@ function path_move(target_x = noone, target_y = noone){
             self.y += dy;
 		}
 	}
+}
+
+function change_sprite(){
+	if ( CURRENT_STATE == "watch" or  CURRENT_STATE == "rest" ){
+		if (direction > 315 or direction <= 45) { sprite_index = spr_chaser_idle_right}
+		else if (direction > 45 and direction <= 135) { sprite_index = spr_chaser_idle_up}
+		else if (direction > 135 and direction <= 225) { sprite_index = spr_chaser_idle_left}
+		else if (direction > 225 and direction <= 315) { sprite_index = spr_chaser_idle_down}
+	} else {
+		if (direction > 315 or direction <= 45) { sprite_index = spr_chaser_walk_right}
+		else if (direction > 45 and direction <= 135) { sprite_index = spr_chaser_walk_up}
+		else if (direction > 135 and direction <= 225) { sprite_index = spr_chaser_walk_left}
+		else if (direction > 225 and direction <= 315) { sprite_index = spr_chaser_walk_down}
+	}
+
 }
