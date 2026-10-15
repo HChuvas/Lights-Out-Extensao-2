@@ -70,12 +70,14 @@ function state_behavior(){
 		
 		//chase player, ramp-up velocity vroooom
 		case("chase"):
-			if (alarm[2] = -1){
+			//verify player new position if in line of sight
+			if (alarm[2] == -1){
 						alarm[2] = fps * PERCEPTION_INTEVAL_TIME;
 						on_path = false;
 						path_move(player_last_place_seen[0], player_last_place_seen[1]);
 			}
-			if (alarm[3] = -1){
+			//aply aceleration 
+			if (alarm[3] == -1){
 				alarm[3] = 2*fps;
 			}
 			return;
@@ -146,30 +148,35 @@ function perception(){
 
 //manual movement logic
 function path_move(target_x = noone, target_y = noone){
+	//not on a path, create a new path
 	if (!on_path){
 		if(mp_grid_path(obj_manager.map_grid, my_path, self.x, self.y, target_x, target_y,  true) ){ 
 					on_path = true;
 					path_point_index = 0;
 					path_number_points = path_get_number(my_path);
 		} else {
-			if (CURRENT_STATE = "patrol") {
+			//if path not created sucefuly, reset state
+			if (CURRENT_STATE == "patrol") {
 				alarm[1] = 1;
-			} else if (CURRENT_STATE = "chase"){
+			} else if (CURRENT_STATE == "chase"){
 				stamina = 0;
 				alarm[2] = 1;
 				alarm[3] = 1;
 			}
+			return;
 		}
 	}
 	
+	//reached end of the path
 	if (path_point_index == path_number_points){
 		on_path = false;
 		path_point_index = noone;
 		path_number_points = noone;
 		
-		if (CURRENT_STATE = "patrol") {
+		//reset states 
+		if (CURRENT_STATE == "patrol") {
 			alarm[1] = 1;
-		} else if (CURRENT_STATE = "chase"){
+		} else if (CURRENT_STATE == "chase"){
 			stamina = 0;
 			alarm[2] = 1;
 			alarm[3] = 1;
@@ -181,25 +188,29 @@ function path_move(target_x = noone, target_y = noone){
 	
 	var dist = point_distance(self.x, self.y, _x, _y);
 	
+	//reched point go to the next
 	if (dist <= self.VEL){
 		path_point_index += 1;
 	} else {
+		//if not, continue 
 		var dir = point_direction(self.x, self.y, _x, _y);
 		direction = dir;
 		
         var dx = lengthdir_x(VEL, dir);
         var dy = lengthdir_y(VEL, dir);
-
-        if (!place_meeting(x + dx, y, obj_obstacle)) {
+		
+		//dont colide with obstacles
+        if (!place_meeting(x + dx, y, [obj_obstacle, obj_npc])) {
             self.x += dx;
         }
 
-        if (!place_meeting(x, y + dy, obj_obstacle)) {
+        if (!place_meeting(x, y + dy, [obj_obstacle, obj_npc])) {
             self.y += dy;
 		}
 	}
 }
 
+// :P
 function change_sprite(){
 	if ( CURRENT_STATE == "watch" or  CURRENT_STATE == "rest" ){
 		if (direction > 315 or direction <= 45) { sprite_index = spr_chaser_idle_right}
