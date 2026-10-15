@@ -30,6 +30,10 @@ PERCEPTION_INTEVAL_TIME = 0.25;		//time inteval to do a perception / avoid calli
 REST_INTEVAL_TIME = 0.5;		//time inteval to rest_regen stamina / avoid regen stamina per step
 ATTACK_DELAY_TIME = 0.2;        //DUH  / avoid apam attacks
 
+//attack params
+ATTACK_DAMAGE = 1;
+ATTACK_LIFETIME = 0.5
+
 //alarm for watch state
 alarm[0] = -1;
 //alarm for patrol state
@@ -219,6 +223,7 @@ function path_move(target_x = noone, target_y = noone){
 		}
 	}
 }
+
 
 // :P
 function change_sprite() {

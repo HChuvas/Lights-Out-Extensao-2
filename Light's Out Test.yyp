@@ -11,6 +11,7 @@
   "defaultScriptType":1,
   "Folders":[
     {"$GMFolder":"","%Name":"Objects","folderPath":"folders/Objects.yy","name":"Objects","resourceType":"GMFolder","resourceVersion":"2.0",},
+    {"$GMFolder":"","%Name":"Chaser_Enemy","folderPath":"folders/Objects/Chaser_Enemy.yy","name":"Chaser_Enemy","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"Rooms","folderPath":"folders/Rooms.yy","name":"Rooms","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"Scripts","folderPath":"folders/Scripts.yy","name":"Scripts","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"Sprites","folderPath":"folders/Sprites.yy","name":"Sprites","resourceType":"GMFolder","resourceVersion":"2.0",},
@@ -28,6 +29,7 @@
   "name":"Light's Out Test",
   "resources":[
     {"id":{"name":"ReadMe","path":"notes/ReadMe/ReadMe.yy",},},
+    {"id":{"name":"obj_chaser_attack_HB","path":"objects/obj_chaser_attack_HB/obj_chaser_attack_HB.yy",},},
     {"id":{"name":"obj_chaser","path":"objects/obj_chaser/obj_chaser.yy",},},
     {"id":{"name":"obj_manager","path":"objects/obj_manager/obj_manager.yy",},},
     {"id":{"name":"obj_npc","path":"objects/obj_npc/obj_npc.yy",},},
@@ -39,7 +41,7 @@
     {"id":{"name":"get_random_unocupied_grid_cell","path":"scripts/get_random_unocupied_grid_cell/get_random_unocupied_grid_cell.yy",},},
     {"id":{"name":"Home","path":"sprites/Home/Home.yy",},},
     {"id":{"name":"spr_chaser_attack_down","path":"sprites/spr_chaser_attack_down/spr_chaser_attack_down.yy",},},
-    {"id":{"name":"spr_chaser_attack_hitbox","path":"sprites/spr_chaser_attack_hitbox/spr_chaser_attack_hitbox.yy",},},
+    {"id":{"name":"spr_chaser_attack_HB","path":"sprites/spr_chaser_attack_HB/spr_chaser_attack_HB.yy",},},
     {"id":{"name":"spr_chaser_attack_left","path":"sprites/spr_chaser_attack_left/spr_chaser_attack_left.yy",},},
     {"id":{"name":"spr_chaser_attack_right","path":"sprites/spr_chaser_attack_right/spr_chaser_attack_right.yy",},},
     {"id":{"name":"spr_chaser_attack_up","path":"sprites/spr_chaser_attack_up/spr_chaser_attack_up.yy",},},

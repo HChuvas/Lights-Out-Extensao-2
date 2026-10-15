@@ -18,8 +18,8 @@
   "name":"obj_chaser",
   "overriddenProperties":[],
   "parent":{
-    "name":"Objects",
-    "path":"folders/Objects.yy",
+    "name":"Chaser_Enemy",
+    "path":"folders/Objects/Chaser_Enemy.yy",
   },
   "parentObjectId":{
     "name":"obj_npc",
