@@ -36,6 +36,7 @@
     {"id":{"name":"MovementTest","path":"rooms/MovementTest/MovementTest.yy",},},
     {"id":{"name":"TesteRoom","path":"rooms/TesteRoom/TesteRoom.yy",},},
     {"id":{"name":"Home","path":"sprites/Home/Home.yy",},},
+    {"id":{"name":"spr_balloon_pop","path":"sprites/spr_balloon_pop/spr_balloon_pop.yy",},},
     {"id":{"name":"spr_balloon","path":"sprites/spr_balloon/spr_balloon.yy",},},
     {"id":{"name":"spr_clown_idle_down","path":"sprites/spr_clown_idle_down/spr_clown_idle_down.yy",},},
     {"id":{"name":"spr_clown_idle_left","path":"sprites/spr_clown_idle_left/spr_clown_idle_left.yy",},},
@@ -68,8 +69,8 @@
   "resourceType":"GMProject",
   "resourceVersion":"2.0",
   "RoomOrderNodes":[
-    {"roomId":{"name":"TesteRoom","path":"rooms/TesteRoom/TesteRoom.yy",},},
     {"roomId":{"name":"MovementTest","path":"rooms/MovementTest/MovementTest.yy",},},
+    {"roomId":{"name":"TesteRoom","path":"rooms/TesteRoom/TesteRoom.yy",},},
   ],
   "templateType":"game",
   "TextureGroups":[
