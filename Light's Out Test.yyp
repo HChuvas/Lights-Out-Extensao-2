@@ -39,6 +39,7 @@
     {"id":{"name":"get_random_unocupied_grid_cell","path":"scripts/get_random_unocupied_grid_cell/get_random_unocupied_grid_cell.yy",},},
     {"id":{"name":"Home","path":"sprites/Home/Home.yy",},},
     {"id":{"name":"spr_chaser_attack_down","path":"sprites/spr_chaser_attack_down/spr_chaser_attack_down.yy",},},
+    {"id":{"name":"spr_chaser_attack_hitbox","path":"sprites/spr_chaser_attack_hitbox/spr_chaser_attack_hitbox.yy",},},
     {"id":{"name":"spr_chaser_attack_left","path":"sprites/spr_chaser_attack_left/spr_chaser_attack_left.yy",},},
     {"id":{"name":"spr_chaser_attack_right","path":"sprites/spr_chaser_attack_right/spr_chaser_attack_right.yy",},},
     {"id":{"name":"spr_chaser_attack_up","path":"sprites/spr_chaser_attack_up/spr_chaser_attack_up.yy",},},
