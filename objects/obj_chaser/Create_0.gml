@@ -8,12 +8,21 @@ ACE = 0.15;
 direction = 0;
 
 //stamina param
-STAMINA = 2.0;
-MAX_STAMINA = 2.0;
+STAMINA = 1.0;
+MAX_STAMINA = 1.0;
 REST_REGEN = 0.5;
 
-//"watch", "patrol", "chase", "attack", "rest"
-CURRENT_STATE = "watch";
+//states params
+enum CHASER_STATES {
+	WATCH,
+	PATROL,
+	CHASE,
+	ATTACK,
+	REST
+}
+CURRENT_STATE = CHASER_STATES.WATCH;
+
+//time params
 WATCH_TO_PATROL_RNG = 75;		//chance% to patrol after a watch time
 WATCH_TIME_RANGE = [4, 8];		//set watch time: range 4s - 8s
 MAX_PATROL_TIME_DURATION = 10;		//max time doing a patrol / avoid patrol to too long
@@ -53,14 +62,14 @@ function state_behavior(){
 	switch(CURRENT_STATE){
 		
 		//stay still and watch arround
-		case("watch"):
+		case(CHASER_STATES.WATCH):
 			if(alarm[0] == -1){
 				alarm[0] = random_range(fps * WATCH_TIME_RANGE[0], fps * WATCH_TIME_RANGE[1]);
 			}
 			return;
 			
 		//walk to a random point
-		case("patrol"):
+		case(CHASER_STATES.PATROL):
 			if(alarm[1] == -1){
 				alarm[1] = fps * MAX_PATROL_TIME_DURATION;
 				var _random_point = get_random_unocupied_grid_cell(obj_manager.map_grid);
@@ -69,7 +78,7 @@ function state_behavior(){
 			return;
 		
 		//chase player, ramp-up velocity vroooom
-		case("chase"):
+		case(CHASER_STATES.CHASE):
 			//verify player new position if in line of sight
 			if (alarm[2] == -1){
 						alarm[2] = fps * PERCEPTION_INTEVAL_TIME;
@@ -83,7 +92,7 @@ function state_behavior(){
 			return;
 			
 			//attack and exhaust stamina (avoid attack spam)
-			case("attack"):
+			case(CHASER_STATES.ATTACK):
 				if (alarm[4] == -1){
 					STAMINA = 0;
 					alarm[4] = ATTACK_DELAY_TIME*fps;
@@ -91,7 +100,7 @@ function state_behavior(){
 				return;
 			
 			//rest until stamina recovered :p
-			case("rest"):
+			case(CHASER_STATES.REST):
 				if (alarm[5] == -1) {
 					alarm[5] = REST_INTEVAL_TIME*fps;
 				}
@@ -103,7 +112,7 @@ function state_behavior(){
 function raycasting_pov(vision_range = IDLE_VISION_RANGE){
 	var objs_in_vision = [];
 	
-	if (CURRENT_STATE == "watch") {
+	if (CURRENT_STATE ==CHASER_STATES.WATCH) {
 	
 	}
 	for( var ang = 0; ang < 360; ang = ang + 9){
@@ -156,9 +165,9 @@ function path_move(target_x = noone, target_y = noone){
 					path_number_points = path_get_number(my_path);
 		} else {
 			//if path not created sucefuly, reset state
-			if (CURRENT_STATE == "patrol") {
+			if (CURRENT_STATE == CHASER_STATES.PATROL) {
 				alarm[1] = 1;
-			} else if (CURRENT_STATE == "chase"){
+			} else if (CURRENT_STATE == CHASER_STATES.CHASE){
 				stamina = 0;
 				alarm[2] = 1;
 				alarm[3] = 1;
@@ -173,14 +182,15 @@ function path_move(target_x = noone, target_y = noone){
 		path_point_index = noone;
 		path_number_points = noone;
 		
-		//reset states 
-		if (CURRENT_STATE == "patrol") {
-			alarm[1] = 1;
-		} else if (CURRENT_STATE == "chase"){
-			stamina = 0;
-			alarm[2] = 1;
-			alarm[3] = 1;
-		}
+			//reset states 
+			if (CURRENT_STATE == CHASER_STATES.PATROL) {
+				alarm[1] = 1;
+			} else if (CURRENT_STATE == CHASER_STATES.CHASE){
+				stamina = 0;
+				alarm[2] = 1;
+				alarm[3] = 1;
+			}
+			return;
 	}
 	
 	var _x = path_get_point_x(my_path, path_point_index);
@@ -212,7 +222,7 @@ function path_move(target_x = noone, target_y = noone){
 
 // :P
 function change_sprite(){
-	if ( CURRENT_STATE == "watch" or  CURRENT_STATE == "rest" ){
+	if ( CURRENT_STATE == CHASER_STATES.WATCH or  CURRENT_STATE == CHASER_STATES.REST ){
 		if (direction > 315 or direction <= 45) { sprite_index = spr_chaser_idle_right}
 		else if (direction > 45 and direction <= 135) { sprite_index = spr_chaser_idle_up}
 		else if (direction > 135 and direction <= 225) { sprite_index = spr_chaser_idle_left}

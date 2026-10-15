@@ -1,5 +1,5 @@
 //atack if not resting
-if ( CURRENT_STATE != "rest" ) {
+if ( CURRENT_STATE != CHASER_STATES.REST ) {
 	//reset path and vel aceleration
 	on_path = false;
 	path_point_index = noone;
@@ -12,6 +12,6 @@ if ( CURRENT_STATE != "rest" ) {
 	alarm[3] = -1;
 
 	//kill child :P
-	CURRENT_STATE = "attack";
+	CURRENT_STATE = CHASER_STATES.ATTACK;
 
 }
