@@ -227,7 +227,12 @@ function change_sprite(){
 		else if (direction > 45 and direction <= 135) { sprite_index = spr_chaser_idle_up}
 		else if (direction > 135 and direction <= 225) { sprite_index = spr_chaser_idle_left}
 		else if (direction > 225 and direction <= 315) { sprite_index = spr_chaser_idle_down}
-	} else {
+	} else if (CURRENT_STATE == CHASER_STATES.ATTACK) {
+        if (direction > 315 or direction <= 45) { sprite_index = spr_chaser_attack_right;}
+		else if (direction > 45 and direction <= 135) { sprite_index = spr_chaser_attack_up;}
+        else if (direction > 135 and direction <= 225) { sprite_index = spr_chaser_attack_left; }
+		else { sprite_index = spr_chaser_attack_down;}
+    } else {
 		if (direction > 315 or direction <= 45) { sprite_index = spr_chaser_walk_right}
 		else if (direction > 45 and direction <= 135) { sprite_index = spr_chaser_walk_up}
 		else if (direction > 135 and direction <= 225) { sprite_index = spr_chaser_walk_left}
