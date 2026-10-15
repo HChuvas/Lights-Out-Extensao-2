@@ -222,7 +222,7 @@ function path_move(target_x = noone, target_y = noone){
 
 // :P
 function change_sprite(){
-	if ( CURRENT_STATE == CHASER_STATES.WATCH or  CURRENT_STATE == CHASER_STATES.REST ){
+	if ( CURRENT_STATE == CHASER_STATES.WATCH ){
 		if (direction > 315 or direction <= 45) { sprite_index = spr_chaser_idle_right;}
 		else if (direction > 45 and direction <= 135) { sprite_index = spr_chaser_idle_up;}
 		else if (direction > 135 and direction <= 225) { sprite_index = spr_chaser_idle_left;}
@@ -232,6 +232,11 @@ function change_sprite(){
 		else if (direction > 45 and direction <= 135) { sprite_index = spr_chaser_attack_up;}
         else if (direction > 135 and direction <= 225) { sprite_index = spr_chaser_attack_left; }
 		else { sprite_index = spr_chaser_attack_down;}
+    } else if (CURRENT_STATE == CHASER_STATES.REST) {
+        if (direction > 315 or direction <= 45) { sprite_index = spr_chaser_rest_right;}
+        else if (direction > 45 and direction <= 135) { sprite_index = spr_chaser_rest_up;}
+        else if (direction > 135 and direction <= 225) { sprite_index = spr_chaser_rest_left;}
+        else { sprite_index = spr_chaser_rest_down;}
     } else {
 		if (direction > 315 or direction <= 45) { sprite_index = spr_chaser_walk_right;}
 		else if (direction > 45 and direction <= 135) { sprite_index = spr_chaser_walk_up;}
