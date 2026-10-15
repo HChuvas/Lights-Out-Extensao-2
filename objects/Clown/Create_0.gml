@@ -46,6 +46,23 @@ wd_x = x;
 wd_y = y;                
 wd_t = 0;                
 
+// Animação
+face = "down";
+// Sprites por direção
+spr_idle = {
+    down:  spr_clown_idle_down,
+    left:  spr_clown_idle_left,
+    right: spr_clown_idle_right,
+    up:    spr_clown_idle_up
+};
+
+spr_walk = {
+    down:  spr_clown_walk_down,
+    left:  spr_clown_walk_left,
+    right: spr_clown_walk_right,
+    up:    spr_clown_walk_up
+};
+
 // Configurações de grid
 ready = false;           
 cell = 16;           
@@ -53,6 +70,19 @@ cols = 0;
 rows = 0;         
 
 // Métodos
+
+// Atualiza o sprite de acordo com movimento e direção
+update_anim = function() {
+    var _set = on_path ? spr_walk : spr_idle;
+    var _spr = variable_struct_get(_set, face);
+
+    if (sprite_index != _spr) {
+        sprite_index = _spr;
+        image_index = 0;
+    }
+
+    image_speed = (state == CLOWN.FLEE) ? 2 : 1;
+}
 
 // Verifica se uma determinada posição colide
 hits_wall = function(_x, _y) {
@@ -125,7 +155,15 @@ step_toward = function(_dir, _spd) {
     var _dy = lengthdir_y(_spd, _dir);
     if (!hits_wall(x + _dx, y)) x += _dx;
     if (!hits_wall(x, y + _dy)) y += _dy;
-    return point_distance(_ox, _oy, x, y) > _spd * 0.3;
+
+    var _moved = point_distance(_ox, _oy, x, y) > _spd * 0.3;
+
+    // Atualiza a direção do olhar (4 direções)
+    if (_moved) {
+        if (abs(_dx) > abs(_dy)) face = (_dx > 0) ? "right" : "left";
+        else                     face = (_dy > 0) ? "down"  : "up";
+    }
+    return _moved;
 }
 
 // Opção de segurança

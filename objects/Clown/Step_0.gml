@@ -28,6 +28,7 @@ if (instance_exists(Player)) {
 // Transição para fuga
 if (_see && state != CLOWN.FLEE) {
     start_flee();
+    update_anim(); // atualiza o sprite antes do exit
     exit;
 }
 
@@ -47,7 +48,6 @@ switch (state) {
                 arm_cooldown = tps;
             }
         }
-		
         else if (idle_timer <= 0) {
             idle_timer = 2 * tps; 
             
@@ -75,7 +75,6 @@ switch (state) {
             instance_create_layer(x, y, "Instances", Balloon);
             arm_cooldown = arm_cd_time;
         } else {
-           
             arm_cooldown = arm_fail_time; 
         }
         
@@ -103,3 +102,6 @@ switch (state) {
         }
     break;
 }
+
+// Animação
+update_anim();
