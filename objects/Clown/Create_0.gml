@@ -23,8 +23,8 @@ balloon_min_dist = 64;
 
 clear_r = 2;
 bad_spots = [];
-bad_radius = 48;
-bad_ttl = 60000;
+bad_radius = 24;
+bad_ttl = 15000;
 
 idle_timer = 2 * tps;
 flee_timer = 0;
@@ -47,6 +47,8 @@ wd_t = 0;
 
 // Animação
 face = "down";
+panic = false;
+
 // Sprites por direção
 spr_idle = {
     down:  spr_clown_idle_down,
@@ -67,12 +69,13 @@ ready = false;
 cell = 8;
 cols = 0;
 rows = 0;
+reach = [];
 
 // Métodos
 
 // Atualiza o sprite de acordo com movimento e direção
 update_anim = function() {
-    var _set = on_path ? spr_walk : spr_idle;
+    var _set = (on_path || panic) ? spr_walk : spr_idle;
     var _spr = variable_struct_get(_set, face);
 
     if (sprite_index != _spr) {
@@ -132,6 +135,48 @@ build_safe_grid = function() {
     global.grid_room = room;
 }
 
+// Lista todas as células livres alcançáveis a partir da posição do palhaço
+build_reachable = function() {
+    var _seen = array_create(cols * rows, false);
+    var _q = [];
+    var _head = 0;
+
+    var _ci = clamp(x div cell, 0, cols - 1);
+    var _cj = clamp(y div cell, 0, rows - 1);
+    var _found = false;
+    for (var _r = 0; _r <= 3 && !_found; _r++) {
+        for (var _a = _ci - _r; _a <= _ci + _r && !_found; _a++) {
+            for (var _b = _cj - _r; _b <= _cj + _r && !_found; _b++) {
+                if (_a < 0 || _b < 0 || _a >= cols || _b >= rows) continue;
+                if (mp_grid_get_cell(global.grid_safe, _a, _b) == 0) {
+                    array_push(_q, [_a, _b]);
+                    _seen[_b * cols + _a] = true;
+                    _found = true;
+                }
+            }
+        }
+    }
+
+    var _dx = [1, -1, 0, 0];
+    var _dy = [0, 0, 1, -1];
+    while (_head < array_length(_q)) {
+        var _c = _q[_head];
+        _head++;
+        for (var _d = 0; _d < 4; _d++) {
+            var _nx = _c[0] + _dx[_d];
+            var _ny = _c[1] + _dy[_d];
+            if (_nx < 0 || _ny < 0 || _nx >= cols || _ny >= rows) continue;
+            var _id = _ny * cols + _nx;
+            if (_seen[_id]) continue;
+            _seen[_id] = true;
+            if (mp_grid_get_cell(global.grid_safe, _nx, _ny) != 0) continue;
+            array_push(_q, [_nx, _ny]);
+        }
+    }
+
+    reach = _q;
+}
+
 // Adiciona um ponto problemático na lista de destinos ruins
 add_bad = function(_x, _y) {
     array_push(bad_spots, { x: _x, y: _y, t: current_time });
@@ -148,7 +193,7 @@ is_bad = function(_x, _y) {
     return false;
 }
 
-// Tirar palhaço preso (empurra no máximo 4px)
+// Tirar palhaço preso
 unstick = function() {
     if (!hits_wall(x, y)) return;
     for (var _r = 1; _r <= 4; _r++) {
@@ -171,7 +216,7 @@ step_toward = function(_dir, _spd) {
 
     var _moved = point_distance(_ox, _oy, x, y) > _spd * 0.3;
 
-    // Atualiza a direção do olhar (4 direções)
+    // Atualiza a direção do olhar
     if (_moved) {
         if (abs(_dx) > abs(_dy)) face = (_dx > 0) ? "right" : "left";
         else                     face = (_dy > 0) ? "down"  : "up";
@@ -207,12 +252,15 @@ watchdog = function() {
     }
 }
 
-// Gera um ponto de coordenadas livres e válidas no grid seguro para ações do palhaço
+// Gera um ponto livre e alcançável para ações do palhaço
 free_point = function(_balloon_dist = 0, _open = false) {
-    repeat (40) {
-        var _i = irandom(cols - 1);
-        var _j = irandom(rows - 1);
-        if (mp_grid_get_cell(global.grid_safe, _i, _j) != 0) continue;
+    var _n = array_length(reach);
+    if (_n == 0) return undefined;
+
+    repeat (80) {
+        var _c = reach[irandom(_n - 1)];
+        var _i = _c[0];
+        var _j = _c[1];
 
         if (_open) {
             var _ok = true;
@@ -238,7 +286,23 @@ free_point = function(_balloon_dist = 0, _open = false) {
     return undefined;
 }
 
-// Planeja o caminho utilizando o grid seguro 
+// Marca no grid as células ocupadas por uma instância
+block_box = function(_inst, _margin, _list) {
+    var _i0 = clamp(_inst.bbox_left   div cell - _margin, 0, cols - 1);
+    var _i1 = clamp(_inst.bbox_right  div cell + _margin, 0, cols - 1);
+    var _j0 = clamp(_inst.bbox_top    div cell - _margin, 0, rows - 1);
+    var _j1 = clamp(_inst.bbox_bottom div cell + _margin, 0, rows - 1);
+    for (var _a = _i0; _a <= _i1; _a++) {
+        for (var _b = _j0; _b <= _j1; _b++) {
+            if (mp_grid_get_cell(global.grid_safe, _a, _b) == 0) {
+                mp_grid_add_cell(global.grid_safe, _a, _b);
+                array_push(_list, [_a, _b]);
+            }
+        }
+    }
+}
+
+// Planeja o caminho utilizando o grid seguro
 plan_path = function(_x, _y, _path = move_path) {
     var _ci = x div cell;
     var _cj = y div cell;
@@ -246,19 +310,9 @@ plan_path = function(_x, _y, _path = move_path) {
     var _bal = [];
     with (Balloon) {
         if (popping) continue;
-        var _i0 = clamp(bbox_left   div other.cell, 0, other.cols - 1);
-        var _i1 = clamp(bbox_right  div other.cell, 0, other.cols - 1);
-        var _j0 = clamp(bbox_top    div other.cell, 0, other.rows - 1);
-        var _j1 = clamp(bbox_bottom div other.cell, 0, other.rows - 1);
-        for (var _a = _i0; _a <= _i1; _a++) {
-            for (var _b = _j0; _b <= _j1; _b++) {
-                if (mp_grid_get_cell(global.grid_safe, _a, _b) == 0) {
-                    mp_grid_add_cell(global.grid_safe, _a, _b);
-                    array_push(_bal, [_a, _b]);
-                }
-            }
-        }
+        other.block_box(id, 0, _bal);
     }
+    if (instance_exists(Player)) block_box(Player, 1, _bal);
 
     var _saved = [];
     if (mp_grid_get_cell(global.grid_safe, _ci, _cj) != 0) {
@@ -342,14 +396,25 @@ flee_from = function(_px, _py) {
     var _bx = undefined;
     var _by = 0;
     var _best = -1000000;
+    var _nr = array_length(reach);
 
-    for (var _pass = 0; _pass < 2 && _bx == undefined; _pass++) {
-        repeat (12) {
-            var _a = (_pass == 0) ? _away + irandom_range(-90, 90) : irandom(359);
+    for (var _pass = 0; _pass < 3 && _bx == undefined; _pass++) {
+        if (_pass == 2 && _nr == 0) break;
+
+        repeat (16) {
             var _r = random_range(flee_dist * 0.5, flee_dist);
-            var _i = clamp((x + lengthdir_x(_r, _a)) div cell, 0, cols - 1);
-            var _j = clamp((y + lengthdir_y(_r, _a)) div cell, 0, rows - 1);
-            if (mp_grid_get_cell(global.grid_safe, _i, _j) != 0) continue;
+            var _i, _j;
+
+            if (_pass == 2) {
+                var _c = reach[irandom(_nr - 1)];
+                _i = _c[0];
+                _j = _c[1];
+            } else {
+                var _a = (_pass == 0) ? _away + irandom_range(-90, 90) : irandom(359);
+                _i = clamp((x + lengthdir_x(_r, _a)) div cell, 0, cols - 1);
+                _j = clamp((y + lengthdir_y(_r, _a)) div cell, 0, rows - 1);
+                if (mp_grid_get_cell(global.grid_safe, _i, _j) != 0) continue;
+            }
 
             var _tx = _i * cell + cell / 2;
             var _ty = _j * cell + cell / 2;
@@ -359,7 +424,7 @@ flee_from = function(_px, _py) {
 
             var _len = path_get_length(eval_path);
             var _near = 100000;
-            for (var _t = 0.2; _t <= 1; _t += 0.2) {
+            for (var _t = 0.1; _t <= 1; _t += 0.1) {
                 _near = min(_near, point_distance(_px, _py, path_get_x(eval_path, _t), path_get_y(eval_path, _t)));
             }
             if (_pass == 0 && (_near < _my_d - 16 || _len > _r * 2.5)) continue;
