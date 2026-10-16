@@ -12,7 +12,7 @@
   "Folders":[
     {"$GMFolder":"","%Name":"Enemies","folderPath":"folders/Enemies.yy","name":"Enemies","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"Objects","folderPath":"folders/Objects.yy","name":"Objects","resourceType":"GMFolder","resourceVersion":"2.0",},
-    {"$GMFolder":"","%Name":"Chaser_Enemy","folderPath":"folders/Objects/Chaser_Enemy.yy","name":"Chaser_Enemy","resourceType":"GMFolder","resourceVersion":"2.0",},
+    {"$GMFolder":"","%Name":"Chaser_Enemy","folderPath":"folders/Enemies/Chaser_Enemy.yy","name":"Chaser_Enemy","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"Rooms","folderPath":"folders/Rooms.yy","name":"Rooms","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"Scripts","folderPath":"folders/Scripts.yy","name":"Scripts","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"Sprites","folderPath":"folders/Sprites.yy","name":"Sprites","resourceType":"GMFolder","resourceVersion":"2.0",},

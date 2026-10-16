@@ -11,7 +11,7 @@
   "overriddenProperties":[],
   "parent":{
     "name":"Chaser_Enemy",
-    "path":"folders/Objects/Chaser_Enemy.yy",
+    "path":"folders/Enemies/Chaser_Enemy.yy",
   },
   "parentObjectId":null,
   "persistent":false,

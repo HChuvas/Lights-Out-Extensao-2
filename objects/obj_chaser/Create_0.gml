@@ -1,5 +1,5 @@
 //vision params
-IDLE_VISION_RANGE = 100;
+IDLE_VISION_RANGE = 50;
 CHASE_VISION_RANGE = [80, 125];
 
 //movement params
@@ -25,8 +25,8 @@ CURRENT_STATE = CHASER_STATES.WATCH;
 //time params
 WATCH_TO_PATROL_RNG = 75;		//chance% to patrol after a watch time
 WATCH_TIME_RANGE = [4, 8];		//set watch time: range 4s - 8s
-MAX_PATROL_TIME_DURATION = 10;		//max time doing a patrol / avoid patrol to too long
-PERCEPTION_INTEVAL_TIME = 0.25;		//time inteval to do a perception / avoid calling the perception funtion each step
+MAX_PATROL_TIME_DURATION = 2;		//max time doing a patrol / avoid patrol to too long
+PERCEPTION_INTEVAL_TIME = 0.5;		//time inteval to do a perception / avoid calling the perception funtion each step
 REST_INTEVAL_TIME = 0.5;		//time inteval to rest_regen stamina / avoid regen stamina per step
 ATTACK_DELAY_TIME = 0.2;        //DUH  / avoid apam attacks
 
@@ -237,37 +237,37 @@ function change_sprite() {
     switch (CURRENT_STATE) {
         case CHASER_STATES.ATTACK:
             switch (_dir) {
-                case "right": sprite_index = spr_chaser_attack_right; break;
-                case "up":    sprite_index = spr_chaser_attack_up;    break;
-                case "left":  sprite_index = spr_chaser_attack_left;  break;
-                case "down":  sprite_index = spr_chaser_attack_down;  break;
+                case "right": sprite_index = spr_evil_kid_idle_right; break;
+                case "up":    sprite_index = spr_evil_kid_idle_up;    break;
+                case "left":  sprite_index = spr_evil_kid_idle_left;  break;
+                case "down":  sprite_index = spr_evil_kid_idle_down;  break;
             }
             break;
 
         case CHASER_STATES.REST:
             switch (_dir) {
-                case "right": sprite_index = spr_chaser_rest_right; break;
-                case "up":    sprite_index = spr_chaser_rest_up;    break;
-                case "left":  sprite_index = spr_chaser_rest_left;  break;
-                case "down":  sprite_index = spr_chaser_rest_down;  break;
+                case "right": sprite_index = spr_evil_kid_idle_right; break;
+                case "up":    sprite_index = spr_evil_kid_idle_up;    break;
+                case "left":  sprite_index = spr_evil_kid_idle_left;  break;
+                case "down":  sprite_index = spr_evil_kid_idle_down;  break;
             }
             break;
 
         case CHASER_STATES.WATCH:
             switch (_dir) {
-                case "right": sprite_index = spr_chaser_idle_right; break;
-                case "up":    sprite_index = spr_chaser_idle_up;    break;
-                case "left":  sprite_index = spr_chaser_idle_left;  break;
-                case "down":  sprite_index = spr_chaser_idle_down;  break;
+                case "right": sprite_index = spr_evil_kid_idle_right; break;
+                case "up":    sprite_index = spr_evil_kid_idle_up;    break;
+                case "left":  sprite_index = spr_evil_kid_idle_left;  break;
+                case "down":  sprite_index = spr_evil_kid_idle_down;  break;
             }
             break;
 
         default: 
             switch (_dir) {
-                case "right": sprite_index = spr_chaser_walk_right; break;
-                case "up":    sprite_index = spr_chaser_walk_up;    break;
-                case "left":  sprite_index = spr_chaser_walk_left;  break;
-                case "down":  sprite_index = spr_chaser_walk_down;  break;
+                case "right": sprite_index = spr_evil_kid_walk_right; break;
+                case "up":    sprite_index = spr_evil_kid_walk_up;    break;
+                case "left":  sprite_index = spr_evil_kid_walk_left;  break;
+                case "down":  sprite_index = spr_evil_kid_walk_down;  break;
             }
             break;
     }

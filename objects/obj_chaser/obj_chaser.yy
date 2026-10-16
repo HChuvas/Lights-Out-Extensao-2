@@ -20,7 +20,7 @@
   "overriddenProperties":[],
   "parent":{
     "name":"Chaser_Enemy",
-    "path":"folders/Objects/Chaser_Enemy.yy",
+    "path":"folders/Enemies/Chaser_Enemy.yy",
   },
   "parentObjectId":{
     "name":"obj_npc",
@@ -44,8 +44,8 @@
   "resourceVersion":"2.0",
   "solid":true,
   "spriteId":{
-    "name":"spr_chaser_idle_down",
-    "path":"sprites/spr_chaser_idle_down/spr_chaser_idle_down.yy",
+    "name":"spr_evil_kid_idle_down",
+    "path":"sprites/spr_evil_kid_idle_down/spr_evil_kid_idle_down.yy",
   },
   "spriteMaskId":null,
   "visible":true,

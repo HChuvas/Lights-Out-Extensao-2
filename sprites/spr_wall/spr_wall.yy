@@ -1,7 +1,7 @@
 {
   "$GMSprite":"v2",
   "%Name":"spr_wall",
-  "bboxMode":0,
+  "bboxMode":2,
   "bbox_bottom":15,
   "bbox_left":0,
   "bbox_right":15,
@@ -19,7 +19,7 @@
   "height":16,
   "HTile":false,
   "layers":[
-    {"$GMImageLayer":"","%Name":"9d5a626c-fc92-4393-89ae-6abe3de55394","blendMode":0,"displayName":"default","isLocked":false,"name":"9d5a626c-fc92-4393-89ae-6abe3de55394","opacity":100.0,"resourceType":"GMImageLayer","resourceVersion":"2.0","visible":true,},
+    {"$GMImageLayer":"","%Name":"9d5a626c-fc92-4393-89ae-6abe3de55394","blendMode":0,"displayName":"default","isLocked":false,"name":"9d5a626c-fc92-4393-89ae-6abe3de55394","opacity":100.0,"resourceType":"GMImageLayer","resourceVersion":"2.0","visible":false,},
   ],
   "name":"spr_wall",
   "nineSlice":null,
