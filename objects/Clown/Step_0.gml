@@ -94,13 +94,11 @@ switch (state) {
         if (instance_exists(Player)) {
             var _pd = point_distance(x, y, Player.x, Player.y);
 
-            // só replaneja se não tem rota, ou se a rota passa na frente do player
-            // (compromisso mínimo de 0,5 s com o destino pra não ficar trocando de ideia)
             if (repath_t <= 0 && _pd < sight_radius * 1.5 && (!on_path || path_near_player())) {
                 repath_t = flee_from(Player.x, Player.y) ? round(0.5 * tps) : round(0.2 * tps);
             }
 
-            // Fallback anti-bodyblock: mantém a direção que funcionou por último
+            // Fallback anti-bodyblock
             if (!on_path && _pd < sight_radius * 1.5) {
                 var _away = point_direction(Player.x, Player.y, x, y);
                 var _offs = [0, 45, -45, 90, -90];

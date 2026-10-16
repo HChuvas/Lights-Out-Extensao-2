@@ -47,8 +47,8 @@ wd_t = 0;
 // Animação
 face = "down";
 panic = false;
-panic_off = 0;      // direção de pânico que funcionou por último
-walk_t = 0;         // frames restantes considerando "andando"
+panic_off = 0; // direção de pânico que funcionou por último
+walk_t = 0; // frames restantes considerando "andando"
 last_x = x;
 last_y = y;
 
@@ -78,7 +78,6 @@ reach = [];
 
 // Atualiza o sprite de acordo com movimento e direção
 update_anim = function() {
-    // anda = se mexeu de verdade nos últimos frames (evita piscar idle/walk)
     if (point_distance(x, y, last_x, last_y) > 0.1) walk_t = 8;
     else walk_t = max(0, walk_t - 1);
     last_x = x;
@@ -126,7 +125,6 @@ wall_line = function(_x1, _y1, _x2, _y2) {
 }
 
 // Constrói o grid de navegação usando a própria máscara do palhaço
-// (place_meeting posiciona a máscara com a origem no ponto testado, igual ao movimento real)
 build_safe_grid = function() {
     if (variable_global_exists("grid_safe")) mp_grid_destroy(global.grid_safe);
     global.grid_safe = mp_grid_create(0, 0, cols, rows, cell, cell);
@@ -222,7 +220,6 @@ step_toward = function(_dir, _spd) {
 
     var _moved = point_distance(_ox, _oy, x, y) > _spd * 0.3;
 
-    // direção do olhar pelo deslocamento REAL, com histerese
     if (_moved) {
         var _ax = abs(x - _ox);
         var _ay = abs(y - _oy);
@@ -295,7 +292,6 @@ free_point = function(_balloon_dist = 0, _open = false) {
 }
 
 // Marca no grid as células ocupadas por uma instância,
-// expandidas pelo tamanho da máscara do palhaço (a rota mantém distância real)
 block_box = function(_inst, _margin, _list) {
     var _el = x - bbox_left;
     var _er = bbox_right - x;
@@ -327,7 +323,6 @@ plan_path = function(_x, _y, _path = move_path) {
     var _rad = ceil(_ext / cell) + 1;
     var _side = _rad * 2 + 1;
 
-    // 1) registra as paredes reais ao redor ANTES de bloquear o dinâmico
     var _wall = array_create(_side * _side, false);
     for (var _a = _ci - _rad; _a <= _ci + _rad; _a++) {
         for (var _b = _cj - _rad; _b <= _cj + _rad; _b++) {
@@ -338,7 +333,6 @@ plan_path = function(_x, _y, _path = move_path) {
         }
     }
 
-    // 2) bloqueia balões (menos o que o palhaço está tocando) e o player
     var _bal = [];
     with (Balloon) {
         if (popping) continue;
@@ -347,8 +341,6 @@ plan_path = function(_x, _y, _path = move_path) {
     }
     if (instance_exists(Player)) block_box(Player, 0, _bal);
 
-    // 3) se a célula inicial ficou bloqueada, abre só o entorno imediato (3x3),
-    //    sem mexer em parede e sem liberar células mais perto do player
     if (mp_grid_get_cell(global.grid_safe, _ci, _cj) != 0) {
         var _has_p = instance_exists(Player);
         var _my_d = _has_p ? point_distance(x, y, Player.x, Player.y) : 0;
@@ -369,7 +361,6 @@ plan_path = function(_x, _y, _path = move_path) {
         }
     }
 
-    // 4) se a célula inicial é parede real (palhaço raspando na parede), abre só o entorno imediato
     var _saved = [];
     if (mp_grid_get_cell(global.grid_safe, _ci, _cj) != 0) {
         for (var _a = _ci - 1; _a <= _ci + 1; _a++) {
@@ -385,7 +376,6 @@ plan_path = function(_x, _y, _path = move_path) {
 
     var _ok = mp_grid_path(global.grid_safe, _path, x, y, _x, _y, false);
 
-    // 5) restaura o grid: paredes reais voltam, bloqueio dinâmico sai
     for (var _k = 0; _k < array_length(_saved); _k++) {
         mp_grid_add_cell(global.grid_safe, _saved[_k][0], _saved[_k][1]);
     }
@@ -445,7 +435,6 @@ follow_path = function() {
     }
 }
 
-// A rota atual passa perto do player, mais perto dele do que o palhaço está agora?
 path_near_player = function() {
     if (!on_path || !instance_exists(Player)) return false;
 
