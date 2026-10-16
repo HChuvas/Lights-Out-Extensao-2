@@ -10,6 +10,7 @@ if (!ready) {
     if (!variable_global_exists("grid_safe") || !variable_global_exists("grid_room") || global.grid_room != room) {
         build_safe_grid();
     }
+    build_reachable();
     ready = true; 
 }
 
@@ -28,7 +29,7 @@ if (instance_exists(Player)) {
 // Transição para fuga
 if (_see && state != CLOWN.FLEE) {
     start_flee();
-    update_anim(); // atualiza o sprite antes do exit
+    update_anim();
     exit;
 }
 
@@ -40,7 +41,9 @@ switch (state) {
 
         if (arm_cooldown <= 0 && instance_number(Balloon) < max_balloons) {
             
-            var _pa = free_point(balloon_min_dist, true) ?? free_point(balloon_min_dist);
+            var _pa = free_point(balloon_min_dist, true)
+                   ?? free_point(balloon_min_dist)
+                   ?? free_point(balloon_min_dist * 0.5);
 
             if (_pa != undefined && go_to(_pa.x, _pa.y, arm_spd)) {
                 state = CLOWN.ARM;
@@ -59,7 +62,6 @@ switch (state) {
             }
         }
     break;
-
 
     case CLOWN.PATROL:
         if (on_path) break;
@@ -85,18 +87,28 @@ switch (state) {
     case CLOWN.FLEE:
         flee_timer--; 
         repath_t--; 
+        panic = false;
 
         if (_see) flee_timer = max(flee_timer, 2 * tps);
 
-        if (!on_path && repath_t <= 0 && instance_exists(Player)
-            && point_distance(x, y, Player.x, Player.y) < sight_radius * 1.5) {
-            if (!flee_from(Player.x, Player.y)) {
-                repath_t = 0.25 * tps;
+        if (instance_exists(Player)) {
+            var _pd = point_distance(x, y, Player.x, Player.y);
+
+            if (repath_t <= 0 && _pd < sight_radius * 1.5 && (!on_path || _pd < 64)) {
+                repath_t = flee_from(Player.x, Player.y) ? round(0.3 * tps) : round(0.15 * tps);
+            }
+
+            if (!on_path && _pd < sight_radius * 1.5) {
+                var _away = point_direction(Player.x, Player.y, x, y);
+                panic = step_toward(_away, flee_spd)
+                     || step_toward(_away + 90, flee_spd)
+                     || step_toward(_away - 90, flee_spd);
             }
         }
 
         if (flee_timer <= 0) {
             on_path = false;
+            panic = false;
             idle_timer = 2 * tps;
             state = CLOWN.IDLE;
         }
