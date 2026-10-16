@@ -1,0 +1,1 @@
+if (variable_global_exists("grid_safe")) mp_grid_destroy(global.grid_safe);
