@@ -88,9 +88,9 @@
   "resourceType":"GMProject",
   "resourceVersion":"2.0",
   "RoomOrderNodes":[
-    {"roomId":{"name":"MovementTest","path":"rooms/MovementTest/MovementTest.yy",},},
-    {"roomId":{"name":"r_show_room","path":"rooms/r_show_room/r_show_room.yy",},},
     {"roomId":{"name":"TesteRoom","path":"rooms/TesteRoom/TesteRoom.yy",},},
+    {"roomId":{"name":"r_show_room","path":"rooms/r_show_room/r_show_room.yy",},},
+    {"roomId":{"name":"MovementTest","path":"rooms/MovementTest/MovementTest.yy",},},
   ],
   "templateType":"game",
   "TextureGroups":[

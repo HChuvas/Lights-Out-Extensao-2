@@ -7,22 +7,22 @@ tps = game_get_speed(gamespeed_fps);
 patrol_spd = 0.5;
 
 // Ajustes de velocidade e cooldown
-arm_rate = 1.20; 
-arm_cd_time = round(5 * tps / arm_rate); 
-arm_fail_time = round(2 * tps / arm_rate); 
-arm_spd = patrol_spd * arm_rate;    
-arm_cooldown = arm_cd_time;              
+arm_rate = 1.5;
+arm_cd_time = round(5 * tps / arm_rate);
+arm_fail_time = round(2 * tps / arm_rate);
+arm_spd = patrol_spd * arm_rate;
+arm_cooldown = arm_cd_time;
 
 // Configurações de fuga e visão
-flee_spd = 2.6;
-flee_dist = 400;  
+flee_spd = 1.8;
+flee_dist = 400;
 flee_time = 6 * tps;
 sight_radius = 90; // Raio de visão
-max_balloons = 10;
-balloon_min_dist = 64; 
+max_balloons = 16;
+balloon_min_dist = 64;
 
-clear_r = 10; 
-bad_spots = []; 
+clear_r = 2;
+bad_spots = [];
 bad_radius = 48;
 bad_ttl = 60000;
 
@@ -31,20 +31,19 @@ flee_timer = 0;
 repath_t = 0;
 
 // Controle de rota e movimento
-move_path = path_add(); 
-eval_path = path_add();  
-on_path = false;        
-arrived = false;        
-path_i = 0;             
-move_spd = 0;            
-stuck_t = 0;             
-goal_x = x;              
-goal_y = y;             
-retry_n = 0;             
-plan_fail = 0;           
-wd_x = x;                
-wd_y = y;                
-wd_t = 0;                
+move_path = path_add();
+eval_path = path_add();
+on_path = false;
+arrived = false;
+path_i = 0;
+move_spd = 0;
+stuck_t = 0;
+goal_x = x;
+goal_y = y;
+retry_n = 0;
+wd_x = x;
+wd_y = y;
+wd_t = 0;
 
 // Animação
 face = "down";
@@ -64,10 +63,10 @@ spr_walk = {
 };
 
 // Configurações de grid
-ready = false;           
-cell = 16;           
-cols = 0;               
-rows = 0;         
+ready = false;
+cell = 8;
+cols = 0;
+rows = 0;
 
 // Métodos
 
@@ -84,11 +83,25 @@ update_anim = function() {
     image_speed = (state == CLOWN.FLEE) ? 2 : 1;
 }
 
-// Verifica se uma determinada posição colide
+// Verifica se uma determinada posição colide com parede
 hits_wall = function(_x, _y) {
     for (var _i = 0; _i < array_length(global.solid_maps); _i++) {
         if (place_meeting(_x, _y, global.solid_maps[_i])) return true;
     }
+    return false;
+}
+
+// Colisão de movimento
+hits_solid = function(_x, _y) {
+    if (hits_wall(_x, _y)) return true;
+
+    if (instance_exists(Player)
+        && place_meeting(_x, _y, Player)
+        && !place_meeting(x, y, Player)) return true;
+
+    var _b = instance_place(_x, _y, Balloon);
+    if (_b != noone && !_b.popping && !place_meeting(x, y, _b)) return true;
+
     return false;
 }
 
@@ -135,10 +148,10 @@ is_bad = function(_x, _y) {
     return false;
 }
 
-// Tirar palhaço preso
+// Tirar palhaço preso (empurra no máximo 4px)
 unstick = function() {
     if (!hits_wall(x, y)) return;
-    for (var _r = 1; _r <= 16; _r++) {
+    for (var _r = 1; _r <= 4; _r++) {
         for (var _a = 0; _a < 360; _a += 45) {
             var _nx = x + lengthdir_x(_r, _a);
             var _ny = y + lengthdir_y(_r, _a);
@@ -153,8 +166,8 @@ step_toward = function(_dir, _spd) {
     var _oy = y;
     var _dx = lengthdir_x(_spd, _dir);
     var _dy = lengthdir_y(_spd, _dir);
-    if (!hits_wall(x + _dx, y)) x += _dx;
-    if (!hits_wall(x, y + _dy)) y += _dy;
+    if (!hits_solid(x + _dx, y)) x += _dx;
+    if (!hits_solid(x, y + _dy)) y += _dy;
 
     var _moved = point_distance(_ox, _oy, x, y) > _spd * 0.3;
 
@@ -164,33 +177,6 @@ step_toward = function(_dir, _spd) {
         else                     face = (_dy > 0) ? "down"  : "up";
     }
     return _moved;
-}
-
-// Opção de segurança
-snap_to_safe = function() {
-    var _ci = x div cell;
-    var _cj = y div cell;
-    var _bx = undefined;
-    var _by = 0;
-    var _bd = 1000000;
-
-    for (var _r = 0; _r <= 10 && _bx == undefined; _r++) {
-        for (var _a = _ci - _r; _a <= _ci + _r; _a++) {
-            for (var _b = _cj - _r; _b <= _cj + _r; _b++) {
-                if (_a < 0 || _b < 0 || _a >= cols || _b >= rows) continue;
-                if (mp_grid_get_cell(global.grid_safe, _a, _b) != 0) continue;
-                var _px = _a * cell + cell / 2;
-                var _py = _b * cell + cell / 2;
-                var _d = point_distance(x, y, _px, _py);
-                if (_d < _bd) { _bd = _d; _bx = _px; _by = _py; }
-            }
-        }
-    }
-
-    if (_bx != undefined) { x = _bx; y = _by; }
-    on_path = false;
-    stuck_t = 0;
-    wd_t = 0;
 }
 
 // Abandona o objetivo atual e marca o destino como ruim
@@ -230,8 +216,8 @@ free_point = function(_balloon_dist = 0, _open = false) {
 
         if (_open) {
             var _ok = true;
-            for (var _a = _i - 1; _a <= _i + 1 && _ok; _a++) {
-                for (var _b = _j - 1; _b <= _j + 1 && _ok; _b++) {
+            for (var _a = _i - 2; _a <= _i + 2 && _ok; _a++) {
+                for (var _b = _j - 2; _b <= _j + 2 && _ok; _b++) {
                     if (_a < 0 || _b < 0 || _a >= cols || _b >= rows) { _ok = false; continue; }
                     if (mp_grid_get_cell(global.grid_safe, _a, _b) != 0) _ok = false;
                 }
@@ -252,10 +238,27 @@ free_point = function(_balloon_dist = 0, _open = false) {
     return undefined;
 }
 
-// Planeja o caminho utilizando o grid seguro
+// Planeja o caminho utilizando o grid seguro 
 plan_path = function(_x, _y, _path = move_path) {
     var _ci = x div cell;
     var _cj = y div cell;
+
+    var _bal = [];
+    with (Balloon) {
+        if (popping) continue;
+        var _i0 = clamp(bbox_left   div other.cell, 0, other.cols - 1);
+        var _i1 = clamp(bbox_right  div other.cell, 0, other.cols - 1);
+        var _j0 = clamp(bbox_top    div other.cell, 0, other.rows - 1);
+        var _j1 = clamp(bbox_bottom div other.cell, 0, other.rows - 1);
+        for (var _a = _i0; _a <= _i1; _a++) {
+            for (var _b = _j0; _b <= _j1; _b++) {
+                if (mp_grid_get_cell(global.grid_safe, _a, _b) == 0) {
+                    mp_grid_add_cell(global.grid_safe, _a, _b);
+                    array_push(_bal, [_a, _b]);
+                }
+            }
+        }
+    }
 
     var _saved = [];
     if (mp_grid_get_cell(global.grid_safe, _ci, _cj) != 0) {
@@ -275,6 +278,9 @@ plan_path = function(_x, _y, _path = move_path) {
     for (var _k = 0; _k < array_length(_saved); _k++) {
         mp_grid_add_cell(global.grid_safe, _saved[_k][0], _saved[_k][1]);
     }
+    for (var _k = 0; _k < array_length(_bal); _k++) {
+        mp_grid_clear_cell(global.grid_safe, _bal[_k][0], _bal[_k][1]);
+    }
     return _ok;
 }
 
@@ -282,14 +288,8 @@ plan_path = function(_x, _y, _path = move_path) {
 go_to = function(_x, _y, _spd, _retry = 0) {
     if (!plan_path(_x, _y)) {
         add_bad(_x, _y);
-        plan_fail++;
-        if (plan_fail >= 3) {
-            if (mp_grid_get_cell(global.grid_safe, x div cell, y div cell) != 0) snap_to_safe();
-            plan_fail = 0;
-        }
         return false;
     }
-    plan_fail = 0;
     on_path = true;
     arrived = false;
     path_i = 0;
@@ -316,7 +316,7 @@ follow_path = function() {
     var _ty = path_get_point_y(move_path, path_i);
 
     if (point_distance(x, y, _tx, _ty) <= move_spd) {
-        if (!hits_wall(_tx, _ty)) { x = _tx; y = _ty; }
+        if (!hits_solid(_tx, _ty)) { x = _tx; y = _ty; }
         path_i++;
         stuck_t = 0;
         return;
@@ -344,7 +344,7 @@ flee_from = function(_px, _py) {
     var _best = -1000000;
 
     for (var _pass = 0; _pass < 2 && _bx == undefined; _pass++) {
-        repeat (30) {
+        repeat (12) {
             var _a = (_pass == 0) ? _away + irandom_range(-90, 90) : irandom(359);
             var _r = random_range(flee_dist * 0.5, flee_dist);
             var _i = clamp((x + lengthdir_x(_r, _a)) div cell, 0, cols - 1);
