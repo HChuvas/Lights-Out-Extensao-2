@@ -32,7 +32,8 @@ ATTACK_DELAY_TIME = 0.2;        //DUH  / avoid apam attacks
 
 //attack params
 ATTACK_DAMAGE = 1;
-ATTACK_LIFETIME = 0.5
+ATTACK_LIFETIME = 0.5;
+ATTACKING  = false;
 
 //alarm for watch state
 alarm[0] = -1;
@@ -46,6 +47,8 @@ alarm[3] = -1;
 alarm[4] = -1;
 //alarm to rest state
 alarm[5] = -1;
+//alarm to sprint change
+alarm[6] = 3;
 
 //path var
 my_path = path_add();
@@ -200,27 +203,23 @@ function path_move(target_x = noone, target_y = noone){
 	var _x = path_get_point_x(my_path, path_point_index);
 	var _y = path_get_point_y(my_path, path_point_index);
 	
-	var dist = point_distance(self.x, self.y, _x, _y);
+	var _dist = point_distance(x, y, _x, _y);
 	
 	//reched point go to the next
-	if (dist <= self.VEL){
+	if (_dist <= VEL){
 		path_point_index += 1;
+		
 	} else {
 		//if not, continue 
-		var dir = point_direction(self.x, self.y, _x, _y);
-		direction = dir;
+		var _dir = point_direction(self.x, self.y, _x, _y);
+		direction = _dir;
 		
-        var dx = lengthdir_x(VEL, dir);
-        var dy = lengthdir_y(VEL, dir);
+        var _dx = lengthdir_x(VEL, _dir);
+        var _dy = lengthdir_y(VEL, _dir);
 		
 		//dont colide with obstacles
-        if (!place_meeting(x + dx, y, [obj_obstacle, obj_npc])) {
-            self.x += dx;
-        }
-
-        if (!place_meeting(x, y + dy, [obj_obstacle, obj_npc])) {
-            self.y += dy;
-		}
+        if (!place_meeting(x + _dx, y, [obj_obstacle, obj_npc])) { x += _dx; }  
+		if (!place_meeting(x, y + _dy, [obj_obstacle, obj_npc])) { y += _dy; } 
 	}
 }
 
