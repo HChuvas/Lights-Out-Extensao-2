@@ -6,7 +6,7 @@ var _down = keyboard_check(vk_down) || keyboard_check(ord("S"));
 var _hspd = (_right - _left) * player_speed;
 var _vspd = (_down - _up) * player_speed;
 
-if (_hspd != 0 || _vspd != 0)
+if ((_hspd != 0 || _vspd != 0) && item_held == "")
 {
 	move_and_collide(_hspd, _vspd, [wall_map, collision_map]);
     x = round(x);
@@ -33,4 +33,14 @@ switch (facing)
 	case "up":    sprite_index = _moving ? spr_kid_walk_up    : spr_kid_idle_up;    break;
 	case "left":  sprite_index = _moving ? spr_kid_walk_left  : spr_kid_idle_left;  break;
 	case "right": sprite_index = _moving ? spr_kid_walk_right : spr_kid_idle_right; break;
+}
+
+if (item_held != "" && keyboard_check(ord("E")))
+{
+    var _spr = asset_get_index("spr_kid_" + item_held + "_" + facing)
+    if (_spr != -1) sprite_index = _spr
+}
+else 
+{
+	item_held = ""
 }

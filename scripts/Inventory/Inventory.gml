@@ -27,8 +27,9 @@ function Inventory () constructor{
             show_debug_message("Slot selecionado está vazio");
             return;
         }
-
+        
         show_debug_message("Usando " + _items[selected_index].name);
+        Player.item_held = _items[selected_index].name
     };
 	
 	select_slot = function(_index) {
