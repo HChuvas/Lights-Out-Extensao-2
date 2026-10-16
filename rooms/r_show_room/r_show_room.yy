@@ -8,7 +8,9 @@
   "instanceCreationOrder":[
     {"name":"inst_56ED194","path":"rooms/r_show_room/r_show_room.yy",},
     {"name":"inst_6A472688","path":"rooms/r_show_room/r_show_room.yy",},
-    {"name":"inst_D428EFB","path":"rooms/r_show_room/r_show_room.yy",},
+    {"name":"inst_118DB04A","path":"rooms/r_show_room/r_show_room.yy",},
+    {"name":"inst_301EB19B","path":"rooms/r_show_room/r_show_room.yy",},
+    {"name":"inst_D3805E5","path":"rooms/r_show_room/r_show_room.yy",},
   ],
   "isDnd":false,
   "layers":[
