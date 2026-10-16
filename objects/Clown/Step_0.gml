@@ -1,75 +1,119 @@
-var _saw_player = false;
-if (instance_exists(Player)) {
-    var _d = point_distance(x, y, Player.x, Player.y);
-    _saw_player = (_d <= sight_radius) && !wall_line(x, y, Player.x, Player.y);
+// Checagem inicial
+if (!variable_global_exists("cell") || !variable_global_exists("solid_maps")) exit;
+
+// Inicializa a grid
+if (!ready) {
+    cell = global.cell; 
+    cols = ceil(room_width / cell);
+    rows = ceil(room_height / cell); 
+    
+    if (!variable_global_exists("grid_safe") || !variable_global_exists("grid_room") || global.grid_room != room) {
+        build_safe_grid();
+    }
+    build_reachable();
+    ready = true; 
 }
 
+// Atualizações por frame
+unstick();
 arm_cooldown = max(0, arm_cooldown - 1);
+follow_path(); 
+watchdog();
 
+// Sistema de visão
+var _see = false;
+if (instance_exists(Player)) {
+    _see = (point_distance(x, y, Player.x, Player.y) <= sight_radius) && !wall_line(x, y, Player.x, Player.y);
+}
+
+// Transição para fuga
+if (_see && state != CLOWN.FLEE) {
+    start_flee();
+    update_anim();
+    exit;
+}
+
+// Máquina de estados
 switch (state) {
+    
     case CLOWN.IDLE:
         idle_timer--;
 
-        if (_saw_player) {
-            start_flee();
-        }
-        else if (arm_cooldown <= 0 && instance_number(Balloon) < max_balloons) {
-            state = CLOWN.ARM;
+        if (arm_cooldown <= 0 && instance_number(Balloon) < max_balloons) {
+            
+            var _pa = free_point(balloon_min_dist, true)
+                   ?? free_point(balloon_min_dist)
+                   ?? free_point(balloon_min_dist * 0.5);
+
+            if (_pa != undefined && go_to(_pa.x, _pa.y, arm_spd)) {
+                state = CLOWN.ARM;
+            } else {
+                arm_cooldown = tps;
+            }
         }
         else if (idle_timer <= 0) {
-            if (irandom(99) < 40 && go_to(irandom_range(32, room_width - 32), irandom_range(32, room_height - 32), patrol_spd)) {
-                state = CLOWN.PATROL;
-            } else {
-                idle_timer = 2 * game_fps;
+            idle_timer = 2 * tps; 
+            
+            if (irandom(99) < 40) {
+                var _pp = free_point();
+                if (_pp != undefined && go_to(_pp.x, _pp.y, patrol_spd)) {
+                    state = CLOWN.PATROL;
+                }
             }
-        }
-    break;
-
-    case CLOWN.ARM:
-        if (!arm_ready) {
-            var _spot = pick_item_spot(Balloon, balloon_min_dist);
-
-            if (_spot != undefined && go_to(_spot.x, _spot.y, patrol_spd)) {
-                arm_ready = true;
-            } else {
-                arm_cooldown = game_fps;
-                state = CLOWN.IDLE;
-            }
-        }
-        else if (_saw_player) {
-            start_flee();
-        }
-        else if (path_index == -1) {
-            spawn_item(Balloon, x, y, max_balloons);
-
-            arm_ready = false;
-            arm_cooldown = 5 * game_fps;
-            idle_timer = 2 * game_fps;
-            state = CLOWN.IDLE;
         }
     break;
 
     case CLOWN.PATROL:
-        if (_saw_player) {
-            start_flee();
+        if (on_path) break;
+        idle_timer = 2 * tps;
+        state = CLOWN.IDLE;
+    break;
+
+
+    case CLOWN.ARM:
+        if (on_path) break;
+
+        if (arrived && instance_number(Balloon) < max_balloons) {
+            instance_create_layer(x, y, "Instances", Balloon);
+            arm_cooldown = arm_cd_time;
+        } else {
+            arm_cooldown = arm_fail_time; 
         }
-        else if (path_index == -1) {
-            idle_timer = 2 * game_fps;
-            state = CLOWN.IDLE;
-        }
+        
+        idle_timer = 2 * tps; 
+        state = CLOWN.IDLE;  
     break;
 
     case CLOWN.FLEE:
-        flee_timer--;
+        flee_timer--; 
+        repath_t--; 
+        panic = false;
 
-        if (path_index == -1 && instance_exists(Player)) {
-            flee_from(Player.x, Player.y, 120, flee_spd);
+        if (_see) flee_timer = max(flee_timer, 2 * tps);
+
+        if (instance_exists(Player)) {
+            var _pd = point_distance(x, y, Player.x, Player.y);
+
+            if (repath_t <= 0 && _pd < sight_radius * 1.5 && (!on_path || _pd < 64)) {
+                repath_t = flee_from(Player.x, Player.y) ? round(0.3 * tps) : round(0.15 * tps);
+            }
+
+            if (!on_path && _pd < sight_radius * 1.5) {
+                var _away = point_direction(Player.x, Player.y, x, y);
+                panic = step_toward(_away, flee_spd)
+                     || step_toward(_away + 90, flee_spd)
+                     || step_toward(_away - 90, flee_spd);
+            }
         }
 
         if (flee_timer <= 0) {
-            path_end();
-            idle_timer = 2 * game_fps;
+            on_path = false;
+            panic = false;
+            idle_timer = 2 * tps;
             state = CLOWN.IDLE;
         }
     break;
 }
+
+// Animação
+update_anim();

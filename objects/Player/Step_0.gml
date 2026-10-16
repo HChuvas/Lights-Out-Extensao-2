@@ -8,9 +8,7 @@ var _vspd = (_down - _up) * player_speed;
 
 if ((_hspd != 0 || _vspd != 0) && item_held == "")
 {
-	move_and_collide(_hspd, _vspd, [wall_map, collision_map]);
-    x = round(x);
-    y = round(y);
+	move_and_collide(_hspd, _vspd, [wall_map, collision_map, Clown, Balloon], 4, 0, 0, player_speed, player_speed);
 }
 
 var _still_held = (facing == "right" && _hspd > 0)

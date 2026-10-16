@@ -7,22 +7,4 @@ for (var _k = 0; _k < array_length(_names); _k++) {
     }
 }
 
-global.cell = 16;
-var _cols = ceil(room_width / global.cell);
-var _rows = ceil(room_height / global.cell);
-global.grid = mp_grid_create(0, 0, _cols, _rows, global.cell, global.cell);
-for (var _i = 0; _i < _cols; _i++) {
-    for (var _j = 0; _j < _rows; _j++) {
-        var _x1 = _i * global.cell;
-        var _y1 = _j * global.cell;
-        var _x2 = _x1 + global.cell - 1;
-        var _y2 = _y1 + global.cell - 1;
-
-        for (var _m = 0; _m < array_length(global.solid_maps); _m++) {
-            if (collision_rectangle(_x1, _y1, _x2, _y2, global.solid_maps[_m], false, false) != noone) {
-                mp_grid_add_cell(global.grid, _i, _j);
-                break;
-            }
-        }
-    }
-}
+global.cell = 8;
