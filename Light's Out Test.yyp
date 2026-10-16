@@ -42,6 +42,7 @@
     {"id":{"name":"Player","path":"objects/Player/Player.yy",},},
     {"id":{"name":"MovementTest","path":"rooms/MovementTest/MovementTest.yy",},},
     {"id":{"name":"r_show_room","path":"rooms/r_show_room/r_show_room.yy",},},
+    {"id":{"name":"r_starting_room","path":"rooms/r_starting_room/r_starting_room.yy",},},
     {"id":{"name":"TesteRoom","path":"rooms/TesteRoom/TesteRoom.yy",},},
     {"id":{"name":"Home","path":"sprites/Home/Home.yy",},},
     {"id":{"name":"spr_balloon_pop","path":"sprites/spr_balloon_pop/spr_balloon_pop.yy",},},
@@ -89,6 +90,7 @@
   "resourceVersion":"2.0",
   "RoomOrderNodes":[
     {"roomId":{"name":"r_show_room","path":"rooms/r_show_room/r_show_room.yy",},},
+    {"roomId":{"name":"r_starting_room","path":"rooms/r_starting_room/r_starting_room.yy",},},
     {"roomId":{"name":"TesteRoom","path":"rooms/TesteRoom/TesteRoom.yy",},},
     {"roomId":{"name":"MovementTest","path":"rooms/MovementTest/MovementTest.yy",},},
   ],
