@@ -32,8 +32,8 @@
   "resourceVersion":"2.0",
   "solid":false,
   "spriteId":{
-    "name":"spr_kid_idle_down",
-    "path":"sprites/spr_kid_idle_down/spr_kid_idle_down.yy",
+    "name":"spr_clown_walk_down",
+    "path":"sprites/spr_clown_walk_down/spr_clown_walk_down.yy",
   },
   "spriteMaskId":{
     "name":"spr_clown_idle_down",
