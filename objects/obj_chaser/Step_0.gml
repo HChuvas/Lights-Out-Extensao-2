@@ -1,4 +1,4 @@
-show_debug_message(alarm[6]);
+show_debug_message(CURRENT_STATE);
 rng = irandom(100);
 
 if (CURRENT_STATE != CHASER_STATES.REST and CURRENT_STATE != CHASER_STATES.ATTACK ){
