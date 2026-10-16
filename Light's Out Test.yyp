@@ -36,7 +36,6 @@
     {"id":{"name":"obj_obstacle","path":"objects/obj_obstacle/obj_obstacle.yy",},},
     {"id":{"name":"obj_wall","path":"objects/obj_wall/obj_wall.yy",},},
     {"id":{"name":"Player","path":"objects/Player/Player.yy",},},
-    {"id":{"name":"Room1","path":"rooms/Room1/Room1.yy",},},
     {"id":{"name":"draw_raycasting_pov","path":"scripts/draw_raycasting_pov/draw_raycasting_pov.yy",},},
     {"id":{"name":"get_random_unocupied_grid_cell","path":"scripts/get_random_unocupied_grid_cell/get_random_unocupied_grid_cell.yy",},},
     {"id":{"name":"Home","path":"sprites/Home/Home.yy",},},
@@ -78,9 +77,7 @@
   ],
   "resourceType":"GMProject",
   "resourceVersion":"2.0",
-  "RoomOrderNodes":[
-    {"roomId":{"name":"Room1","path":"rooms/Room1/Room1.yy",},},
-  ],
+  "RoomOrderNodes":[],
   "templateType":"game",
   "TextureGroups":[
     {"$GMTextureGroup":"","%Name":"Default","autocrop":true,"border":2,"compressFormat":"bz2","customOptions":"","directory":"","groupParent":null,"isScaled":true,"loadType":"default","mipsToGenerate":0,"name":"Default","resourceType":"GMTextureGroup","resourceVersion":"2.0","targets":-1,},
