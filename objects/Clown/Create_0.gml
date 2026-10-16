@@ -21,7 +21,6 @@ sight_radius = 90; // Raio de visão
 max_balloons = 16;
 balloon_min_dist = 64;
 
-clear_r = 2;
 bad_spots = [];
 bad_radius = 24;
 bad_ttl = 15000;
@@ -48,6 +47,10 @@ wd_t = 0;
 // Animação
 face = "down";
 panic = false;
+panic_off = 0;      // direção de pânico que funcionou por último
+walk_t = 0;         // frames restantes considerando "andando"
+last_x = x;
+last_y = y;
 
 // Sprites por direção
 spr_idle = {
@@ -75,7 +78,13 @@ reach = [];
 
 // Atualiza o sprite de acordo com movimento e direção
 update_anim = function() {
-    var _set = (on_path || panic) ? spr_walk : spr_idle;
+    // anda = se mexeu de verdade nos últimos frames (evita piscar idle/walk)
+    if (point_distance(x, y, last_x, last_y) > 0.1) walk_t = 8;
+    else walk_t = max(0, walk_t - 1);
+    last_x = x;
+    last_y = y;
+
+    var _set = (walk_t > 0) ? spr_walk : spr_idle;
     var _spr = variable_struct_get(_set, face);
 
     if (sprite_index != _spr) {
@@ -116,20 +125,17 @@ wall_line = function(_x1, _y1, _x2, _y2) {
     return false;
 }
 
-// Constrói o grid de navegação com base na hitbox do palhaço
+// Constrói o grid de navegação usando a própria máscara do palhaço
+// (place_meeting posiciona a máscara com a origem no ponto testado, igual ao movimento real)
 build_safe_grid = function() {
     if (variable_global_exists("grid_safe")) mp_grid_destroy(global.grid_safe);
     global.grid_safe = mp_grid_create(0, 0, cols, rows, cell, cell);
 
     for (var _i = 0; _i < cols; _i++) {
         for (var _j = 0; _j < rows; _j++) {
-            var _cx = _i * cell + cell / 2;
-            var _cy = _j * cell + cell / 2;
-            var _bad = hits_wall(_cx, _cy);
-            for (var _a = 0; _a < 360 && !_bad; _a += 45) {
-                if (hits_wall(_cx + lengthdir_x(clear_r, _a), _cy + lengthdir_y(clear_r, _a))) _bad = true;
+            if (hits_wall(_i * cell + cell / 2, _j * cell + cell / 2)) {
+                mp_grid_add_cell(global.grid_safe, _i, _j);
             }
-            if (_bad) mp_grid_add_cell(global.grid_safe, _i, _j);
         }
     }
     global.grid_room = room;
@@ -196,7 +202,7 @@ is_bad = function(_x, _y) {
 // Tirar palhaço preso
 unstick = function() {
     if (!hits_wall(x, y)) return;
-    for (var _r = 1; _r <= 4; _r++) {
+    for (var _r = 1; _r <= 16; _r++) {
         for (var _a = 0; _a < 360; _a += 45) {
             var _nx = x + lengthdir_x(_r, _a);
             var _ny = y + lengthdir_y(_r, _a);
@@ -216,10 +222,12 @@ step_toward = function(_dir, _spd) {
 
     var _moved = point_distance(_ox, _oy, x, y) > _spd * 0.3;
 
-    // Atualiza a direção do olhar
+    // direção do olhar pelo deslocamento REAL, com histerese
     if (_moved) {
-        if (abs(_dx) > abs(_dy)) face = (_dx > 0) ? "right" : "left";
-        else                     face = (_dy > 0) ? "down"  : "up";
+        var _ax = abs(x - _ox);
+        var _ay = abs(y - _oy);
+        if (_ax > _ay * 1.2)      face = (x > _ox) ? "right" : "left";
+        else if (_ay > _ax * 1.2) face = (y > _oy) ? "down"  : "up";
     }
     return _moved;
 }
@@ -286,12 +294,19 @@ free_point = function(_balloon_dist = 0, _open = false) {
     return undefined;
 }
 
-// Marca no grid as células ocupadas por uma instância
+// Marca no grid as células ocupadas por uma instância,
+// expandidas pelo tamanho da máscara do palhaço (a rota mantém distância real)
 block_box = function(_inst, _margin, _list) {
-    var _i0 = clamp(_inst.bbox_left   div cell - _margin, 0, cols - 1);
-    var _i1 = clamp(_inst.bbox_right  div cell + _margin, 0, cols - 1);
-    var _j0 = clamp(_inst.bbox_top    div cell - _margin, 0, rows - 1);
-    var _j1 = clamp(_inst.bbox_bottom div cell + _margin, 0, rows - 1);
+    var _el = x - bbox_left;
+    var _er = bbox_right - x;
+    var _et = y - bbox_top;
+    var _eb = bbox_bottom - y;
+
+    var _i0 = clamp(floor((_inst.bbox_left   - _er) / cell) - _margin, 0, cols - 1);
+    var _i1 = clamp(floor((_inst.bbox_right  + _el) / cell) + _margin, 0, cols - 1);
+    var _j0 = clamp(floor((_inst.bbox_top    - _eb) / cell) - _margin, 0, rows - 1);
+    var _j1 = clamp(floor((_inst.bbox_bottom + _et) / cell) + _margin, 0, rows - 1);
+
     for (var _a = _i0; _a <= _i1; _a++) {
         for (var _b = _j0; _b <= _j1; _b++) {
             if (mp_grid_get_cell(global.grid_safe, _a, _b) == 0) {
@@ -304,16 +319,57 @@ block_box = function(_inst, _margin, _list) {
 
 // Planeja o caminho utilizando o grid seguro
 plan_path = function(_x, _y, _path = move_path) {
-    var _ci = x div cell;
-    var _cj = y div cell;
+    var _ci = clamp(x div cell, 0, cols - 1);
+    var _cj = clamp(y div cell, 0, rows - 1);
 
+    // Raio de liberação proporcional ao tamanho da máscara
+    var _ext = max(x - bbox_left, bbox_right - x, y - bbox_top, bbox_bottom - y);
+    var _rad = ceil(_ext / cell) + 1;
+    var _side = _rad * 2 + 1;
+
+    // 1) registra as paredes reais ao redor ANTES de bloquear o dinâmico
+    var _wall = array_create(_side * _side, false);
+    for (var _a = _ci - _rad; _a <= _ci + _rad; _a++) {
+        for (var _b = _cj - _rad; _b <= _cj + _rad; _b++) {
+            if (_a < 0 || _b < 0 || _a >= cols || _b >= rows) continue;
+            if (mp_grid_get_cell(global.grid_safe, _a, _b) != 0) {
+                _wall[(_a - _ci + _rad) * _side + (_b - _cj + _rad)] = true;
+            }
+        }
+    }
+
+    // 2) bloqueia balões (menos o que o palhaço está tocando) e o player
     var _bal = [];
     with (Balloon) {
         if (popping) continue;
+        if (place_meeting(x, y, other)) continue;
         other.block_box(id, 0, _bal);
     }
-    if (instance_exists(Player)) block_box(Player, 1, _bal);
+    if (instance_exists(Player)) block_box(Player, 0, _bal);
 
+    // 3) se a célula inicial ficou bloqueada, abre só o entorno imediato (3x3),
+    //    sem mexer em parede e sem liberar células mais perto do player
+    if (mp_grid_get_cell(global.grid_safe, _ci, _cj) != 0) {
+        var _has_p = instance_exists(Player);
+        var _my_d = _has_p ? point_distance(x, y, Player.x, Player.y) : 0;
+
+        for (var _a = _ci - 1; _a <= _ci + 1; _a++) {
+            for (var _b = _cj - 1; _b <= _cj + 1; _b++) {
+                if (_a < 0 || _b < 0 || _a >= cols || _b >= rows) continue;
+                if (_wall[(_a - _ci + _rad) * _side + (_b - _cj + _rad)]) continue;
+                if (mp_grid_get_cell(global.grid_safe, _a, _b) == 0) continue;
+
+                var _own = (_a == _ci && _b == _cj);
+                var _cx = _a * cell + cell / 2;
+                var _cy = _b * cell + cell / 2;
+                if (_own || !_has_p || point_distance(_cx, _cy, Player.x, Player.y) >= _my_d) {
+                    mp_grid_clear_cell(global.grid_safe, _a, _b);
+                }
+            }
+        }
+    }
+
+    // 4) se a célula inicial é parede real (palhaço raspando na parede), abre só o entorno imediato
     var _saved = [];
     if (mp_grid_get_cell(global.grid_safe, _ci, _cj) != 0) {
         for (var _a = _ci - 1; _a <= _ci + 1; _a++) {
@@ -329,6 +385,7 @@ plan_path = function(_x, _y, _path = move_path) {
 
     var _ok = mp_grid_path(global.grid_safe, _path, x, y, _x, _y, false);
 
+    // 5) restaura o grid: paredes reais voltam, bloqueio dinâmico sai
     for (var _k = 0; _k < array_length(_saved); _k++) {
         mp_grid_add_cell(global.grid_safe, _saved[_k][0], _saved[_k][1]);
     }
@@ -386,6 +443,20 @@ follow_path = function() {
         if (retry_n < 1 && go_to(goal_x, goal_y, move_spd, retry_n + 1)) return;
         abandon_goal();
     }
+}
+
+// A rota atual passa perto do player, mais perto dele do que o palhaço está agora?
+path_near_player = function() {
+    if (!on_path || !instance_exists(Player)) return false;
+
+    var _my_d = point_distance(x, y, Player.x, Player.y);
+    var _end = min(path_i + 6, path_get_number(move_path) - 1);
+
+    for (var _k = path_i; _k <= _end; _k++) {
+        var _d = point_distance(Player.x, Player.y, path_get_point_x(move_path, _k), path_get_point_y(move_path, _k));
+        if (_d < 28 && _d < _my_d - 2) return true;
+    }
+    return false;
 }
 
 // Calcula os melhores pontos para fugir da posição atual do player
