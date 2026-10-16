@@ -23,7 +23,7 @@
   ],
   "name":"spr_kid_flashlight_right",
   "nineSlice":null,
-  "origin":7,
+  "origin":4,
   "parent":{
     "name":"ItemsPlayer",
     "path":"folders/Sprites/ItemsPlayer.yy",
@@ -76,7 +76,7 @@
     "visibleRange":null,
     "volume":1.0,
     "xorigin":7,
-    "yorigin":20,
+    "yorigin":10,
   },
   "swatchColours":null,
   "swfPrecision":0.5,

@@ -1,0 +1,1 @@
+inventory.select_slot(0);
