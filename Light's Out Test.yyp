@@ -16,8 +16,8 @@
     {"$GMFolder":"","%Name":"AnimationSpriteSheet","folderPath":"folders/Sprites/AnimationSpriteSheet.yy","name":"AnimationSpriteSheet","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"Enemies","folderPath":"folders/Sprites/Enemies.yy","name":"Enemies","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"EnemyMovement","folderPath":"folders/Sprites/Enemies/EnemyMovement.yy","name":"EnemyMovement","resourceType":"GMFolder","resourceVersion":"2.0",},
-    {"$GMFolder":"","%Name":"ItemSprites","folderPath":"folders/Sprites/ItemSprites.yy","name":"ItemSprites","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"ItemsPlayer","folderPath":"folders/Sprites/ItemsPlayer.yy","name":"ItemsPlayer","resourceType":"GMFolder","resourceVersion":"2.0",},
+    {"$GMFolder":"","%Name":"ItemSprites","folderPath":"folders/Sprites/ItemSprites.yy","name":"ItemSprites","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"Movement","folderPath":"folders/Sprites/Movement.yy","name":"Movement","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"TileSprites","folderPath":"folders/Sprites/TileSprites.yy","name":"TileSprites","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"Tilesets","folderPath":"folders/Tilesets.yy","name":"Tilesets","resourceType":"GMFolder","resourceVersion":"2.0",},
@@ -88,9 +88,9 @@
   "resourceType":"GMProject",
   "resourceVersion":"2.0",
   "RoomOrderNodes":[
-    {"roomId":{"name":"MovementTest","path":"rooms/MovementTest/MovementTest.yy",},},
-    {"roomId":{"name":"r_show_room","path":"rooms/r_show_room/r_show_room.yy",},},
     {"roomId":{"name":"TesteRoom","path":"rooms/TesteRoom/TesteRoom.yy",},},
+    {"roomId":{"name":"r_show_room","path":"rooms/r_show_room/r_show_room.yy",},},
+    {"roomId":{"name":"MovementTest","path":"rooms/MovementTest/MovementTest.yy",},},
   ],
   "templateType":"game",
   "TextureGroups":[
