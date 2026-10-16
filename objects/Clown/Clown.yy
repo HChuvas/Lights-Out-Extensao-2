@@ -32,9 +32,12 @@
   "resourceVersion":"2.0",
   "solid":false,
   "spriteId":{
-    "name":"spr_clown",
-    "path":"sprites/spr_clown/spr_clown.yy",
+    "name":"spr_kid_idle_down",
+    "path":"sprites/spr_kid_idle_down/spr_kid_idle_down.yy",
   },
-  "spriteMaskId":null,
+  "spriteMaskId":{
+    "name":"spr_clown_idle_down",
+    "path":"sprites/spr_clown_idle_down/spr_clown_idle_down.yy",
+  },
   "visible":true,
 }

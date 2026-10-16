@@ -8,9 +8,9 @@ var _vspd = (_down - _up) * player_speed;
 
 if (_hspd != 0 || _vspd != 0)
 {
-	move_and_collide(_hspd, _vspd, [wall_map, collision_map]);
-    x = round(x);
-    y = round(y);
+	// Last two arguments cap the speed on each axis, so sliding along a wall
+	// diagonally is never faster than player_speed
+	move_and_collide(_hspd, _vspd, [wall_map, collision_map], 4, 0, 0, player_speed, player_speed);
 }
 
 var _still_held = (facing == "right" && _hspd > 0)
