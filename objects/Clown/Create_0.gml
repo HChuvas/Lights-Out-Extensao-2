@@ -83,11 +83,25 @@ update_anim = function() {
     image_speed = (state == CLOWN.FLEE) ? 2 : 1;
 }
 
-// Verifica se uma determinada posição colide
+// Verifica se uma determinada posição colide com parede
 hits_wall = function(_x, _y) {
     for (var _i = 0; _i < array_length(global.solid_maps); _i++) {
         if (place_meeting(_x, _y, global.solid_maps[_i])) return true;
     }
+    return false;
+}
+
+// Colisão de movimento
+hits_solid = function(_x, _y) {
+    if (hits_wall(_x, _y)) return true;
+
+    if (instance_exists(Player)
+        && place_meeting(_x, _y, Player)
+        && !place_meeting(x, y, Player)) return true;
+
+    var _b = instance_place(_x, _y, Balloon);
+    if (_b != noone && !_b.popping && !place_meeting(x, y, _b)) return true;
+
     return false;
 }
 
@@ -152,8 +166,8 @@ step_toward = function(_dir, _spd) {
     var _oy = y;
     var _dx = lengthdir_x(_spd, _dir);
     var _dy = lengthdir_y(_spd, _dir);
-    if (!hits_wall(x + _dx, y)) x += _dx;
-    if (!hits_wall(x, y + _dy)) y += _dy;
+    if (!hits_solid(x + _dx, y)) x += _dx;
+    if (!hits_solid(x, y + _dy)) y += _dy;
 
     var _moved = point_distance(_ox, _oy, x, y) > _spd * 0.3;
 
@@ -224,10 +238,27 @@ free_point = function(_balloon_dist = 0, _open = false) {
     return undefined;
 }
 
-// Planeja o caminho utilizando o grid seguro
+// Planeja o caminho utilizando o grid seguro 
 plan_path = function(_x, _y, _path = move_path) {
     var _ci = x div cell;
     var _cj = y div cell;
+
+    var _bal = [];
+    with (Balloon) {
+        if (popping) continue;
+        var _i0 = clamp(bbox_left   div other.cell, 0, other.cols - 1);
+        var _i1 = clamp(bbox_right  div other.cell, 0, other.cols - 1);
+        var _j0 = clamp(bbox_top    div other.cell, 0, other.rows - 1);
+        var _j1 = clamp(bbox_bottom div other.cell, 0, other.rows - 1);
+        for (var _a = _i0; _a <= _i1; _a++) {
+            for (var _b = _j0; _b <= _j1; _b++) {
+                if (mp_grid_get_cell(global.grid_safe, _a, _b) == 0) {
+                    mp_grid_add_cell(global.grid_safe, _a, _b);
+                    array_push(_bal, [_a, _b]);
+                }
+            }
+        }
+    }
 
     var _saved = [];
     if (mp_grid_get_cell(global.grid_safe, _ci, _cj) != 0) {
@@ -246,6 +277,9 @@ plan_path = function(_x, _y, _path = move_path) {
 
     for (var _k = 0; _k < array_length(_saved); _k++) {
         mp_grid_add_cell(global.grid_safe, _saved[_k][0], _saved[_k][1]);
+    }
+    for (var _k = 0; _k < array_length(_bal); _k++) {
+        mp_grid_clear_cell(global.grid_safe, _bal[_k][0], _bal[_k][1]);
     }
     return _ok;
 }
@@ -282,7 +316,7 @@ follow_path = function() {
     var _ty = path_get_point_y(move_path, path_i);
 
     if (point_distance(x, y, _tx, _ty) <= move_spd) {
-        if (!hits_wall(_tx, _ty)) { x = _tx; y = _ty; }
+        if (!hits_solid(_tx, _ty)) { x = _tx; y = _ty; }
         path_i++;
         stuck_t = 0;
         return;
