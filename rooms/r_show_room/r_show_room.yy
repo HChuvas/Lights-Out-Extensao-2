@@ -76,6 +76,7 @@
     {"name":"inst_2C8E9EE1","path":"rooms/r_show_room/r_show_room.yy",},
     {"name":"inst_5CAB37A","path":"rooms/r_show_room/r_show_room.yy",},
     {"name":"inst_4F37EB73","path":"rooms/r_show_room/r_show_room.yy",},
+    {"name":"inst_37863E1A","path":"rooms/r_show_room/r_show_room.yy",},
   ],
   "isDnd":false,
   "layers":[
@@ -94,7 +95,7 @@
           -34,1,-2,0,-2,-2147483648,-8,1,-107,-2147483648,-4,1,-24,-2147483648,-4,1,-14,-2147483648,-3,1,-13,-2147483648,
           -2,1,-107,-2147483648,-4,1,-24,-2147483648,-4,1,-14,-2147483648,-3,1,-13,-2147483648,-2,1,-107,-2147483648,
           -2,1,-28,-2147483648,-2,1,-14,-2147483648,-3,1,-13,-2147483648,-2,1,-107,-2147483648,-2,1,-28,-2147483648,
-          -2,1,-14,-2147483648,-3,1,-13,-2147483648,-2,1,-107,-2147483648,-2,1,-12,-2147483648,-4,1,-12,-2147483648,
+          -2,1,-14,-2147483648,-3,0,-13,-2147483648,-2,1,-107,-2147483648,-2,1,-12,-2147483648,-4,1,-12,-2147483648,
           -2,1,-30,-2147483648,-2,1,-107,-2147483648,-2,1,-12,-2147483648,-4,1,-12,-2147483648,-2,1,-30,-2147483648,
           -2,1,-107,-2147483648,-2,1,-10,-2147483648,-8,1,-42,-2147483648,-2,1,-107,-2147483648,-2,1,-10,-2147483648,
           -8,1,-42,-2147483648,-2,1,-107,-2147483648,-2,1,-12,-2147483648,-4,1,-12,-2147483648,-2,1,-30,-2147483648,
@@ -132,10 +133,14 @@
           -2,1,-30,-2147483648,-2,1,-107,-2147483648,-2,1,-12,-2147483648,-2,1,-14,-2147483648,-2,1,-30,-2147483648,
           -2,1,-107,-2147483648,-4,1,-8,-2147483648,-20,1,-30,-2147483648,-2,1,-107,-2147483648,-4,1,-8,-2147483648,
           -20,1,-30,-2147483648,-2,1,-107,-2147483648,-64,1,-107,-2147483648,-64,1,-5579,-2147483648,
-        ],"TileDataFormat":1,},"tilesetId":{"name":"collision_tile_set","path":"tilesets/collision_tile_set/collision_tile_set.yy",},"userdefinedDepth":false,"visible":false,"x":0,"y":0,},
+        ],"TileDataFormat":1,},"tilesetId":{"name":"collision_tile_set","path":"tilesets/collision_tile_set/collision_tile_set.yy",},"userdefinedDepth":false,"visible":true,"x":0,"y":0,},
     {"$GMRInstanceLayer":"","%Name":"Instances","depth":100,"effectEnabled":true,"effectType":null,"gridX":16,"gridY":16,"hierarchyFrozen":false,"inheritLayerDepth":false,"inheritLayerSettings":false,"inheritSubLayers":true,"inheritVisibility":true,"instances":[
         {"$GMRInstance":"v4","%Name":"inst_56ED194","colour":4294967295,"frozen":false,"hasCreationCode":false,"ignore":false,"imageIndex":0,"imageSpeed":1.0,"inheritCode":false,"inheritedItemId":null,"inheritItemSettings":false,"isDnd":false,"name":"inst_56ED194","objectId":{"name":"obj_controller","path":"objects/obj_controller/obj_controller.yy",},"properties":[],"resourceType":"GMRInstance","resourceVersion":"2.0","rotation":0.0,"scaleX":1.0,"scaleY":1.0,"x":0.0,"y":0.0,},
-        {"$GMRInstance":"v4","%Name":"inst_6A472688","colour":4294967295,"frozen":false,"hasCreationCode":false,"ignore":false,"imageIndex":0,"imageSpeed":1.0,"inheritCode":false,"inheritedItemId":null,"inheritItemSettings":false,"isDnd":false,"name":"inst_6A472688","objectId":{"name":"Player","path":"objects/Player/Player.yy",},"properties":[],"resourceType":"GMRInstance","resourceVersion":"2.0","rotation":0.0,"scaleX":1.0,"scaleY":1.0,"x":67.0,"y":63.5,},
+        {"$GMRInstance":"v4","%Name":"inst_37863E1A","colour":4294967295,"frozen":false,"hasCreationCode":false,"ignore":false,"imageIndex":0,"imageSpeed":1.0,"inheritCode":false,"inheritedItemId":null,"inheritItemSettings":false,"isDnd":false,"name":"inst_37863E1A","objectId":{"name":"obj_stage_switch","path":"objects/obj_stage_switch/obj_stage_switch.yy",},"properties":[
+            {"$GMOverriddenProperty":"v1","%Name":"","name":"","objectId":{"name":"obj_stage_switch","path":"objects/obj_stage_switch/obj_stage_switch.yy",},"propertyId":{"name":"x_pos","path":"objects/obj_stage_switch/obj_stage_switch.yy",},"resourceType":"GMOverriddenProperty","resourceVersion":"2.0","value":"335",},
+            {"$GMOverriddenProperty":"v1","%Name":"","name":"","objectId":{"name":"obj_stage_switch","path":"objects/obj_stage_switch/obj_stage_switch.yy",},"propertyId":{"name":"y_pos","path":"objects/obj_stage_switch/obj_stage_switch.yy",},"resourceType":"GMOverriddenProperty","resourceVersion":"2.0","value":"543",},
+          ],"resourceType":"GMRInstance","resourceVersion":"2.0","rotation":0.0,"scaleX":1.0,"scaleY":1.0,"x":384.5,"y":153.0,},
+        {"$GMRInstance":"v4","%Name":"inst_6A472688","colour":4294967295,"frozen":false,"hasCreationCode":false,"ignore":false,"imageIndex":0,"imageSpeed":1.0,"inheritCode":false,"inheritedItemId":null,"inheritItemSettings":false,"isDnd":false,"name":"inst_6A472688","objectId":{"name":"Player","path":"objects/Player/Player.yy",},"properties":[],"resourceType":"GMRInstance","resourceVersion":"2.0","rotation":0.0,"scaleX":1.0,"scaleY":1.0,"x":87.0,"y":42.0,},
         {"$GMRInstance":"v4","%Name":"inst_D428EFB","colour":4294967295,"frozen":false,"hasCreationCode":false,"ignore":false,"imageIndex":0,"imageSpeed":1.0,"inheritCode":false,"inheritedItemId":null,"inheritItemSettings":false,"isDnd":false,"name":"inst_D428EFB","objectId":{"name":"Clown","path":"objects/Clown/Clown.yy",},"properties":[],"resourceType":"GMRInstance","resourceVersion":"2.0","rotation":0.0,"scaleX":1.0,"scaleY":1.0,"x":192.0,"y":181.0,},
         {"$GMRInstance":"v4","%Name":"inst_118DB04A","colour":4294967295,"frozen":false,"hasCreationCode":false,"ignore":false,"imageIndex":0,"imageSpeed":1.0,"inheritCode":false,"inheritedItemId":null,"inheritItemSettings":false,"isDnd":false,"name":"inst_118DB04A","objectId":{"name":"obj_inventory","path":"objects/obj_inventory/obj_inventory.yy",},"properties":[],"resourceType":"GMRInstance","resourceVersion":"2.0","rotation":0.0,"scaleX":1.0,"scaleY":1.0,"x":128.0,"y":64.0,},
         {"$GMRInstance":"v4","%Name":"inst_301EB19B","colour":4294967295,"frozen":false,"hasCreationCode":false,"ignore":false,"imageIndex":0,"imageSpeed":1.0,"inheritCode":false,"inheritedItemId":null,"inheritItemSettings":false,"isDnd":false,"name":"inst_301EB19B","objectId":{"name":"obj_flashlight","path":"objects/obj_flashlight/obj_flashlight.yy",},"properties":[],"resourceType":"GMRInstance","resourceVersion":"2.0","rotation":0.0,"scaleX":1.0,"scaleY":1.0,"x":192.0,"y":32.0,},
