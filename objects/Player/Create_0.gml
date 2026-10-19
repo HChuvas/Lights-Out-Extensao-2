@@ -1,3 +1,4 @@
+life_points = 100;
 player_speed = 1
 item_held = ""
 facing = "down"
