@@ -31,7 +31,7 @@ REST_INTEVAL_TIME = 0.5;		//time inteval to rest_regen stamina / avoid regen sta
 ATTACK_DELAY_TIME = 0.2;        //DUH  / avoid apam attacks
 
 //attack params
-ATTACK_DAMAGE = 1;
+ATTACK_DAMAGE = 30;
 ATTACK_LIFETIME = 0.5;
 ATTACKING  = false;
 
