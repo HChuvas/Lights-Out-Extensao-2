@@ -9,6 +9,9 @@ var _vspd = (_down - _up) * player_speed;
 if ((_hspd != 0 || _vspd != 0) && item_held == "")
 {
 	move_and_collide(_hspd, _vspd, [wall_map, collision_map, Clown, Balloon], 4, 0, 0, player_speed, player_speed);
+    var _rx = round(x), _ry = round(y);
+    if (!place_meeting(_rx, _ry, [wall_map, collision_map, Clown, Balloon])) { x = _rx; y = _ry; }
+    light.x = x; light.y = y;
 }
 
 var _still_held = (facing == "right" && _hspd > 0)
