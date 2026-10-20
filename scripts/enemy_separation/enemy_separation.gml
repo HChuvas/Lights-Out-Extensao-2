@@ -1,7 +1,7 @@
 function enemy_separation() {
     var _radius = 25;
-    var _strength = 0.75;
-    var _max_push = 1.5;
+    var _strength = 1;
+    var _max_push = 2;
 
     var _count = instance_number(obj_chaser);
 
