@@ -136,7 +136,7 @@ function raycasting_pov(vision_range = IDLE_VISION_RANGE){
 			}
 			
 			if ( hit == noone ){
-				hit = collision_line(self.x, self.y, x2, y2, obj_npc, false, true);
+				hit = collision_line(self.x, self.y, x2, y2, enemy_parent, false, true);
 			}
 			
 			if ( hit != noone ){
@@ -218,8 +218,8 @@ function path_move(target_x = noone, target_y = noone){
         var _dy = lengthdir_y(VEL, _dir);
 		
 		//dont colide with obstacles
-        if (!place_meeting(x + _dx, y, [obj_obstacle, obj_npc])) { x += _dx; }  
-		if (!place_meeting(x, y + _dy, [obj_obstacle, obj_npc])) { y += _dy; } 
+        if (!place_meeting(x + _dx, y, [obj_obstacle, enemy_parent])) { x += _dx; }  
+		if (!place_meeting(x, y + _dy, [obj_obstacle, enemy_parent])) { y += _dy; } 
 	}
 }
 
