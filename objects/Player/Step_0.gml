@@ -26,15 +26,31 @@ if (!_still_held)
 	else if (_vspd > 0) facing = "down"
 	else if (_vspd < 0) facing = "up"
 }
-    
+
+var _target = light.angle
+
 var _moving = (_hspd != 0 || _vspd != 0)
 switch (facing)
 {
-	case "down":  sprite_index = _moving ? spr_kid_walk_down  : spr_kid_idle_down;  break;
-	case "up":    sprite_index = _moving ? spr_kid_walk_up    : spr_kid_idle_up;    break;
-	case "left":  sprite_index = _moving ? spr_kid_walk_left  : spr_kid_idle_left;  break;
-	case "right": sprite_index = _moving ? spr_kid_walk_right : spr_kid_idle_right; break;
+	case "down":  
+	sprite_index = _moving ? spr_kid_walk_down  : spr_kid_idle_down;  
+	_target = 270;
+	break;
+	case "up":    
+	sprite_index = _moving ? spr_kid_walk_up    : spr_kid_idle_up;
+	_target = 90;
+	break;
+	case "left":  sprite_index = _moving ? spr_kid_walk_left  : spr_kid_idle_left;
+	_target = 180;
+	break;
+	case "right": sprite_index = _moving ? spr_kid_walk_right : spr_kid_idle_right;
+	_target = 0;
+	break;
 }
+
+light.angle += angle_difference(_target, light.angle) * 0.3;
+
+
 
 if (item_held != "" && keyboard_check(ord("E")))
 {

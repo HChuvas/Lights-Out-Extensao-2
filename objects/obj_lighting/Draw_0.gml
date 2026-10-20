@@ -14,7 +14,14 @@ with (obj_light)
     draw_set_alpha(ring_alpha)
     for (var i = 0; i < rings; i++)        
     {
-        draw_circle(x - _cx, y - _cy, radius * (1 - i / rings), false);
+		if (shape == SHAPE.CIRCLE)
+		{
+			draw_circle(x - _cx, y - _cy, radius * (1 - i / rings), false);
+		}
+		else if (shape == SHAPE.CONE)
+		{
+			draw_sprite_ext(spr_light_cone, 0, x - _cx, y - _cy, 1, 1, angle, c_white, ring_alpha);
+		}
     }
 }
 draw_set_alpha(1);
