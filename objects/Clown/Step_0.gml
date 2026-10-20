@@ -1,26 +1,18 @@
 // Checagem inicial
 if (!variable_global_exists("cell") || !variable_global_exists("solid_maps")) exit;
 
-// Inicializa a grid
+// Cria o grid uma vez
 if (!ready) {
-    cell = global.cell;
-    cols = ceil(room_width / cell);
-    rows = ceil(room_height / cell);
-
-    if (!variable_global_exists("grid_safe") || !variable_global_exists("grid_room") || global.grid_room != room) {
-        build_safe_grid();
-    }
-    build_reachable();
+    build_grid();
     ready = true;
 }
 
 // Atualizações por frame
-unstick();
 arm_cooldown = max(0, arm_cooldown - 1);
 follow_path();
 watchdog();
 
-// Sistema de visão
+// Visão
 var _see = false;
 if (instance_exists(Player)) {
     _see = (point_distance(x, y, Player.x, Player.y) <= sight_radius) && !wall_line(x, y, Player.x, Player.y);
@@ -40,12 +32,9 @@ switch (state) {
         idle_timer--;
 
         if (arm_cooldown <= 0 && instance_number(Balloon) < max_balloons) {
-
-            var _pa = free_point(balloon_min_dist, true)
-                   ?? free_point(balloon_min_dist)
-                   ?? free_point(balloon_min_dist * 0.5);
-
-            if (_pa != undefined && go_to(_pa.x, _pa.y, arm_spd)) {
+            if (go_random(arm_spd, balloon_min_dist, true)
+             || go_random(arm_spd, balloon_min_dist)
+             || go_random(arm_spd, balloon_min_dist * 0.5)) {
                 state = CLOWN.ARM;
             } else {
                 arm_cooldown = tps;
@@ -54,11 +43,8 @@ switch (state) {
         else if (idle_timer <= 0) {
             idle_timer = 2 * tps;
 
-            if (irandom(99) < 40) {
-                var _pp = free_point();
-                if (_pp != undefined && go_to(_pp.x, _pp.y, patrol_spd)) {
-                    state = CLOWN.PATROL;
-                }
+            if (irandom(99) < 40 && go_random(patrol_spd)) {
+                state = CLOWN.PATROL;
             }
         }
     break;
@@ -68,7 +54,6 @@ switch (state) {
         idle_timer = 2 * tps;
         state = CLOWN.IDLE;
     break;
-
 
     case CLOWN.ARM:
         if (on_path) break;
@@ -124,5 +109,4 @@ switch (state) {
     break;
 }
 
-// Animação
 update_anim();

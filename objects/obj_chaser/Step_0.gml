@@ -1,4 +1,4 @@
-show_debug_message(CURRENT_STATE);
+// show_debug_message(CURRENT_STATE);
 rng = irandom(100);
 image_speed = VEL;
 
