@@ -9,6 +9,7 @@ if (!ready) {
 
 // Atualizações por frame
 arm_cooldown = max(0, arm_cooldown - 1);
+alert_cd = max(0, alert_cd - 1);
 follow_path();
 watchdog();
 

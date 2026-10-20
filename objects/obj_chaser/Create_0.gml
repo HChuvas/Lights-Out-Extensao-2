@@ -1,3 +1,5 @@
+event_inherited();
+
 //vision params
 IDLE_VISION_RANGE = 50;
 CHASE_VISION_RANGE = [80, 125];
@@ -223,6 +225,29 @@ function path_move(target_x = noone, target_y = noone){
 	}
 }
 
+// funções do alerta
+
+can_hear_alert = function() {
+    return CURRENT_STATE == CHASER_STATES.WATCH
+        || CURRENT_STATE == CHASER_STATES.PATROL;
+}
+
+hear_alert = function(_x, _y) {
+    if (!can_hear_alert()) return false;
+
+    alarm[0] = -1;
+    alarm[1] = -1;
+    alarm[2] = -1;
+
+    on_path = false;
+    path_point_index = noone;
+    path_number_points = noone;
+
+    VEL = 1;
+    player_last_place_seen = [_x, _y];
+    CURRENT_STATE = CHASER_STATES.CHASE;
+    return true;
+}
 
 // :P
 function change_sprite() {

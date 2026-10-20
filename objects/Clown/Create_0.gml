@@ -1,3 +1,5 @@
+event_inherited(); 
+
 // Estados do palhaço
 enum CLOWN { IDLE, PATROL, ARM, FLEE }
 
@@ -43,6 +45,11 @@ retry_n = 0;
 wd_x = x;
 wd_y = y;
 wd_t = 0;
+
+// Alerta
+alert_radius = 300;
+alert_cd_time = 5 * tps; 
+alert_cd = 0;
 
 // Animação
 face = "down";
@@ -385,10 +392,20 @@ flee_from = function(_px, _py) {
     return (_bx != undefined) && go_to(_bx, _by, flee_spd);
 }
 
+
+call_enemy = function() {
+    if (alert_cd > 0) return false;
+    if (!alert_nearest_enemy(x, y, alert_radius)) return false;
+
+    alert_cd = alert_cd_time;
+    return true;
+}
+
 start_flee = function() {
     on_path = false;
     flee_timer = flee_time;
     repath_t = 0;
     flee_from(Player.x, Player.y);
     state = CLOWN.FLEE;
+    call_enemy();
 }

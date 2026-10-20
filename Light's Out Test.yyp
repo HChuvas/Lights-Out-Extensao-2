@@ -67,6 +67,7 @@
     {"id":{"name":"r_show_room","path":"rooms/r_show_room/r_show_room.yy",},},
     {"id":{"name":"r_starting_room","path":"rooms/r_starting_room/r_starting_room.yy",},},
     {"id":{"name":"TesteRoom","path":"rooms/TesteRoom/TesteRoom.yy",},},
+    {"id":{"name":"alert_nearest_enemy","path":"scripts/alert_nearest_enemy/alert_nearest_enemy.yy",},},
     {"id":{"name":"draw_raycasting_pov","path":"scripts/draw_raycasting_pov/draw_raycasting_pov.yy",},},
     {"id":{"name":"enemy_separation","path":"scripts/enemy_separation/enemy_separation.yy",},},
     {"id":{"name":"get_random_unocupied_grid_cell","path":"scripts/get_random_unocupied_grid_cell/get_random_unocupied_grid_cell.yy",},},
