@@ -1,15 +1,13 @@
 {
   "$GMObject":"",
-  "%Name":"obj_npc",
-  "eventList":[
-    {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":0,"eventType":0,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
-  ],
+  "%Name":"enemy_parent",
+  "eventList":[],
   "managed":true,
-  "name":"obj_npc",
+  "name":"enemy_parent",
   "overriddenProperties":[],
   "parent":{
-    "name":"Objects",
-    "path":"folders/Objects.yy",
+    "name":"Enemies",
+    "path":"folders/Enemies.yy",
   },
   "parentObjectId":null,
   "persistent":false,

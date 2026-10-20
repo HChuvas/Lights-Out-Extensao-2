@@ -10,8 +10,8 @@
   "name":"Balloon",
   "overriddenProperties":[],
   "parent":{
-    "name":"Enemies",
-    "path":"folders/Enemies.yy",
+    "name":"Clown_Enemy",
+    "path":"folders/Enemies/Clown_Enemy.yy",
   },
   "parentObjectId":null,
   "persistent":false,

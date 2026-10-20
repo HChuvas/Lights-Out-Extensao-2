@@ -1,4 +1,3 @@
-// show_debug_message(CURRENT_STATE);
 rng = irandom(100);
 image_speed = VEL;
 
@@ -15,3 +14,4 @@ if (CURRENT_STATE != CHASER_STATES.REST and CURRENT_STATE != CHASER_STATES.ATTAC
 }
 
 state_behavior();
+enemy_separation();
