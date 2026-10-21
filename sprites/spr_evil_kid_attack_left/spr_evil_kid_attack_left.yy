@@ -31,8 +31,8 @@
   "nineSlice":null,
   "origin":9,
   "parent":{
-    "name":"EvilKid",
-    "path":"folders/Sprites/Enemies/EnemyAttack/EvilKid.yy",
+    "name":"Attack",
+    "path":"folders/Sprites/Enemies/Enemy_Chaser/Attack.yy",
   },
   "preMultiplyAlpha":false,
   "resourceType":"GMSprite",
