@@ -12,6 +12,7 @@
     {"name":"inst_4EFEA3B5","path":"rooms/r_middle_room/r_middle_room.yy",},
     {"name":"inst_DF01244","path":"rooms/r_middle_room/r_middle_room.yy",},
     {"name":"inst_65674AA1","path":"rooms/r_middle_room/r_middle_room.yy",},
+    {"name":"inst_403860A5","path":"rooms/r_middle_room/r_middle_room.yy",},
   ],
   "isDnd":false,
   "layers":[
@@ -76,6 +77,7 @@
         {"$GMRInstance":"v4","%Name":"inst_4EFEA3B5","colour":4294967295,"frozen":false,"hasCreationCode":false,"ignore":false,"imageIndex":0,"imageSpeed":1.0,"inheritCode":false,"inheritedItemId":null,"inheritItemSettings":false,"isDnd":false,"name":"inst_4EFEA3B5","objectId":{"name":"obj_manager","path":"objects/obj_manager/obj_manager.yy",},"properties":[],"resourceType":"GMRInstance","resourceVersion":"2.0","rotation":0.0,"scaleX":1.0,"scaleY":1.0,"x":992.0,"y":224.0,},
         {"$GMRInstance":"v4","%Name":"inst_DF01244","colour":4294967295,"frozen":false,"hasCreationCode":false,"ignore":false,"imageIndex":0,"imageSpeed":1.0,"inheritCode":false,"inheritedItemId":null,"inheritItemSettings":false,"isDnd":false,"name":"inst_DF01244","objectId":{"name":"obj_lighting","path":"objects/obj_lighting/obj_lighting.yy",},"properties":[],"resourceType":"GMRInstance","resourceVersion":"2.0","rotation":0.0,"scaleX":1.0,"scaleY":1.0,"x":896.0,"y":288.0,},
         {"$GMRInstance":"v4","%Name":"inst_65674AA1","colour":4294967295,"frozen":false,"hasCreationCode":false,"ignore":false,"imageIndex":0,"imageSpeed":1.0,"inheritCode":false,"inheritedItemId":null,"inheritItemSettings":false,"isDnd":false,"name":"inst_65674AA1","objectId":{"name":"obj_chandelier","path":"objects/obj_chandelier/obj_chandelier.yy",},"properties":[],"resourceType":"GMRInstance","resourceVersion":"2.0","rotation":0.0,"scaleX":1.0,"scaleY":1.0,"x":992.0,"y":288.0,},
+        {"$GMRInstance":"v4","%Name":"inst_403860A5","colour":4294967295,"frozen":false,"hasCreationCode":false,"ignore":false,"imageIndex":0,"imageSpeed":1.0,"inheritCode":false,"inheritedItemId":null,"inheritItemSettings":false,"isDnd":false,"name":"inst_403860A5","objectId":{"name":"obj_life_points","path":"objects/obj_life_points/obj_life_points.yy",},"properties":[],"resourceType":"GMRInstance","resourceVersion":"2.0","rotation":0.0,"scaleX":1.0,"scaleY":1.0,"x":896.0,"y":320.0,},
       ],"layers":[],"name":"Instances","properties":[],"resourceType":"GMRInstanceLayer","resourceVersion":"2.0","userdefinedDepth":false,"visible":true,},
     {"$GMRTileLayer":"","%Name":"DecordLayer","depth":300,"effectEnabled":true,"effectType":null,"gridX":32,"gridY":32,"hierarchyFrozen":false,"inheritLayerDepth":false,"inheritLayerSettings":false,"inheritSubLayers":true,"inheritVisibility":true,"layers":[],"name":"DecordLayer","properties":[],"resourceType":"GMRTileLayer","resourceVersion":"2.0","tiles":{"SerialiseHeight":48,"SerialiseWidth":86,"TileCompressedData":[
           -972,-2147483648,1,206,-89,-2147483648,1,207,-78,-2147483648,1,208,-3,-2147483648,3,212,192,190,-166,

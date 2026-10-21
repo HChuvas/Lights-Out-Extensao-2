@@ -89,6 +89,7 @@
     {"id":{"name":"spr_atention","path":"sprites/spr_atention/spr_atention.yy",},},
     {"id":{"name":"spr_balloon_pop","path":"sprites/spr_balloon_pop/spr_balloon_pop.yy",},},
     {"id":{"name":"spr_balloon","path":"sprites/spr_balloon/spr_balloon.yy",},},
+    {"id":{"name":"spr_chaser_attack_HB","path":"sprites/spr_chaser_attack_HB/spr_chaser_attack_HB.yy",},},
     {"id":{"name":"spr_clown_idle_down","path":"sprites/spr_clown_idle_down/spr_clown_idle_down.yy",},},
     {"id":{"name":"spr_clown_idle_left","path":"sprites/spr_clown_idle_left/spr_clown_idle_left.yy",},},
     {"id":{"name":"spr_clown_idle_right","path":"sprites/spr_clown_idle_right/spr_clown_idle_right.yy",},},

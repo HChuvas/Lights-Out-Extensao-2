@@ -1,6 +1,7 @@
-if (instance_exists(Player)) {
+var _player = instance_find(Player, 0);
+if (_player != noone) {
 
-    var _life_points = Player.life_points;
+    var _life_points = _player.life_points;
 	
 	var _life_spacing = 8;
 	var _x = 16;
@@ -10,7 +11,7 @@ if (instance_exists(Player)) {
 
         var _sprite;
 
-        if (i < _life_points) {
+        if (i + 1 > _life_points) {
             _sprite = spr_life_points_empty;
         } else {
             _sprite = spr_life_points_full;
