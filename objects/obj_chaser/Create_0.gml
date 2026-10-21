@@ -30,7 +30,8 @@ WATCH_TIME_RANGE = [4, 8];		//set watch time: range 4s - 8s
 MAX_PATROL_TIME_DURATION = 2;		//max time doing a patrol / avoid patrol to too long
 PERCEPTION_INTEVAL_TIME = 0.5;		//time inteval to do a perception / avoid calling the perception funtion each step
 REST_INTEVAL_TIME = 0.5;		//time inteval to rest_regen stamina / avoid regen stamina per step
-ATTACK_DELAY_TIME = 0.2;        //DUH  / avoid apam attacks
+ATTACK_DELAY_TIME = 0.2;		//DUH  / avoid apam attacks
+ATTACK_DURATION_TIME = 0.65  //time to use the sprite animation 
 
 //attack params
 ATTACK_DAMAGE = 1;
@@ -103,6 +104,8 @@ function state_behavior(){
 			//attack and exhaust stamina (avoid attack spam)
 			case(CHASER_STATES.ATTACK):
 				if (alarm[4] == -1){
+					VEL= 1;
+					image_speed = VEL;
 					STAMINA = 0;
 					alarm[4] = ATTACK_DELAY_TIME*fps;
 				}
@@ -262,10 +265,10 @@ function change_sprite() {
     switch (CURRENT_STATE) {
         case CHASER_STATES.ATTACK:
             switch (_dir) {
-                case "right": sprite_index = spr_evil_kid_idle_right; break;
-                case "up":    sprite_index = spr_evil_kid_idle_up;    break;
-                case "left":  sprite_index = spr_evil_kid_idle_left;  break;
-                case "down":  sprite_index = spr_evil_kid_idle_down;  break;
+                case "right": sprite_index = spr_evil_kid_attack_right; break;
+                case "up":    sprite_index = spr_evil_kid_attack_up;    break;
+                case "left":  sprite_index = spr_evil_kid_attack_left;  break;
+                case "down":  sprite_index = spr_evil_kid_attack_down;  break;
             }
             break;
 

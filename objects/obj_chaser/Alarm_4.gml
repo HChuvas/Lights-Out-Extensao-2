@@ -29,8 +29,9 @@ var _height = bbox_bottom - bbox_top + 1;
 		_attack_data.attack_direction = 270;
 		instance_create_layer(self.x, self.y + _height, layer, obj_chaser_attack_HB, _attack_data);	
 	}
+	
 	ATTACKING = true;
-	alarm[4] = ATTACK_LIFETIME * fps;
+	alarm[4] = ATTACK_DURATION_TIME * fps;
 } else {
 	ATTACKING = false;
 	VEL = 1;

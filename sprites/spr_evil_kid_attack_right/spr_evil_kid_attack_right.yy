@@ -29,7 +29,7 @@
   ],
   "name":"spr_evil_kid_attack_right",
   "nineSlice":null,
-  "origin":7,
+  "origin":9,
   "parent":{
     "name":"EvilKid",
     "path":"folders/Sprites/Enemies/EnemyAttack/EvilKid.yy",
@@ -100,7 +100,7 @@
     "visibleRange":null,
     "volume":1.0,
     "xorigin":11,
-    "yorigin":39,
+    "yorigin":33,
   },
   "swatchColours":null,
   "swfPrecision":0.5,

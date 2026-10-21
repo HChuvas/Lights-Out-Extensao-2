@@ -1,7 +1,7 @@
 {
   "$GMSprite":"v2",
   "%Name":"spr_evil_kid_attack_left",
-  "bboxMode":0,
+  "bboxMode":2,
   "bbox_bottom":38,
   "bbox_left":2,
   "bbox_right":22,
@@ -29,7 +29,7 @@
   ],
   "name":"spr_evil_kid_attack_left",
   "nineSlice":null,
-  "origin":7,
+  "origin":9,
   "parent":{
     "name":"EvilKid",
     "path":"folders/Sprites/Enemies/EnemyAttack/EvilKid.yy",
@@ -99,8 +99,8 @@
     ],
     "visibleRange":null,
     "volume":1.0,
-    "xorigin":11,
-    "yorigin":39,
+    "xorigin":13,
+    "yorigin":33,
   },
   "swatchColours":null,
   "swfPrecision":0.5,
