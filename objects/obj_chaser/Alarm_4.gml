@@ -31,10 +31,11 @@ var _height = bbox_bottom - bbox_top + 1;
 	}
 	
 	ATTACKING = true;
-	alarm[4] = ATTACK_DURATION_TIME * fps;
+	alarm[4] = ATTACK_DURATION_TIME;
 } else {
 	ATTACKING = false;
 	VEL = 1;
+	reaction(2);
 	CURRENT_STATE =CHASER_STATES.REST;
 	on_path = false;
 	path_point_index = noone;
