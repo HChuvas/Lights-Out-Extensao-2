@@ -12,15 +12,15 @@ if (_player != noone) {
         var _sprite;
 
         if (i + 1 > _life_points) {
-            _sprite = spr_life_points_empty;
+            _sprite = spr_empty_moon_heart;
         } else {
-            _sprite = spr_life_points_full;
+            _sprite = spr_moon_heart;
         }
 
         draw_sprite(
             _sprite,
             0,
-            _x + i * (sprite_get_width(spr_life_points_empty) + _life_spacing),
+            _x + i * (sprite_get_width(spr_empty_moon_heart) + _life_spacing),
             _y
         );
     }
