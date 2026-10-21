@@ -3,3 +3,4 @@ radius = 48; // distância que a luz atinge
 ring_alpha = 0.5; // força da iluminação da luz
 rings = 10; // número de círculos de luz que o objeto emite
 shape = SHAPE.CIRCLE
+on = true; // luz acesa
