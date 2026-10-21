@@ -47,8 +47,8 @@
   },
   "origin":9,
   "parent":{
-    "name":"EnemyMovement",
-    "path":"folders/Sprites/Enemies/EnemyMovement.yy",
+    "name":"Movement",
+    "path":"folders/Sprites/Enemies/Enemy_Chaser/Movement.yy",
   },
   "preMultiplyAlpha":false,
   "resourceType":"GMSprite",
