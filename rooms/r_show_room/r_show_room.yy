@@ -78,6 +78,7 @@
     {"name":"inst_37863E1A","path":"rooms/r_show_room/r_show_room.yy",},
     {"name":"inst_4CCC1C1C","path":"rooms/r_show_room/r_show_room.yy",},
     {"name":"inst_22881DDE","path":"rooms/r_show_room/r_show_room.yy",},
+    {"name":"inst_4FB34E57","path":"rooms/r_show_room/r_show_room.yy",},
   ],
   "isDnd":false,
   "layers":[
@@ -216,6 +217,7 @@
         {"$GMRInstance":"v4","%Name":"inst_4F37EB73","colour":4294967295,"frozen":false,"hasCreationCode":false,"ignore":false,"imageIndex":0,"imageSpeed":1.0,"inheritCode":false,"inheritedItemId":null,"inheritItemSettings":false,"isDnd":false,"name":"inst_4F37EB73","objectId":{"name":"obj_chaser","path":"objects/obj_chaser/obj_chaser.yy",},"properties":[],"resourceType":"GMRInstance","resourceVersion":"2.0","rotation":0.0,"scaleX":1.0,"scaleY":1.0,"x":269.5,"y":287.0,},
         {"$GMRInstance":"v4","%Name":"inst_4CCC1C1C","colour":4294967295,"frozen":false,"hasCreationCode":false,"ignore":false,"imageIndex":0,"imageSpeed":1.0,"inheritCode":false,"inheritedItemId":null,"inheritItemSettings":false,"isDnd":false,"name":"inst_4CCC1C1C","objectId":{"name":"obj_lighting","path":"objects/obj_lighting/obj_lighting.yy",},"properties":[],"resourceType":"GMRInstance","resourceVersion":"2.0","rotation":0.0,"scaleX":1.0,"scaleY":1.0,"x":0.0,"y":16.0,},
         {"$GMRInstance":"v4","%Name":"inst_22881DDE","colour":4294967295,"frozen":false,"hasCreationCode":false,"ignore":false,"imageIndex":0,"imageSpeed":1.0,"inheritCode":false,"inheritedItemId":null,"inheritItemSettings":false,"isDnd":false,"name":"inst_22881DDE","objectId":{"name":"obj_player_natural_light","path":"objects/obj_player_natural_light/obj_player_natural_light.yy",},"properties":[],"resourceType":"GMRInstance","resourceVersion":"2.0","rotation":0.0,"scaleX":1.0,"scaleY":1.0,"x":320.0,"y":64.0,},
+        {"$GMRInstance":"v4","%Name":"inst_4FB34E57","colour":4294967295,"frozen":false,"hasCreationCode":false,"ignore":false,"imageIndex":0,"imageSpeed":1.0,"inheritCode":false,"inheritedItemId":null,"inheritItemSettings":false,"isDnd":false,"name":"inst_4FB34E57","objectId":{"name":"obj_life_points","path":"objects/obj_life_points/obj_life_points.yy",},"properties":[],"resourceType":"GMRInstance","resourceVersion":"2.0","rotation":0.0,"scaleX":1.0,"scaleY":1.0,"x":0.0,"y":-2.0,},
       ],"layers":[],"name":"Instances","properties":[],"resourceType":"GMRInstanceLayer","resourceVersion":"2.0","userdefinedDepth":false,"visible":true,},
     {"$GMRTileLayer":"","%Name":"DecorLayer","depth":300,"effectEnabled":true,"effectType":null,"gridX":32,"gridY":32,"hierarchyFrozen":false,"inheritLayerDepth":false,"inheritLayerSettings":false,"inheritSubLayers":true,"inheritVisibility":true,"layers":[],"name":"DecorLayer","properties":[],"resourceType":"GMRTileLayer","resourceVersion":"2.0","tiles":{"SerialiseHeight":48,"SerialiseWidth":86,"TileCompressedData":[
           1,-2147483648,-27,214,2,-2147483648,145,-57,-2147483648,1,189,-3,-2147483648,4,208,-2147483648,-2147483648,
