@@ -2,7 +2,6 @@ event_inherited();
 
 //vision params
 IDLE_VISION_RANGE = 50;
-CHASE_VISION_RANGE = [80, 125];
 
 //movement params
 VEL = 1.0;

@@ -26,7 +26,7 @@
   "origin":4,
   "parent":{
     "name":"ItemsPlayer",
-    "path":"folders/Sprites/ItemsPlayer.yy",
+    "path":"folders/Sprites/Player/ItemsPlayer.yy",
   },
   "preMultiplyAlpha":false,
   "resourceType":"GMSprite",
