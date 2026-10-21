@@ -1,7 +1,14 @@
+if (life_points <= 0) {
+    life_points = 0;
+	persistent = false;
+    room_goto(r_game_over);
+    exit;
+}
+
 if (fade > 0)
 {
-    fade -= 0.05;
-    if (fade <= 0) frozen = false;
+	fade -= 0.05;
+	if (fade <= 0) frozen = false;
 }
 if (frozen) exit;
 

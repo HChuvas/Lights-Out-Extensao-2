@@ -10,3 +10,4 @@ light = instance_create_layer(x, y, "Instances", obj_light_cone);
 light.on = false;
 frozen = false;
 fade = 0;
+display_set_gui_size(1280, 720);

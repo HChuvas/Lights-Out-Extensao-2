@@ -62,7 +62,7 @@
           -2,1,-107,-2147483648,-2,1,-28,-2147483648,-2,1,-30,-2147483648,-2,1,-107,-2147483648,-2,1,-28,-2147483648,
           -2,1,-30,-2147483648,-2,1,-107,-2147483648,-2,1,-28,-2147483648,-2,1,-30,-2147483648,-2,1,-107,-2147483648,
           -64,1,-107,-2147483648,-64,1,-2803,-2147483648,
-        ],"TileDataFormat":1,},"tilesetId":{"name":"collision_tile_set","path":"tilesets/collision_tile_set/collision_tile_set.yy",},"userdefinedDepth":false,"visible":true,"x":0,"y":0,},
+        ],"TileDataFormat":1,},"tilesetId":{"name":"collision_tile_set","path":"tilesets/collision_tile_set/collision_tile_set.yy",},"userdefinedDepth":false,"visible":false,"x":0,"y":0,},
     {"$GMRInstanceLayer":"","%Name":"Instances","depth":200,"effectEnabled":true,"effectType":null,"gridX":32,"gridY":32,"hierarchyFrozen":false,"inheritLayerDepth":false,"inheritLayerSettings":false,"inheritSubLayers":true,"inheritVisibility":true,"instances":[
         {"$GMRInstance":"v4","%Name":"inst_262FA674","colour":4294967295,"frozen":false,"hasCreationCode":false,"ignore":false,"imageIndex":0,"imageSpeed":1.0,"inheritCode":false,"inheritedItemId":null,"inheritItemSettings":false,"isDnd":false,"name":"inst_262FA674","objectId":{"name":"obj_stage_switch","path":"objects/obj_stage_switch/obj_stage_switch.yy",},"properties":[
             {"$GMOverriddenProperty":"v1","%Name":"","name":"","objectId":{"name":"obj_stage_switch","path":"objects/obj_stage_switch/obj_stage_switch.yy",},"propertyId":{"name":"x_pos","path":"objects/obj_stage_switch/obj_stage_switch.yy",},"resourceType":"GMOverriddenProperty","resourceVersion":"2.0","value":"376",},
