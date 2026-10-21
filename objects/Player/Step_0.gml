@@ -1,3 +1,10 @@
+if (fade > 0)
+{
+    fade -= 0.05;
+    if (fade <= 0) frozen = false;
+}
+if (frozen) exit;
+
 var _right = keyboard_check(vk_right) || keyboard_check(ord("D"));
 var _left = keyboard_check(vk_left) || keyboard_check(ord("A"));
 var _up = keyboard_check(vk_up) || keyboard_check(ord("W"));

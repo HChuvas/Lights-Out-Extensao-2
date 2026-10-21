@@ -8,6 +8,7 @@
   "instanceCreationOrder":[
     {"name":"inst_74B237D5","path":"rooms/r_starting_room/r_starting_room.yy",},
     {"name":"inst_603261E0","path":"rooms/r_starting_room/r_starting_room.yy",},
+    {"name":"inst_661DB026","path":"rooms/r_starting_room/r_starting_room.yy",},
     {"name":"inst_6EDB95C9","path":"rooms/r_starting_room/r_starting_room.yy",},
     {"name":"inst_2A2C63DD","path":"rooms/r_starting_room/r_starting_room.yy",},
   ],

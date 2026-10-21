@@ -64,6 +64,7 @@
     {"id":{"name":"obj_player_natural_light","path":"objects/obj_player_natural_light/obj_player_natural_light.yy",},},
     {"id":{"name":"obj_sleepy","path":"objects/obj_sleepy/obj_sleepy.yy",},},
     {"id":{"name":"obj_stage_switch","path":"objects/obj_stage_switch/obj_stage_switch.yy",},},
+    {"id":{"name":"obj_title","path":"objects/obj_title/obj_title.yy",},},
     {"id":{"name":"obj_wall","path":"objects/obj_wall/obj_wall.yy",},},
     {"id":{"name":"obj_water_cup","path":"objects/obj_water_cup/obj_water_cup.yy",},},
     {"id":{"name":"Player","path":"objects/Player/Player.yy",},},
@@ -71,6 +72,7 @@
     {"id":{"name":"r_middle_room","path":"rooms/r_middle_room/r_middle_room.yy",},},
     {"id":{"name":"r_show_room","path":"rooms/r_show_room/r_show_room.yy",},},
     {"id":{"name":"r_starting_room","path":"rooms/r_starting_room/r_starting_room.yy",},},
+    {"id":{"name":"r_title","path":"rooms/r_title/r_title.yy",},},
     {"id":{"name":"TesteRoom","path":"rooms/TesteRoom/TesteRoom.yy",},},
     {"id":{"name":"alert_nearest_enemy","path":"scripts/alert_nearest_enemy/alert_nearest_enemy.yy",},},
     {"id":{"name":"draw_raycasting_pov","path":"scripts/draw_raycasting_pov/draw_raycasting_pov.yy",},},
@@ -137,6 +139,7 @@
   "resourceType":"GMProject",
   "resourceVersion":"2.0",
   "RoomOrderNodes":[
+    {"roomId":{"name":"r_title","path":"rooms/r_title/r_title.yy",},},
     {"roomId":{"name":"r_show_room","path":"rooms/r_show_room/r_show_room.yy",},},
     {"roomId":{"name":"r_starting_room","path":"rooms/r_starting_room/r_starting_room.yy",},},
     {"roomId":{"name":"TesteRoom","path":"rooms/TesteRoom/TesteRoom.yy",},},
