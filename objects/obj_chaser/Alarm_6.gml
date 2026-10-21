@@ -1,2 +1,2 @@
 change_sprite();
-alarm[6] = 5;
+alarm[6] = 2;

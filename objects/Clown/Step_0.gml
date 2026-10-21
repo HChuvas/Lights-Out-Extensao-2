@@ -111,3 +111,4 @@ switch (state) {
 }
 
 update_anim();
+enemy_separation();

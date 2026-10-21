@@ -31,7 +31,7 @@ var _height = bbox_bottom - bbox_top + 1;
 	}
 	
 	ATTACKING = true;
-	alarm[4] = ATTACK_DURATION_TIME * fps;
+	alarm[4] = ATTACK_DURATION_TIME;
 } else {
 	ATTACKING = false;
 	VEL = 1;

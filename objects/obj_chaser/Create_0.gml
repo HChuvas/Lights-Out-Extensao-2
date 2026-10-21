@@ -11,8 +11,8 @@ direction = 0;
 
 //stamina param
 STAMINA = 1.0;
-MAX_STAMINA = 1.0;
-REST_REGEN = 0.5;
+MAX_STAMINA = 2.0;
+REST_REGEN = 0.15;
 
 //states params
 enum CHASER_STATES {
@@ -31,7 +31,7 @@ MAX_PATROL_TIME_DURATION = 2;		//max time doing a patrol / avoid patrol to too l
 PERCEPTION_INTEVAL_TIME = 0.5;		//time inteval to do a perception / avoid calling the perception funtion each step
 REST_INTEVAL_TIME = 0.5;		//time inteval to rest_regen stamina / avoid regen stamina per step
 ATTACK_DELAY_TIME = 0.2;		//DUH  / avoid apam attacks
-ATTACK_DURATION_TIME = 0.65  //time to use the sprite animation 
+ATTACK_DURATION_TIME = 40;  //time to use the sprite animation 
 
 //attack params
 ATTACK_DAMAGE = 1;
@@ -50,8 +50,9 @@ alarm[3] = -1;
 alarm[4] = -1;
 //alarm to rest state
 alarm[5] = -1;
-//alarm to sprint change
-alarm[6] = 3;
+//alarm to sprite change
+alarm[6] = 2;
+last_sprite = spr_evil_kid_idle_down;
 
 //path var
 my_path = path_add();
@@ -228,7 +229,6 @@ function path_move(target_x = noone, target_y = noone){
 	}
 }
 
-// funções do alerta
 
 can_hear_alert = function() {
     return CURRENT_STATE == CHASER_STATES.WATCH
@@ -256,7 +256,7 @@ hear_alert = function(_x, _y) {
 function change_sprite() {
 
     var _dir;
-
+	var _new_sprite;
     if (direction > 315 or direction <= 45) {  _dir = "right"; }
     else if (direction <= 135) { _dir = "up"; }
     else if (direction <= 225) { _dir = "left"; }
@@ -265,38 +265,43 @@ function change_sprite() {
     switch (CURRENT_STATE) {
         case CHASER_STATES.ATTACK:
             switch (_dir) {
-                case "right": sprite_index = spr_evil_kid_attack_right; break;
-                case "up":    sprite_index = spr_evil_kid_attack_up;    break;
-                case "left":  sprite_index = spr_evil_kid_attack_left;  break;
-                case "down":  sprite_index = spr_evil_kid_attack_down;  break;
+                case "right": _new_sprite = spr_evil_kid_attack_right; break;
+                case "up":    _new_sprite = spr_evil_kid_attack_up;    break;
+                case "left":  _new_sprite = spr_evil_kid_attack_left;  break;
+                case "down":  _new_sprite = spr_evil_kid_attack_down;  break;
             }
             break;
 
         case CHASER_STATES.REST:
             switch (_dir) {
-                case "right": sprite_index = spr_evil_kid_idle_right; break;
-                case "up":    sprite_index = spr_evil_kid_idle_up;    break;
-                case "left":  sprite_index = spr_evil_kid_idle_left;  break;
-                case "down":  sprite_index = spr_evil_kid_idle_down;  break;
+                case "right": _new_sprite = spr_evil_kid_idle_right; break;
+                case "up":    _new_sprite = spr_evil_kid_idle_up;    break;
+                case "left":  _new_sprite = spr_evil_kid_idle_left;  break;
+                case "down":  _new_sprite = spr_evil_kid_idle_down;  break;
             }
             break;
 
         case CHASER_STATES.WATCH:
             switch (_dir) {
-                case "right": sprite_index = spr_evil_kid_idle_right; break;
-                case "up":    sprite_index = spr_evil_kid_idle_up;    break;
-                case "left":  sprite_index = spr_evil_kid_idle_left;  break;
-                case "down":  sprite_index = spr_evil_kid_idle_down;  break;
+                case "right": _new_sprite = spr_evil_kid_idle_right; break;
+                case "up":    _new_sprite = spr_evil_kid_idle_up;    break;
+                case "left":  _new_sprite = spr_evil_kid_idle_left;  break;
+                case "down":  _new_sprite = spr_evil_kid_idle_down;  break;
             }
             break;
 
         default: 
             switch (_dir) {
-                case "right": sprite_index = spr_evil_kid_walk_right; break;
-                case "up":    sprite_index = spr_evil_kid_walk_up;    break;
-                case "left":  sprite_index = spr_evil_kid_walk_left;  break;
-                case "down":  sprite_index = spr_evil_kid_walk_down;  break;
+                case "right": _new_sprite = spr_evil_kid_walk_right; break;
+                case "up":    _new_sprite = spr_evil_kid_walk_up;    break;
+                case "left":  _new_sprite = spr_evil_kid_walk_left;  break;
+                case "down":  _new_sprite = spr_evil_kid_walk_down;  break;
             }
             break;
     }
+	
+	if ( _new_sprite != last_sprite ){
+		sprite_index = _new_sprite;
+		last_sprite = _new_sprite;
+	}
 }
