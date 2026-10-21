@@ -121,6 +121,7 @@
     {"id":{"name":"spr_light_cone","path":"sprites/spr_light_cone/spr_light_cone.yy",},},
     {"id":{"name":"spr_wall","path":"sprites/spr_wall/spr_wall.yy",},},
     {"id":{"name":"spr_water_cup","path":"sprites/spr_water_cup/spr_water_cup.yy",},},
+    {"id":{"name":"Sprite49","path":"sprites/Sprite49/Sprite49.yy",},},
     {"id":{"name":"collision_tile_set","path":"tilesets/collision_tile_set/collision_tile_set.yy",},},
     {"id":{"name":"Home1","path":"tilesets/Home1/Home1.yy",},},
     {"id":{"name":"ts_decoracoes_luz_1","path":"tilesets/ts_decoracoes_luz_1/ts_decoracoes_luz_1.yy",},},

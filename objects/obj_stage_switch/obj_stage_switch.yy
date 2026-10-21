@@ -34,8 +34,8 @@
   "resourceVersion":"2.0",
   "solid":false,
   "spriteId":{
-    "name":"spr_grey",
-    "path":"sprites/spr_grey/spr_grey.yy",
+    "name":"Sprite49",
+    "path":"sprites/Sprite49/Sprite49.yy",
   },
   "spriteMaskId":null,
   "visible":true,
