@@ -12,6 +12,7 @@ if ((_hspd != 0 || _vspd != 0) && item_held == "")
     var _rx = round(x), _ry = round(y);
     if (!place_meeting(_rx, _ry, [wall_map, collision_map, Clown, Balloon])) { x = _rx; y = _ry; }
     light.x = x; light.y = y;
+    glow.x = x; glow.y = y;
 }
 
 var _still_held = (facing == "right" && _hspd > 0)
@@ -61,3 +62,6 @@ else
 {
 	item_held = ""
 }
+
+// lanterna só acende enquanto o item é usado
+light.on = (item_held == "flashlight");
