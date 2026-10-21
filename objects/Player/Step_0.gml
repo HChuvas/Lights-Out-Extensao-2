@@ -5,6 +5,12 @@ if (fade > 0)
 }
 if (frozen) exit;
 
+if (life_points <= 0) {
+    life_points = 0;
+    room_goto(r_game_over);
+    exit;
+}
+
 var _right = keyboard_check(vk_right) || keyboard_check(ord("D"));
 var _left = keyboard_check(vk_left) || keyboard_check(ord("A"));
 var _up = keyboard_check(vk_up) || keyboard_check(ord("W"));

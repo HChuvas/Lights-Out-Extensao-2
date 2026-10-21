@@ -10,3 +10,15 @@ if (_a > 0)
     draw_set_alpha(1);
     draw_set_color(c_white);
 }
+
+var health_remaining = clamp(life_points, 0, 3);
+var heart_size = 32;
+var heart_spacing = 8;
+var margin = 24;
+
+for (var heart_index = 0; heart_index < 3; heart_index++) {
+    var heart_sprite = heart_index < health_remaining
+        ? spr_moon_heart : spr_empty_moon_heart;
+    var heart_x = margin + heart_index * (heart_size + heart_spacing);
+    draw_sprite_stretched(heart_sprite, 0, heart_x, margin, heart_size, heart_size);
+}
