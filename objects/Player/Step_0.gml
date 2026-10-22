@@ -1,5 +1,14 @@
 if (life_points <= 0) {
     life_points = 0;
+    persistent = false;
+    audio_stop_sound(ambient_sound);
+    audio_play_sound(death_sound, 1, false);
+    room_goto(r_game_over);
+    exit;
+}
+
+if (life_points <= 0) {
+    life_points = 0;
 	persistent = false;
     room_goto(r_game_over);
     exit;
@@ -78,6 +87,8 @@ else
 }
 
 // lanterna só acende enquanto o item é usado
-light.on = (item_held == "flashlight");
+var _lantern_on = (item_held == "flashlight");
+if (_lantern_on && !light.on) audio_play_sound(lantern_activate, 1, false);
+light.on = _lantern_on;
 
 aply_i_frames();

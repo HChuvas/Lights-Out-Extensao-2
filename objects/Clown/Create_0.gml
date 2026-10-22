@@ -402,6 +402,7 @@ call_enemy = function() {
 }
 
 start_flee = function() {
+	audio_play_sound(clown_scream, 1, false);
     on_path = false;
     flee_timer = flee_time;
     repath_t = 0;

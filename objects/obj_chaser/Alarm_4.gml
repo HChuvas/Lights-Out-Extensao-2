@@ -1,5 +1,5 @@
 if (!ATTACKING){
-	
+	audio_play_sound(chaser_attack, 1, false);
 	var _attack_data =  {
     owner: id,
     damage: ATTACK_DAMAGE,

@@ -1,0 +1,26 @@
+{
+  "$GMSound":"v2",
+  "%Name":"damage_sound3",
+  "audioGroupId":{
+    "name":"audiogroup_default",
+    "path":"audiogroups/audiogroup_default",
+  },
+  "bitDepth":1,
+  "channelFormat":0,
+  "compression":0,
+  "compressionQuality":4,
+  "conversionMode":0,
+  "duration":0.35371882,
+  "exportDir":"",
+  "name":"damage_sound3",
+  "parent":{
+    "name":"Sounds",
+    "path":"folders/Sounds.yy",
+  },
+  "preload":false,
+  "resourceType":"GMSound",
+  "resourceVersion":"2.0",
+  "sampleRate":44100,
+  "soundFile":"damage_sound3.mp3",
+  "volume":0.6,
+}

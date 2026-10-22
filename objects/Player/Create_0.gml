@@ -25,6 +25,7 @@ function aply_i_frames(){
 	if (!hited){return}
 	hited = false;
 	imune = true;
+	audio_play_sound(choose(damage_sound1, damage_sound2, damage_sound3), 1, false);
 	image_alpha = 0.5;
 
 	alarm[0] = tps / 2.5;
