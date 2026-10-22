@@ -47,7 +47,7 @@ wd_y = y;
 wd_t = 0;
 
 // Alerta
-alert_radius = 300;
+alert_radius = 500;
 alert_cd_time = 5 * tps; 
 alert_cd = 0;
 

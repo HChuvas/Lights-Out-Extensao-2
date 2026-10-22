@@ -1,2 +1,2 @@
 popping = false;
-alert_radius = 300;
+alert_radius = 700;
