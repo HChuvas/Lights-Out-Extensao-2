@@ -1,3 +1,5 @@
+if keyboard_check(ord("L")) game_restart();
+
 if (life_points <= 0) {
     life_points = 0;
     persistent = false;

@@ -22,5 +22,5 @@
   "resourceVersion":"2.0",
   "sampleRate":44100,
   "soundFile":"clown_scream.mp3",
-  "volume":0.6,
+  "volume":0.3,
 }
