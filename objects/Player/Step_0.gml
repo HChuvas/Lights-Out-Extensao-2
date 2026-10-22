@@ -79,3 +79,5 @@ else
 
 // lanterna só acende enquanto o item é usado
 light.on = (item_held == "flashlight");
+
+aply_i_frames();
