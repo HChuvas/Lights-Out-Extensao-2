@@ -22,6 +22,7 @@
     {"$GMSpriteFrame":"v1","%Name":"42e22703-6706-442c-aaca-5bda3ec6c6b0","name":"42e22703-6706-442c-aaca-5bda3ec6c6b0","resourceType":"GMSpriteFrame","resourceVersion":"2.0",},
     {"$GMSpriteFrame":"v1","%Name":"fd6bd17d-61be-4e4e-a9cf-0787947141aa","name":"fd6bd17d-61be-4e4e-a9cf-0787947141aa","resourceType":"GMSpriteFrame","resourceVersion":"2.0",},
     {"$GMSpriteFrame":"v1","%Name":"1ccbb4eb-6183-4438-8259-699baed9dba6","name":"1ccbb4eb-6183-4438-8259-699baed9dba6","resourceType":"GMSpriteFrame","resourceVersion":"2.0",},
+    {"$GMSpriteFrame":"v1","%Name":"fb772d14-27d4-4fe0-8774-2e2e07c928d3","name":"fb772d14-27d4-4fe0-8774-2e2e07c928d3","resourceType":"GMSpriteFrame","resourceVersion":"2.0",},
     {"$GMSpriteFrame":"v1","%Name":"7838ab40-6717-431b-8cb1-f60edb5640a5","name":"7838ab40-6717-431b-8cb1-f60edb5640a5","resourceType":"GMSpriteFrame","resourceVersion":"2.0",},
   ],
   "gridX":0,
@@ -59,7 +60,7 @@
     },
     "eventStubScript":null,
     "eventToFunction":{},
-    "length":11.0,
+    "length":12.0,
     "lockOrigin":false,
     "moments":{
       "$KeyframeStore<MomentsEventKeyframe>":"",
@@ -109,8 +110,11 @@
                 "0":{"$SpriteFrameKeyframe":"","Id":{"name":"1ccbb4eb-6183-4438-8259-699baed9dba6","path":"sprites/spr_balloon_pop/spr_balloon_pop.yy",},"resourceType":"SpriteFrameKeyframe","resourceVersion":"2.0",},
               },"Disabled":false,"id":"83a89243-49f3-4d55-a6bd-e2b6fa1d7c1e","IsCreationKey":false,"Key":9.0,"Length":1.0,"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"2.0","Stretch":false,},
             {"$Keyframe<SpriteFrameKeyframe>":"","Channels":{
+                "0":{"$SpriteFrameKeyframe":"","Id":{"name":"fb772d14-27d4-4fe0-8774-2e2e07c928d3","path":"sprites/spr_balloon_pop/spr_balloon_pop.yy",},"resourceType":"SpriteFrameKeyframe","resourceVersion":"2.0",},
+              },"Disabled":false,"id":"32727881-bc60-4800-8c1b-f4b259234a9c","IsCreationKey":false,"Key":10.0,"Length":1.0,"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"2.0","Stretch":false,},
+            {"$Keyframe<SpriteFrameKeyframe>":"","Channels":{
                 "0":{"$SpriteFrameKeyframe":"","Id":{"name":"7838ab40-6717-431b-8cb1-f60edb5640a5","path":"sprites/spr_balloon_pop/spr_balloon_pop.yy",},"resourceType":"SpriteFrameKeyframe","resourceVersion":"2.0",},
-              },"Disabled":false,"id":"c4613ed4-d4cf-4071-8989-ffd9cc4a576f","IsCreationKey":false,"Key":10.0,"Length":1.0,"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"2.0","Stretch":false,},
+              },"Disabled":false,"id":"c4613ed4-d4cf-4071-8989-ffd9cc4a576f","IsCreationKey":false,"Key":11.0,"Length":1.0,"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"2.0","Stretch":false,},
           ],"resourceType":"KeyframeStore<SpriteFrameKeyframe>","resourceVersion":"2.0",},"modifiers":[],"name":"frames","resourceType":"GMSpriteFramesTrack","resourceVersion":"2.0","spriteId":null,"trackColour":0,"tracks":[],"traits":0,},
     ],
     "visibleRange":null,
