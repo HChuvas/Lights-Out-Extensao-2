@@ -59,7 +59,7 @@ function procgen_config() {
             [[3, 4, 5, 11, 12, 13, 19, 20, 21]],
             [],
             [[96, 97, 98, 104, 105, 106, 112, 113, 114]], // sala de jantar
-            [[48, 49, 50, 56, 57, 58, 64, 65, 66]],       // escritório
+            [[48, 49, 50, 56, 57, 58, 64, 65, 66]], // escritório
             []
         ],
 
@@ -93,10 +93,8 @@ function procgen_config() {
         exit_y: _last ? 544 : -1,
 
         // inimigos
-        chasers: 1,
-        clowns: 1,
-        rooms_per_chaser: 6, // +1 chaser a cada 6 salas
-        rooms_per_clown: 8, // +1 palhaço a cada 8 salas 
+        chasers: [1, 2, 3][_f - 1],
+        clowns:  [1, 1, 2][_f - 1],
 
         // itens espalhados
         items: [
@@ -233,7 +231,8 @@ function procgen_try(_cfg) {
         start: undefined, goal: undefined, // entrada e saída 
         seed: 0, attempt: 0,
         ox: 0, oy: 0, cell: _cfg.cell,
-        mismatch: []
+        mismatch: [],
+        walk: [] // células que o jogador realmente alcança
     };
     ds_grid_clear(_plan.decor, 0);
     ds_grid_clear(_plan.rug, 0);
@@ -251,7 +250,10 @@ function procgen_try(_cfg) {
         procgen_decorate(_plan, _cfg);
         _ok = procgen_validate_decor(_plan);
     }
-    if (!_ok) ds_grid_clear(_plan.decor, 0);
+    if (!_ok) {
+        ds_grid_clear(_plan.decor, 0);
+        if (!procgen_validate_decor(_plan)) { procgen_destroy(_plan); return undefined; }
+    }
     return _plan;
 }
 
@@ -387,7 +389,8 @@ function procgen_door_near(_plan, _x, _y) {
 }
 
 function procgen_add_door(_plan, _a, _b, _w, _dw) {
-    var _len = min(_dw, _w.hi - _w.lo + 1);
+    if (_w.hi - _w.lo + 1 < _dw) return false;
+    var _len = _dw;
     var _p   = irandom_range(_w.lo, _w.hi - _len + 1);
 
     // confere todas as células da porta antes de abrir
@@ -513,7 +516,7 @@ function procgen_assign_roles(_plan) {
     }
     array_sort(_rest, function(_a, _b) { return (_a.dist != _b.dist) ? (_a.dist - _b.dist) : (_b.area - _a.area); });
 
-    var _extras = clamp(array_length(_rest) - 2, 0, 3); // sempre sobram >= 2 quartos
+    var _extras = clamp(array_length(_rest) - 2, 0, 3); 
     var _kinds = [PG_ROOM.DINING, PG_ROOM.OFFICE, PG_ROOM.STORAGE];
 
     // sala de jantar: de preferência colada na cozinha
@@ -564,36 +567,68 @@ function procgen_validate(_plan) {
 }
 
 
-// depois da decoração, verifica se o chão está livre e a saída ainda é alcançável
-function procgen_validate_decor(_plan) {
-    var _cols = _plan.cols, _rows = _plan.rows, _grid = _plan.grid, _decor = _plan.decor;
-
-    var _total = 0;
+function procgen_walk(_plan) {
+    var _cols = _plan.cols, _rows = _plan.rows;
+    var _free = array_create(_cols * _rows, false);
     for (var _x = 0; _x < _cols; _x++)
         for (var _y = 0; _y < _rows; _y++)
-            if (ds_grid_get(_grid, _x, _y) != PG_TILE.WALL && ds_grid_get(_decor, _x, _y) == 0) _total++;
+            _free[_x + _y * _cols] = (ds_grid_get(_plan.grid, _x, _y) != PG_TILE.WALL) && (ds_grid_get(_plan.decor, _x, _y) == 0);
 
+    // bloco com origem (x, y) ocupa x..x+1, y..y+1
+    var _ok = array_create(_cols * _rows, false);
+    for (var _x = 0; _x < _cols - 1; _x++) {
+        for (var _y = 0; _y < _rows - 1; _y++) {
+            var _i = _x + _y * _cols;
+            _ok[_i] = _free[_i] && _free[_i + 1] && _free[_i + _cols] && _free[_i + _cols + 1];
+        }
+    }
+
+    var _walk = array_create(_cols * _rows, false);
     var _seen = array_create(_cols * _rows, false);
-    var _s = _plan.start.cx + _plan.start.cy * _cols;
-    var _stack = [_s];
-    _seen[_s] = true;
-    var _count = 0;
+    var _stack = [];
+    for (var _a = 0; _a <= 1; _a++) {
+        for (var _b = 0; _b <= 1; _b++) {
+            var _sx = _plan.start.cx - _a, _sy = _plan.start.cy - _b;
+            if (_sx < 0 || _sy < 0) continue;
+            var _s = _sx + _sy * _cols;
+            if (_ok[_s] && !_seen[_s]) { _seen[_s] = true; array_push(_stack, _s); }
+        }
+    }
 
     while (array_length(_stack) > 0) {
         var _p = array_pop(_stack);
-        _count++;
         var _px = _p mod _cols, _py = _p div _cols;
+        _walk[_p] = true; _walk[_p + 1] = true; _walk[_p + _cols] = true; _walk[_p + _cols + 1] = true;
         for (var _d = 0; _d < 4; _d++) {
             var _nx = _px + ((_d == 0) - (_d == 1));
             var _ny = _py + ((_d == 2) - (_d == 3));
-            if (_nx < 0 || _ny < 0 || _nx >= _cols || _ny >= _rows) continue;
+            if (_nx < 0 || _ny < 0 || _nx >= _cols - 1 || _ny >= _rows - 1) continue;
             var _q = _nx + _ny * _cols;
-            if (_seen[_q] || ds_grid_get(_grid, _nx, _ny) == PG_TILE.WALL || ds_grid_get(_decor, _nx, _ny) > 0) continue;
+            if (_seen[_q] || !_ok[_q]) continue;
             _seen[_q] = true;
             array_push(_stack, _q);
         }
     }
-    return (_count == _total) && _seen[_plan.goal.cx + _plan.goal.cy * _cols];
+    return _walk;
+}
+
+// depois da decoração, toda sala e a saída precisam continuar alcançáveis
+function procgen_validate_decor(_plan) {
+    var _walk = procgen_walk(_plan);
+    var _cols = _plan.cols;
+
+    for (var _i = 0; _i < array_length(_plan.rooms); _i++) {
+        var _r = _plan.rooms[_i];
+        var _any = false;
+        for (var _x = _r.x + 1; _x <= _r.x + _r.w - 2 && !_any; _x++)
+            for (var _y = _r.y + 1; _y <= _r.y + _r.h - 2 && !_any; _y++)
+                if (_walk[_x + _y * _cols]) _any = true;
+        if (!_any) return false;
+    }
+    if (!_walk[_plan.goal.cx + _plan.goal.cy * _cols]) return false;
+
+    _plan.walk = _walk;
+    return true;
 }
 
 
@@ -853,14 +888,70 @@ function procgen_cell_to_px(_cell_x, _cell_y, _cfg, _ox, _oy) {
             (_oy + _cell_y) * _cfg.cell + _cfg.cell div 2];
 }
 
-// célula de chão livre dentro da sala
-function procgen_random_free_cell(_plan, _r) {
-    for (var _t = 0; _t < 30; _t++) {
+// célula de chão livre e alcançável dentro da sala
+function procgen_random_free_cell(_plan, _r, _open = false) {
+    for (var _t = 0; _t < 40; _t++) {
         var _x = irandom_range(_r.x + 1, _r.x + _r.w - 2);
         var _y = irandom_range(_r.y + 1, _r.y + _r.h - 2);
-        if (ds_grid_get(_plan.grid, _x, _y) == PG_TILE.FLOOR && ds_grid_get(_plan.decor, _x, _y) == 0) return [_x, _y];
+        if (ds_grid_get(_plan.grid, _x, _y) != PG_TILE.FLOOR) continue;
+        if (!_plan.walk[_x + _y * _plan.cols]) continue;
+        if (_open && !procgen_cell_open(_plan, _x, _y)) continue;
+        return [_x, _y];
     }
     return undefined;
+}
+
+function procgen_cell_open(_plan, _x, _y) {
+    for (var _dx = -1; _dx <= 1; _dx++) {
+        for (var _dy = -1; _dy <= 1; _dy++) {
+            var _nx = _x + _dx, _ny = _y + _dy;
+            if (_nx < 0 || _ny < 0 || _nx >= _plan.cols || _ny >= _plan.rows) return false;
+            if (!_plan.walk[_nx + _ny * _plan.cols]) return false;
+        }
+    }
+    return true;
+}
+
+
+// ============================================================================
+//  INIMIGOS
+// ============================================================================
+
+function enemy_blocked_at(_x, _y) {
+    if (place_meeting(_x, _y, obj_obstacle)) return true;
+    for (var _i = 0; _i < array_length(global.solid_maps); _i++) {
+        if (place_meeting(_x, _y, global.solid_maps[_i])) return true;
+    }
+    return false;
+}
+
+function enemy_unstick(_max_r = 48) {
+    if (!enemy_blocked_at(x, y)) return true;
+    for (var _r = 2; _r <= _max_r; _r += 2) {
+        for (var _a = 0; _a < 360; _a += 30) {
+            var _nx = x + lengthdir_x(_r, _a);
+            var _ny = y + lengthdir_y(_r, _a);
+            if (!enemy_blocked_at(_nx, _ny)) { x = _nx; y = _ny; return true; }
+        }
+    }
+    return false;
+}
+
+// cria o inimigo numa célula aberta e confere a máscara real dele
+function procgen_spawn_enemy(_obj, _plan, _cfg, _ox, _oy, _rooms) {
+    for (var _t = 0; _t < 30; _t++) {
+        var _room = _rooms[irandom(array_length(_rooms) - 1)];
+        var _c = procgen_random_free_cell(_plan, _room, true);
+        if (is_undefined(_c)) continue;
+
+        var _p = procgen_cell_to_px(_c[0], _c[1], _cfg, _ox, _oy);
+        var _e = instance_create_layer(_p[0], _p[1], "Instances", _obj);
+        var _fits = false;
+        with (_e) _fits = enemy_unstick();
+        if (_fits) return _e;
+        instance_destroy(_e);
+    }
+    return noone;
 }
 
 

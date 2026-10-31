@@ -3,9 +3,12 @@ if (!variable_global_exists("cell") || !variable_global_exists("solid_maps")) ex
 
 // Cria o grid uma vez
 if (!ready) {
+    enemy_unstick();
     build_grid();
     ready = true;
 }
+
+if (hits_wall(x, y) && enemy_unstick()) on_path = false;
 
 // Atualizações por frame
 arm_cooldown = max(0, arm_cooldown - 1);
@@ -112,3 +115,5 @@ switch (state) {
 
 update_anim();
 enemy_separation();
+last_x = x;
+last_y = y;

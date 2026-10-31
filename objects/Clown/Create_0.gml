@@ -59,6 +59,10 @@ walk_t = 0;
 last_x = x;
 last_y = y;
 
+mask_spr = spr_clown_idle_down;
+mask_cx = (sprite_get_bbox_left(mask_spr) + sprite_get_bbox_right(mask_spr)) / 2 - sprite_get_xoffset(mask_spr);
+mask_bottom = sprite_get_bbox_bottom(mask_spr) - sprite_get_yoffset(mask_spr);
+
 spr_idle = {
     down:  spr_clown_idle_down,
     left:  spr_clown_idle_left,
@@ -82,9 +86,29 @@ rows = 0;
 
 // Métodos
 
+// Conserta o moonwalk
+update_face = function(_dx, _dy) {
+    var _ax = abs(_dx);
+    var _ay = abs(_dy);
+    var _horiz = (face == "left" || face == "right");
+
+    if (_horiz && _ay > _ax * 1.5) _horiz = false;
+    else if (!_horiz && _ax > _ay * 1.5) _horiz = true;
+
+    if (_horiz) face = (_dx >= 0) ? "right" : "left";
+    else        face = (_dy >= 0) ? "down" : "up";
+}
+
 update_anim = function() {
-    if (point_distance(x, y, last_x, last_y) > 0.1) walk_t = 8;
-    else walk_t = max(0, walk_t - 1);
+    var _dx = x - last_x;
+    var _dy = y - last_y;
+
+    if (point_distance(0, 0, _dx, _dy) > 0.1) {
+        walk_t = 8;
+        update_face(_dx, _dy);
+    } else {
+        walk_t = max(0, walk_t - 1);
+    }
     last_x = x;
     last_y = y;
 
@@ -138,12 +162,29 @@ build_grid = function() {
 
     if (grid != -1) mp_grid_destroy(grid);
     grid = mp_grid_create(0, 0, cols, rows, cell, cell);
+    mp_grid_add_rectangle(grid, 0, 0, room_width - 1, room_height - 1);
 
-    for (var _i = 0; _i < cols; _i++) {
-        for (var _j = 0; _j < rows; _j++) {
-            if (hits_wall(_i * cell + cell / 2, _j * cell + cell / 2)) {
-                mp_grid_add_cell(grid, _i, _j);
-            }
+    var _start = clamp(x div cell, 0, cols - 1) + clamp(y div cell, 0, rows - 1) * cols;
+    var _seen = array_create(cols * rows, false);
+    var _stack = [_start];
+    _seen[_start] = true;
+
+    while (array_length(_stack) > 0) {
+        var _p = array_pop(_stack);
+        var _i = _p mod cols;
+        var _j = _p div cols;
+
+        if (_p != _start && hits_wall(_i * cell + cell / 2, _j * cell + cell / 2)) continue;
+        mp_grid_clear_cell(grid, _i, _j);
+
+        for (var _d = 0; _d < 4; _d++) {
+            var _ni = _i + ((_d == 0) - (_d == 1));
+            var _nj = _j + ((_d == 2) - (_d == 3));
+            if (_ni < 0 || _nj < 0 || _ni >= cols || _nj >= rows) continue;
+            var _q = _ni + _nj * cols;
+            if (_seen[_q]) continue;
+            _seen[_q] = true;
+            array_push(_stack, _q);
         }
     }
 }
@@ -175,15 +216,7 @@ step_toward = function(_dir, _spd) {
     if (!hits_solid(x + _dx, y)) x += _dx;
     if (!hits_solid(x, y + _dy)) y += _dy;
 
-    var _moved = point_distance(_ox, _oy, x, y) > _spd * 0.3;
-
-    if (_moved) {
-        var _ax = abs(x - _ox);
-        var _ay = abs(y - _oy);
-        if (_ax > _ay * 1.2)      face = (x > _ox) ? "right" : "left";
-        else if (_ay > _ax * 1.2) face = (y > _oy) ? "down"  : "up";
-    }
-    return _moved;
+    return point_distance(_ox, _oy, x, y) > _spd * 0.3;
 }
 
 // Anda até um ponto
@@ -208,15 +241,7 @@ step_to_point = function(_tx, _ty, _spd) {
         if (!hits_solid(x, y + _cy)) y += _cy;
     }
 
-    var _moved = point_distance(_ox, _oy, x, y) > _spd * 0.3;
-
-    if (_moved) {
-        var _ax = abs(x - _ox);
-        var _ay = abs(y - _oy);
-        if (_ax > _ay * 1.2)      face = (x > _ox) ? "right" : "left";
-        else if (_ay > _ax * 1.2) face = (y > _oy) ? "down"  : "up";
-    }
-    return _moved;
+    return point_distance(_ox, _oy, x, y) > _spd * 0.3;
 }
 
 abandon_goal = function() {

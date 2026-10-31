@@ -16,6 +16,8 @@ oy = ((room_height div cfg.cell) - cfg.rows) div 2;
 
 // tiles e colisão
 procgen_apply(plan, cfg, ox, oy);
+// móveis atrás dos instances: o palhaço (sprite alto) não pode ficar escondido atrás de móvel
+if (layer_exists("Decor")) layer_depth("Decor", 350);
 plan.ox = ox;
 plan.oy = oy;
 procgen_verify_applied(plan, cfg, ox, oy);
@@ -60,54 +62,36 @@ if (array_length(_spawn_rooms) == 0) {
     for (var _i = 0; _i < array_length(plan.rooms); _i++) if (plan.rooms[_i].dist >= 1) array_push(_spawn_rooms, plan.rooms[_i]);
 }
 if (array_length(_spawn_rooms) > 0) {
-    // quantidade escala com o tamanho do andar
-    var _n_rooms   = array_length(plan.rooms);
-    var _n_chasers = max(cfg.chasers, _n_rooms div cfg.rooms_per_chaser);
-    var _n_clowns  = max(cfg.clowns,  _n_rooms div cfg.rooms_per_clown);
+    // quantidade definida por andar no cfg
+    var _n_chasers = cfg.chasers;
+    var _n_clowns  = cfg.clowns;
 
     var _types = [];
     repeat (_n_chasers) array_push(_types, obj_chaser);
     repeat (_n_clowns)  array_push(_types, Clown);
 
     for (var _e = 0; _e < array_length(_types); _e++) {
-        var _room = _spawn_rooms[irandom(array_length(_spawn_rooms) - 1)];
-        var _c = procgen_random_free_cell(plan, _room);
-        if (is_undefined(_c)) continue;
-        var _p = procgen_cell_to_px(_c[0], _c[1], cfg, ox, oy);
-        instance_create_layer(_p[0], _p[1], "Instances", _types[_e]);
+        procgen_spawn_enemy(_types[_e], plan, cfg, ox, oy, _spawn_rooms);
     }
 }
 
 // itens espalhados
 if (!instance_exists(obj_inventory)) instance_create_layer(0, 0, "Instances", obj_inventory);
 
-var _inv = instance_find(obj_inventory, 0);
-if (_inv != noone) {
-    var _slots = _inv.inventory._items;
-    var _free = 0;
-    var _owned = [];
-    for (var _s = 0; _s < array_length(_slots); _s++) {
-        if (is_undefined(_slots[_s])) _free++;
-        else array_push(_owned, _slots[_s].name);
-    }
+var _drops = [];
+for (var _d = 0; _d < array_length(cfg.items); _d++) {
+    var _def = cfg.items[_d];
+    repeat (_def.count) array_push(_drops, _def.obj);
+}
 
-    // só gera itens se for necessário
-    var _drops = [];
-    for (var _d = 0; _d < array_length(cfg.items) && array_length(_drops) < _free; _d++) {
-        var _def = cfg.items[_d];
-        if (_def.unique && procgen_in(_owned, _def.name)) continue;
-        for (var _q = 0; _q < _def.count && array_length(_drops) < _free; _q++) array_push(_drops, _def.obj);
-    }
+var _cells = procgen_item_cells(plan, array_length(_drops));
+for (var _d = 0; _d < array_length(_cells); _d++) {
+    var _ip = procgen_cell_to_px(_cells[_d][0], _cells[_d][1], cfg, ox, oy);
 
-    var _cells = procgen_item_cells(plan, array_length(_drops));
-    for (var _d = 0; _d < array_length(_cells); _d++) {
-        var _ip = procgen_cell_to_px(_cells[_d][0], _cells[_d][1], cfg, ox, oy);
+    // compensa a origem do sprite para o item ficar centralizado na célula
+    var _spr = object_get_sprite(_drops[_d]);
+    var _ix = _ip[0] - sprite_get_width(_spr) div 2 + sprite_get_xoffset(_spr);
+    var _iy = _ip[1] - sprite_get_height(_spr) div 2 + sprite_get_yoffset(_spr);
 
-        // compensa a origem do sprite para o item ficar centralizado na célula
-        var _spr = object_get_sprite(_drops[_d]);
-        var _ix = _ip[0] - sprite_get_width(_spr) div 2 + sprite_get_xoffset(_spr);
-        var _iy = _ip[1] - sprite_get_height(_spr) div 2 + sprite_get_yoffset(_spr);
-
-        instance_create_layer(_ix, _iy, "Instances", _drops[_d]);
-    }
+    instance_create_layer(_ix, _iy, "Instances", _drops[_d]);
 }
