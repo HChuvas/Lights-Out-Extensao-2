@@ -75,9 +75,12 @@ if (array_length(_spawn_rooms) > 0) {
     }
 }
 
+procgen_spawn_mimics(plan, cfg, ox, oy, cfg.mimics);
+
 // itens espalhados
 if (!instance_exists(obj_inventory)) instance_create_layer(0, 0, "Instances", obj_inventory);
 
+// sempre gera todos os itens do cfg.items, sem olhar o inventário
 var _drops = [];
 for (var _d = 0; _d < array_length(cfg.items); _d++) {
     var _def = cfg.items[_d];

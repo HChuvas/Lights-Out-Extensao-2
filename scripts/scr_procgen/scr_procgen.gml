@@ -95,6 +95,7 @@ function procgen_config() {
         // inimigos
         chasers: [1, 2, 3][_f - 1],
         clowns:  [1, 1, 2][_f - 1],
+		mimics:  [1, 2, 3][_f - 1],
 
         // itens espalhados
         items: [
@@ -231,6 +232,7 @@ function procgen_try(_cfg) {
         start: undefined, goal: undefined, // entrada e saída 
         seed: 0, attempt: 0,
         ox: 0, oy: 0, cell: _cfg.cell,
+        stools: [], // células das cadeiras
         mismatch: [],
         walk: [] // células que o jogador realmente alcança
     };
@@ -252,10 +254,12 @@ function procgen_try(_cfg) {
     }
     if (!_ok) {
         ds_grid_clear(_plan.decor, 0);
+        _plan.stools = [];
         if (!procgen_validate_decor(_plan)) { procgen_destroy(_plan); return undefined; }
     }
     return _plan;
 }
+
 
 function procgen_destroy(_plan) {
     if (is_undefined(_plan)) return;
@@ -636,6 +640,7 @@ function procgen_validate_decor(_plan) {
 // DECORAÇÃO
 // ============================================================================
 function procgen_decorate(_plan, _cfg) {
+    _plan.stools = [];
     var _presets = procgen_presets();
 
     for (var _i = 0; _i < array_length(_plan.rooms); _i++) {
@@ -666,7 +671,10 @@ function procgen_decorate(_plan, _cfg) {
 
                 if (variable_struct_exists(_rule, "flank")) { // banquinhos dos dois lados da mesa
                     for (var _s = -1; _s <= 1; _s += 2) {
-                        if (procgen_cell_free(_plan, _cx + _s, _cy)) ds_grid_set(_plan.decor, _cx + _s, _cy, procgen_prop(_cfg, _rule.flank));
+                        if (procgen_cell_free(_plan, _cx + _s, _cy)) {
+                            ds_grid_set(_plan.decor, _cx + _s, _cy, procgen_prop(_cfg, _rule.flank));
+                            array_push(_plan.stools, [_cx + _s, _cy]);
+                        }
                     }
                 }
             }
@@ -954,6 +962,32 @@ function procgen_spawn_enemy(_obj, _plan, _cfg, _ox, _oy, _rooms) {
     return noone;
 }
 
+// transforma n cadeiras em mímicos
+function procgen_spawn_mimics(_plan, _cfg, _ox, _oy, _n) {
+    var _md = procgen_layer_map(_cfg.layer_decor);
+    if (_md == -1 || _n <= 0) return;
+
+    var _stool = _cfg.props.stool;
+    var _cells = [];
+    for (var _x = 0; _x < _plan.cols; _x++) {
+        for (var _y = 0; _y < _plan.rows; _y++) {
+            if (ds_grid_get(_plan.decor, _x, _y) != _stool) continue;
+            var _p = procgen_cell_to_px(_x, _y, _cfg, _ox, _oy);
+            array_push(_cells, { tx: _ox + _x, ty: _oy + _y, px: _p[0], py: _p[1] });
+        }
+    }
+    if (array_length(_cells) <= _n) return; // precisa de cadeira sobrando pra ele trocar de lugar
+
+    array_shuffle(_cells);
+    var _shared = { cells: _cells, taken: array_create(array_length(_cells), false), map: _md, tile: _stool };
+
+    for (var _i = 0; _i < _n; _i++) {
+        var _c = _cells[_i];
+        _shared.taken[_i] = true;
+        tilemap_set(_md, 0, _c.tx, _c.ty); // tira só o visual, a colisão continua
+        instance_create_layer(_c.px, _c.py, "Instances", obj_mimic, { shared: _shared, cell_i: _i });
+    }
+}
 
 // ============================================================================
 //  DEBUG
@@ -1008,6 +1042,21 @@ function procgen_debug_draw(_plan, _px, _py, _s) {
             var _icy = floor(y / _plan.cell) - _plan.oy;
             draw_circle(_px + _icx*_s + _s/2, _py + _icy*_s + _s/2, max(2, _s * 0.6), false);
         }
+    }
+
+    // branco: cadeira
+    draw_set_color(c_white);
+    for (var _i = 0; _i < array_length(_plan.stools); _i++) {
+        var _c = _plan.stools[_i];
+        draw_rectangle(_px + _c[0]*_s + 1, _py + _c[1]*_s + 1, _px + _c[0]*_s + _s - 2, _py + _c[1]*_s + _s - 2, false);
+    }
+
+    // vermelho: mímico
+    draw_set_color(c_red);
+    with (obj_mimic) {
+        var _mcx = floor(x / _plan.cell) - _plan.ox;
+        var _mcy = floor(y / _plan.cell) - _plan.oy;
+        draw_circle(_px + _mcx*_s + _s/2, _py + _mcy*_s + _s/2, max(2, _s * 0.6), false);
     }
 
     // E = entrada, S = saída
