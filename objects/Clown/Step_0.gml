@@ -29,6 +29,14 @@ if (_see && state != CLOWN.FLEE) {
     exit;
 }
 
+// dá passagem
+if (state != CLOWN.FLEE && !on_path) {
+    var _ch = instance_nearest(x, y, obj_chaser);
+    if (_ch != noone && point_distance(x, y, _ch.x, _ch.y) < 28) {
+        if (go_random(patrol_spd)) state = CLOWN.PATROL;
+    }
+}
+
 // Máquina de estados
 switch (state) {
 

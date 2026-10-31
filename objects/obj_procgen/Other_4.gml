@@ -16,7 +16,7 @@ oy = ((room_height div cfg.cell) - cfg.rows) div 2;
 
 // tiles e colisão
 procgen_apply(plan, cfg, ox, oy);
-// móveis atrás dos instances: o palhaço (sprite alto) não pode ficar escondido atrás de móvel
+// móveis atrás das instâncias
 if (layer_exists("Decor")) layer_depth("Decor", 350);
 plan.ox = ox;
 plan.oy = oy;
@@ -63,8 +63,8 @@ if (array_length(_spawn_rooms) == 0) {
 }
 if (array_length(_spawn_rooms) > 0) {
     // quantidade definida por andar no cfg
-    var _n_chasers = cfg.chasers;
-    var _n_clowns  = cfg.clowns;
+    var _n_chasers = irandom_range(cfg.chasers[0], cfg.chasers[1]);
+    var _n_clowns  = irandom_range(cfg.clowns[0],  cfg.clowns[1]);
 
     var _types = [];
     repeat (_n_chasers) array_push(_types, obj_chaser);
@@ -75,12 +75,13 @@ if (array_length(_spawn_rooms) > 0) {
     }
 }
 
-procgen_spawn_mimics(plan, cfg, ox, oy, cfg.mimics);
+procgen_spawn_mimics(plan, cfg, ox, oy, irandom_range(cfg.mimics[0], cfg.mimics[1]));
+procgen_spawn_balloons(plan, cfg, ox, oy, irandom_range(cfg.balloons[0], cfg.balloons[1]));
 
 // itens espalhados
 if (!instance_exists(obj_inventory)) instance_create_layer(0, 0, "Instances", obj_inventory);
 
-// sempre gera todos os itens do cfg.items, sem olhar o inventário
+// gera os itens
 var _drops = [];
 for (var _d = 0; _d < array_length(cfg.items); _d++) {
     var _def = cfg.items[_d];

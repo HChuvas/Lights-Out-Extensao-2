@@ -93,9 +93,10 @@ function procgen_config() {
         exit_y: _last ? 544 : -1,
 
         // inimigos
-        chasers: [1, 2, 3][_f - 1],
-        clowns:  [1, 1, 2][_f - 1],
-		mimics:  [1, 2, 3][_f - 1],
+        chasers: [[1, 2], [1, 3], [2, 4]][_f - 1],
+        clowns:  [[0, 1], [1, 2], [1, 2]][_f - 1],
+        mimics:  [[0, 2], [2, 4], [3, 5]][_f - 1],
+	    balloons: [[2, 4], [3, 6], [4, 8]][_f - 1], 
 
         // itens espalhados
         items: [
@@ -120,7 +121,8 @@ function procgen_presets() {
         { prop: "plant",   place: PG_PLACE.CORNER,    lo: 2, hi: 3 },
         { prop: "shelf",   place: PG_PLACE.WALL_SIDE, lo: 1, hi: 2 },
         { prop: "cabinet", place: PG_PLACE.WALL_SIDE, lo: 1, hi: 1 },
-        { prop: "chest",   place: PG_PLACE.CORNER,    lo: 0, hi: 1 }
+        { prop: "chest",   place: PG_PLACE.CORNER,    lo: 0, hi: 1 },
+        { prop: "stool",   place: PG_PLACE.WALL_SIDE, lo: 1, hi: 2 }  // NOVO
     ];
     _p[PG_ROOM.BEDROOM] = [ // quarto: cama com a cabeceira na parede, cômoda, baú no canto
         { prop: "bed",     place: PG_PLACE.WALL_TOP,  lo: 1, hi: 1 },
@@ -129,7 +131,8 @@ function procgen_presets() {
         { prop: "dresser", place: PG_PLACE.WALL_SIDE, lo: 1, hi: 1 },
         { prop: "cabinet", place: PG_PLACE.WALL_SIDE, lo: 1, hi: 1 },
         { prop: "chest",   place: PG_PLACE.CORNER,    lo: 1, hi: 1 },
-        { prop: "plant",   place: PG_PLACE.CORNER,    lo: 1, hi: 2 }
+        { prop: "plant",   place: PG_PLACE.CORNER,    lo: 1, hi: 2 },
+        { prop: "stool",   place: PG_PLACE.WALL_SIDE, lo: 1, hi: 2 } 
     ];
     _p[PG_ROOM.KITCHEN] = [ // cozinha: bancada (fogão + armários) na parede, mesa com banquinhos
         { prop: "stove",   place: PG_PLACE.WALL_TOP,  lo: 1, hi: 1 },
@@ -150,7 +153,8 @@ function procgen_presets() {
         { prop: "cabinet", place: PG_PLACE.WALL_ROW,  lo: 3, hi: 4 },
         { prop: "shelf",   place: PG_PLACE.WALL_ROW,  lo: 1, hi: 2 },
         { prop: "cabinet", place: PG_PLACE.WALL_SIDE, lo: 1, hi: 2 },
-        { prop: "plant",   place: PG_PLACE.CORNER,    lo: 2, hi: 3 }
+        { prop: "plant",   place: PG_PLACE.CORNER,    lo: 2, hi: 3 },
+        { prop: "stool",   place: PG_PLACE.WALL_SIDE, lo: 1, hi: 2 }
     ];
     _p[PG_ROOM.OFFICE] = [ // escritório: mesa na parede com cadeira, estantes de livros
         { prop: "table",   place: PG_PLACE.WALL_TOP,  lo: 1, hi: 1, flank: "stool" },
@@ -158,7 +162,8 @@ function procgen_presets() {
         { prop: "shelf",   place: PG_PLACE.WALL_SIDE, lo: 2, hi: 3 },
         { prop: "cabinet", place: PG_PLACE.WALL_SIDE, lo: 1, hi: 1 },
         { prop: "plant",   place: PG_PLACE.CORNER,    lo: 1, hi: 2 },
-        { prop: "chest",   place: PG_PLACE.CORNER,    lo: 0, hi: 1 }
+        { prop: "chest",   place: PG_PLACE.CORNER,    lo: 0, hi: 1 },
+        { prop: "stool",   place: PG_PLACE.WALL_SIDE, lo: 1, hi: 1 }
     ];
     _p[PG_ROOM.STORAGE] = [ // despensa: prateleiras, barris e baús nas paredes e cantos
         { prop: "shelf",   place: PG_PLACE.WALL_ROW,  lo: 4, hi: 6 },
@@ -668,6 +673,7 @@ function procgen_decorate(_plan, _cfg) {
                 if (!procgen_decor_ok(_plan, _cx, _cy)) continue;
                 ds_grid_set(_plan.decor, _cx, _cy, procgen_prop(_cfg, _rule.prop));
                 _placed++;
+				if (_rule.prop == "stool") array_push(_plan.stools, [_cx, _cy]);
 
                 if (variable_struct_exists(_rule, "flank")) { // banquinhos dos dois lados da mesa
                     for (var _s = -1; _s <= 1; _s += 2) {
@@ -976,16 +982,41 @@ function procgen_spawn_mimics(_plan, _cfg, _ox, _oy, _n) {
             array_push(_cells, { tx: _ox + _x, ty: _oy + _y, px: _p[0], py: _p[1] });
         }
     }
-    if (array_length(_cells) <= _n) return; // precisa de cadeira sobrando pra ele trocar de lugar
+    _n = min(_n, array_length(_cells) - 1);
+	if (_n <= 0) return; // precisa de cadeira sobrando pra ele trocar de lugar
 
     array_shuffle(_cells);
     var _shared = { cells: _cells, taken: array_create(array_length(_cells), false), map: _md, tile: _stool };
 
-    for (var _i = 0; _i < _n; _i++) {
+    for (var _i = 0; _i < _n; _i++) {	
         var _c = _cells[_i];
         _shared.taken[_i] = true;
         tilemap_set(_md, 0, _c.tx, _c.ty); // tira só o visual, a colisão continua
         instance_create_layer(_c.px, _c.py, "Instances", obj_mimic, { shared: _shared, cell_i: _i });
+    }
+}
+
+// balões espalhados pelo andar
+function procgen_spawn_balloons(_plan, _cfg, _ox, _oy, _n) {
+    var _pool = [];
+    for (var _i = 0; _i < array_length(_plan.rooms); _i++) {
+        if (_plan.rooms[_i].dist >= 1) array_push(_pool, _plan.rooms[_i]);
+    }
+    if (array_length(_pool) == 0 || _n <= 0) return;
+
+    var _made = 0;
+    for (var _t = 0; _t < _n * 20 && _made < _n; _t++) {
+        var _room = _pool[irandom(array_length(_pool) - 1)];
+        var _c = procgen_random_free_cell(_plan, _room, true); // chão livre e alcançável
+        if (is_undefined(_c)) continue;
+        if (abs(_c[0] - _plan.goal.cx) <= 1 && abs(_c[1] - _plan.goal.cy) <= 1) continue; 
+
+        var _p = procgen_cell_to_px(_c[0], _c[1], _cfg, _ox, _oy);
+        var _near = instance_nearest(_p[0], _p[1], Balloon);
+        if (_near != noone && point_distance(_p[0], _p[1], _near.x, _near.y) < 64) continue;
+
+        instance_create_layer(_p[0], _p[1], "Instances", Balloon);
+        _made++;
     }
 }
 
