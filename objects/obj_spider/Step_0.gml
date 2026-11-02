@@ -1,4 +1,3 @@
-rng = irandom(100);
 image_speed = VEL;
 
 if (CURRENT_STATE != SPIDER_STATES.RUN and CURRENT_STATE != SPIDER_STATES.SHOOT ){

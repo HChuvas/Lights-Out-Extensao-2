@@ -9,7 +9,7 @@ direction = 0;
 
 //states params
 enum SPIDER_STATES {
-	WATCH,
+	PATROL,
 	TRAVEL,
 	CHASE,
 	SHOOT,
@@ -27,10 +27,10 @@ ATTACK_DAMAGE = 1;
 ATTACK_LIFETIME = 0.5;
 ATTACKING  = false;
 
-//alarm for ...
+//alarm for patrol state / avoid infinite patrol
 alarm[0] = -1;
 
-last_sprite = spr_evil_kid_idle_down;
+last_sprite = spr_spider_idle_down;
 
 //path var
 my_path = path_add();
@@ -41,15 +41,21 @@ path_number_points = noone;
 //POV last place player seen
 player_last_place_seen = [noone, noone];
 
+//web params
+actual_web_id = noone;
+web_counter = 1;
+web_patrol_range = 50;
 
 //logic of each state
 function state_behavior(){
 	
 	switch(CURRENT_STATE){
 		
-		case(SPIDER_STATES.WATCH):
+		case(SPIDER_STATES.PATROL):
 			
 		case(SPIDER_STATES.TRAVEL):
+			var _x, _y = get_next_web_position();
+			path_move(_x, _y);
 			
 		case(SPIDER_STATES.CHASE):
 			
@@ -60,11 +66,39 @@ function state_behavior(){
 	}
 }
 
+//get next eb to spider go
+function get_next_web_position(){
+	var _max_web_count = instance_number(obj_spider_web);
+	
+	if ( web_counter >= _max_web_count ){ web_counter = 1;}
+	else { web_counter++ }
+	
+	var _web = instance_find(obj_spider_web, web_counter);
+	
+	return [_webs.x, _webs.y]
+}
+
+function get_unocupied_position_in_web_range(){
+	var _web = instance_find(obj_spider_web, web_counter);
+	
+	while (true) {
+		var _x = irandom_range(_web.x - web_patrol_range,_web.x + web_patrol_range);
+		var _y = irandom_range(_web.y - web_patrol_range,_web.y + web_patrol_range);
+	
+		var _pos_x = floor((_x - obj_manager.patrol_x1) / cell_size);
+		var _pos_y = floor((_y -  obj_manager.patrol_y1) / cell_size);	
+		
+		if(mp_grid_get_cell(obj_manager.grid, _pos_x, _pos_y) == 0){
+			return [_pos_x * obj_manager.cell_size, _pos_y * obj_manager.cell_size];
+		}
+	}
+}
+
 //get all objects in line of sight
-function raycasting_pov(vision_range = IDLE_VISION_RANGE){
+function raycasting_pov(vision_range = VISION_RANGE){
 	var objs_in_vision = [];
 	
-	if (CURRENT_STATE ==CHASER_STATES.WATCH) {
+	if (CURRENT_STATE ==CHASER_STATES.PATROL) {
 	
 	}
 	for( var ang = 0; ang < 360; ang = ang + 9){
@@ -123,6 +157,9 @@ function path_move(target_x = noone, target_y = noone){
 		on_path = false;
 		path_point_index = noone;
 		path_number_points = noone;
+		
+		if ( CURRENT_STATE = SPIDER_STATES.TRAVEL ) {}
+		
 		return;
 	}
 	
@@ -151,7 +188,7 @@ function path_move(target_x = noone, target_y = noone){
 
 
 can_hear_alert = function() {
-    return CURRENT_STATE == SPIDER_STATES.WATCH
+    return CURRENT_STATE == SPIDER_STATES.PATROL
         || CURRENT_STATE == SPIDER_STATES.TRAVEL;
 }
 
@@ -192,7 +229,7 @@ function change_sprite() {
             }
             break;
 
-        case SPIDER_STATES.WATCH:
+        case SPIDER_STATES.PATROL:
             switch (_dir) {
                 case "right": _new_sprite = spr_spider_idle_right; break;
                 case "up":    _new_sprite = spr_spider_idle_up;    break;
@@ -215,4 +252,15 @@ function change_sprite() {
 		sprite_index = _new_sprite;
 		last_sprite = _new_sprite;
 	}
+}
+	
+function state_change(){
+	switch(CURRENT_STATE){
+		case(SPIDER_STATES.PATROL): CURRENT_STATE = SPIDER_STATES.TRAVEL; return;
+		case(SPIDER_STATES.TRAVEL): CURRENT_STATE = SPIDER_STATES.PATROL; return;
+		case(SPIDER_STATES.CHASE):  CURRENT_STATE = SPIDER_STATES.TRAVEL; return;
+		case(SPIDER_STATES.SHOOT):  CURRENT_STATE = SPIDER_STATES.RUN; return;
+		case(SPIDER_STATES.RUN):	CURRENT_STATE = SPIDER_STATES.TRAVEL; return;
+	}
+
 }

@@ -4,10 +4,10 @@ function enemy_separation() {
     var _max_push = 2;
 
     var _tilemap = layer_tilemap_get_id("Collision");
-    var _count = instance_number(obj_chaser);
+    var _count = instance_number(enemy_parent);
 
     for (var i = 0; i < _count; i++) {
-        var _enemy = instance_find(obj_chaser, i);
+        var _enemy = instance_find(enemy_parent, i);
 
         if (_enemy == id || !instance_exists(_enemy)) {
             continue;
