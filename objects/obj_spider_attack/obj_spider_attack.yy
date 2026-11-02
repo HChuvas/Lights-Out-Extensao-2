@@ -27,7 +27,10 @@
   "resourceType":"GMObject",
   "resourceVersion":"2.0",
   "solid":false,
-  "spriteId":null,
+  "spriteId":{
+    "name":"spr_spider_attack_projectile",
+    "path":"sprites/spr_spider_attack_projectile/spr_spider_attack_projectile.yy",
+  },
   "spriteMaskId":null,
   "visible":true,
 }

@@ -27,7 +27,10 @@
   "resourceType":"GMObject",
   "resourceVersion":"2.0",
   "solid":false,
-  "spriteId":null,
+  "spriteId":{
+    "name":"spr_spider_idle_down",
+    "path":"sprites/spr_spider_idle_down/spr_spider_idle_down.yy",
+  },
   "spriteMaskId":null,
   "visible":true,
 }
