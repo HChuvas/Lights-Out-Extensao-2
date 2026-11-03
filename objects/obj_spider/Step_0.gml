@@ -1,5 +1,5 @@
 image_speed = VEL;
-
+/*
 if (CURRENT_STATE != SPIDER_STATES.RUN and CURRENT_STATE != SPIDER_STATES.SHOOT ){
 	var _player_in_vision = self.perception();
 	if ( _player_in_vision != noone ){
@@ -8,11 +8,10 @@ if (CURRENT_STATE != SPIDER_STATES.RUN and CURRENT_STATE != SPIDER_STATES.SHOOT 
 			CURRENT_STATE = SPIDER_STATES.CHASE;
 		}
 	}
-	
-	if (on_path){
-		path_move();
-	}
-}
+}*/
 
 state_behavior();
 enemy_separation();
+if (on_path){
+	path_move();
+}
