@@ -127,9 +127,6 @@ function state_behavior(){
 function raycasting_pov(vision_range = IDLE_VISION_RANGE){
 	var objs_in_vision = [];
 	
-	if (CURRENT_STATE ==CHASER_STATES.WATCH) {
-	
-	}
 	for( var ang = 0; ang < 360; ang = ang + 9){
 			var x2 = lengthdir_x(vision_range, ang);
 			var y2 = lengthdir_y(vision_range, ang);

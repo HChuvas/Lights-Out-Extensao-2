@@ -2,6 +2,7 @@ event_inherited();
 
 //vision params
 VISION_RANGE = 125;
+SHOOT_RANGE = 50;
 
 //movement params
 VEL = 1.5;
@@ -9,6 +10,7 @@ direction = 0;
 
 //states params
 enum SPIDER_STATES {
+	WATCH, 
 	PATROL,
 	TRAVEL,
 	CHASE,
@@ -18,19 +20,31 @@ enum SPIDER_STATES {
 CURRENT_STATE = SPIDER_STATES.TRAVEL;
 
 //time params
-WATCH_TIME_RANGE = [15, 20];		//set watch time
-PERCEPTION_INTEVAL_TIME = 0.5;		//time inteval to do a perception / avoid calling the perception funtion each step
+PERCEPTION_INTEVAL_TIME = 1;		//time inteval to do a perception / avoid calling the perception funtion each step
 ATTACK_DELAY_TIME = 0.2;		//DUH  / avoid apam attacks
+WATCH_TIME = 2;
+MAX_ACTION_TIME_LEN = 10;
+SPRITE_CHANGE_INTEVAL = 2;
+WATCH_TIME_RANGE = [2, 4];
 
 //attack params
 ATTACK_DAMAGE = 1;
 ATTACK_LIFETIME = 0.5;
 ATTACKING  = false;
 
-//alarm for patrol state / avoid infinite patrol
+//alarm for max action len // avoid infinite action time
 alarm[0] = -1;
-
+//alarm for sprite change
+alarm[1] = SPRITE_CHANGE_INTEVAL;
+//alarm for WATCH time duration;
+alarm[2] = -1;
 last_sprite = spr_spider_idle_down;
+//alarm to do a perception check
+alarm[3] = PERCEPTION_INTEVAL_TIME;
+//alarm to avoid create a new path every step during a chase
+alarm[4] = -1;
+//alarm to do the attack
+alarm[5] = -1
 
 //path var
 my_path = path_add();
@@ -44,13 +58,26 @@ player_last_place_seen = [noone, noone];
 //web params
 actual_web_id = noone;
 web_counter = 0;
-web_patrol_range = 200;
+web_patrol_range = 100;
+
+//RNG var
+PATROL_TO_TRAVEL_CHANCE = 20;
+randomise();
+rng = irandom(100);
+
+
 
 //logic of each state
 function state_behavior(){
 	var _pos;
 	
 	switch(CURRENT_STATE){
+		
+		case(SPIDER_STATES.WATCH):
+			if ( alarm[2] == -1 ){
+				alarm[2] = random_range(fps * WATCH_TIME_RANGE[0], fps * WATCH_TIME_RANGE[1]);
+			}
+			return;
 		
 		case(SPIDER_STATES.PATROL):
 			if (!on_path){
@@ -67,11 +94,23 @@ function state_behavior(){
 			return;
 			
 		case(SPIDER_STATES.CHASE):
+			/*var _player_in_shoot_distance = self.perception(SHOOT_RANGE);
+			if (_player_in_shoot_distance != noone){
+				CURRENT_STATE = SPIDER_STATES.SHOOT;
+			}*/
+			//verify player new position if in line of sight
+			if (alarm[4] == -1){
+				alarm[4] = fps * PERCEPTION_INTEVAL_TIME;
+				on_path = false;
+				create_path(player_last_place_seen[0], player_last_place_seen[1]);
+			}
+			return;
 			
 		case(SPIDER_STATES.SHOOT):
-				
+				//do code that shoots :p
+				show_debug_message("POW");
 		case(SPIDER_STATES.RUN):
-				
+				// do code that runs
 	}
 }
 
@@ -107,9 +146,6 @@ function get_unocupied_position_in_web_range(){
 function raycasting_pov(vision_range = VISION_RANGE){
 	var objs_in_vision = [];
 	
-	if (CURRENT_STATE ==CHASER_STATES.PATROL) {
-	
-	}
 	for( var ang = 0; ang < 360; ang = ang + 9){
 			var x2 = lengthdir_x(vision_range, ang);
 			var y2 = lengthdir_y(vision_range, ang);
@@ -137,8 +173,8 @@ function raycasting_pov(vision_range = VISION_RANGE){
 }
 
 //return only the player in line of sight
-function perception(){
-	var _objs_in_vision = self.raycasting_pov();
+function perception(vision_range = VISION_RANGE){
+	var _objs_in_vision = self.raycasting_pov(vision_range);
 	var _player_in_vision = noone;
 	
 	for (var i = 0; i < array_length(_objs_in_vision); i++ ){
@@ -160,13 +196,12 @@ function create_path(target_x = noone, target_y = noone){
 
 //manual movement logic
 function path_move(){
-	//not on a path, create a new path
+	//not on a path
 	if (!on_path){ return; }
 	
-	show_debug_message(path_point_index);
-	show_debug_message(path_number_points);
 	//reached end of the path
 	if (path_point_index == path_number_points){
+		show_debug_message( obj_manager.cell_size);
 		on_path = false;
 		path_point_index = noone;
 		path_number_points = noone;
@@ -181,7 +216,7 @@ function path_move(){
 	var _dist = point_distance(x, y, _x, _y);
 	
 	//reched point go to the next
-	if (_dist <= VEL + 0.1){
+	if (_dist <= VEL + obj_manager.cell_size){
 		path_point_index += 1;
 		
 	} else {
@@ -201,7 +236,8 @@ function path_move(){
 
 can_hear_alert = function() {
     return CURRENT_STATE == SPIDER_STATES.PATROL
-        || CURRENT_STATE == SPIDER_STATES.TRAVEL;
+        || CURRENT_STATE == SPIDER_STATES.TRAVEL
+		|| CURRENT_STATE == SPIDER_STATES.WATCH;
 }
 
 hear_alert = function(_x, _y) {
@@ -267,8 +303,17 @@ function change_sprite() {
 }
 	
 function state_change(){
+	alarm[0] = MAX_ACTION_TIME_LEN * fps;
 	switch(CURRENT_STATE){
-		case(SPIDER_STATES.PATROL): CURRENT_STATE = SPIDER_STATES.PATROL; return;
+		case(SPIDER_STATES.WATCH): 
+			if (rng <= PATROL_TO_TRAVEL_CHANCE){
+				CURRENT_STATE = SPIDER_STATES.TRAVEL;
+			} else {
+				CURRENT_STATE = SPIDER_STATES.PATROL;
+			}
+			return;
+			
+		case(SPIDER_STATES.PATROL):  CURRENT_STATE = SPIDER_STATES.WATCH; return;
 		case(SPIDER_STATES.TRAVEL): CURRENT_STATE = SPIDER_STATES.PATROL; return;
 		case(SPIDER_STATES.CHASE):  CURRENT_STATE = SPIDER_STATES.TRAVEL; return;
 		case(SPIDER_STATES.SHOOT):  CURRENT_STATE = SPIDER_STATES.RUN; return;
