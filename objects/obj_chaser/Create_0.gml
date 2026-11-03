@@ -27,7 +27,8 @@ CURRENT_STATE = CHASER_STATES.WATCH;
 WATCH_TO_PATROL_RNG = 75;		//chance% to patrol after a watch time
 WATCH_TIME_RANGE = [4, 8];		//set watch time: range 4s - 8s
 MAX_PATROL_TIME_DURATION = 10;		//max time doing a patrol / avoid patrol to too long
-PERCEPTION_INTEVAL_TIME = 0.5;		//time inteval to do a perception / avoid calling the perception funtion each step
+PERCEPTION_INTEVAL_TIME = 1;		//time inteval to do a perception / avoid calling the perception funtion each step
+SPRITE_CHANGE_INTEVAL_TIME = 2;
 REST_INTEVAL_TIME = 0.5;		//time inteval to rest_regen stamina / avoid regen stamina per step
 ATTACK_DELAY_TIME = 0.2;		//DUH  / avoid apam attacks
 ATTACK_DURATION_TIME = 40;  //time to use the sprite animation 
@@ -50,8 +51,10 @@ alarm[4] = -1;
 //alarm to rest state
 alarm[5] = -1;
 //alarm to sprite change
-alarm[6] = 2;
+alarm[6] = SPRITE_CHANGE_INTEVAL_TIME;
 last_sprite = spr_evil_kid_idle_down;
+//alarm to do a perception check
+alarm[7] = PERCEPTION_INTEVAL_TIME;
 
 //path var
 my_path = path_add();
@@ -83,7 +86,7 @@ function state_behavior(){
 			if(alarm[1] == -1){
 				alarm[1] = fps * MAX_PATROL_TIME_DURATION;
 				var _random_point = get_random_unocupied_grid_cell(obj_manager.map_grid);
-				path_move(_random_point[0], _random_point[1]);
+				create_path(_random_point[0], _random_point[1]);
 			}
 			return;
 		
@@ -93,7 +96,7 @@ function state_behavior(){
 			if (alarm[2] == -1){
 						alarm[2] = fps * PERCEPTION_INTEVAL_TIME;
 						on_path = false;
-						path_move(player_last_place_seen[0], player_last_place_seen[1]);
+						create_path(player_last_place_seen[0], player_last_place_seen[1]);
 			}
 			//aply aceleration 
 			if (alarm[3] == -1){
@@ -167,26 +170,27 @@ function perception(){
 	return _player_in_vision;
 }
 
-//manual movement logic
-function path_move(target_x = noone, target_y = noone){
-	//not on a path, create a new path
-	if (!on_path){
-		if(mp_grid_path(obj_manager.map_grid, my_path, self.x, self.y, target_x, target_y,  true) ){ 
-					on_path = true;
-					path_point_index = 0;
-					path_number_points = path_get_number(my_path);
-		} else {
-			//if path not created sucefuly, reset state
-			if (CURRENT_STATE == CHASER_STATES.PATROL) {
-				alarm[1] = 1;
-			} else if (CURRENT_STATE == CHASER_STATES.CHASE){
-				stamina = 0;
-				alarm[2] = 1;
-				alarm[3] = 1;
-			}
-			return;
+function create_path(target_x = noone, target_y = noone){
+	if(mp_grid_path(obj_manager.map_grid, my_path, self.x, self.y, target_x, target_y,  true) ){ 
+		on_path = true;
+		path_point_index = 1;
+		path_number_points = path_get_number(my_path);
+	} else {
+		//if path not created sucefuly, reset state
+		if (CURRENT_STATE == CHASER_STATES.PATROL) {
+			alarm[1] = 1;
+		} else if (CURRENT_STATE == CHASER_STATES.CHASE){
+			stamina = 0;
+			alarm[2] = 1;
+			alarm[3] = 1;
 		}
 	}
+}
+
+//manual movement logic
+function path_move(){
+	//not on a path, create a new path
+	if (!on_path){ return; }
 	
 	//reached end of the path
 	if (path_point_index == path_number_points){
@@ -211,7 +215,7 @@ function path_move(target_x = noone, target_y = noone){
 	var _dist = point_distance(x, y, _x, _y);
 	
 	//reched point go to the next
-	if (_dist <= VEL){
+	if (_dist <= VEL + ACE){
 		path_point_index += 1;
 		
 	} else {
