@@ -48,11 +48,11 @@ relocate = function() {
 
     var _new = _opts[irandom(array_length(_opts) - 1)];
     var _old = shared.cells[cell_i];
-    tilemap_set(shared.map, shared.tile, _old.tx, _old.ty); // cadeira antiga volta
+    layer_sprite_alpha(_old.el, 1); // cadeira antiga volta
     shared.taken[cell_i] = false;
 
     var _n = shared.cells[_new];
-    tilemap_set(shared.map, 0, _n.tx, _n.ty); // cadeira nova some
+    layer_sprite_alpha(_n.el, 0); // cadeira nova some
     shared.taken[_new] = true;
     cell_i = _new;
     x = _n.px;

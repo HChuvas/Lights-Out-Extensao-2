@@ -7,8 +7,9 @@
 
 
 enum PG_TILE  { WALL, FLOOR, DOOR } // valores do ds_grid
-enum PG_ROOM  { LIVING, BEDROOM, KITCHEN, BATHROOM, DINING, OFFICE, STORAGE } // cômodos
-enum PG_PLACE { WALL_TOP, WALL_ROW, CORNER, CENTER, ANY, WALL_SIDE } // onde um preset coloca o objeto
+enum PG_ROOM { LIVING, KITCHEN, BATHROOM, STORAGE, OFFICE, LAUNDRY } // cômodos
+#macro PG_FACE 2 // linhas de painel 
+enum PG_AT { TOP, SIDE, BOTTOM, CORNER, CENTER, ANY, RUN, WALL } // onde uma regra do preset coloca o objeto
 
 
 // ----------------------------------------------------------------------------
@@ -16,22 +17,27 @@ enum PG_PLACE { WALL_TOP, WALL_ROW, CORNER, CENTER, ANY, WALL_SIDE } // onde um 
 // ----------------------------------------------------------------------------
 function procgen_config() {
     var _f = procgen_floor();
-    var _rooms = procgen_floor_rooms(_f);
     var _last = (_f >= 3);
+    var _rooms = [[3, 3], [4, 5], [5, 6]][_f - 1]; // salas por andar
+    var _size  = [[28, 20], [36, 24], [44, 28]][_f - 1]; // tamanho do andar 
+
+    // tapetes
+    var _rug_a = [243, 244, 245, 265, 266, 267, 287, 288, 289];
+    var _rug_b = [250, 251, 252, 272, 273, 274, 294, 295, 296];
+    var _rug_c = [257, 258, 259, 279, 280, 281, 301, 302, 303];
+
     return {
         floor_n: _f,
-        // tamanho do andar (em tiles)
-        cols: 48,
-        rows: 32,
+        // tamanho do andar
+        cols: _size[0],
+        rows: _size[1],
         cell: 16,
 
         // BSP
-        min_room: 8, // lado mínimo da sala
-        min_rooms: _rooms, // número fixo de salas deste andar
-        max_rooms: _rooms,
-        floor_first_rooms: 5, // primeiro andar tem 5 salas
-        floor_rooms_step: 2,  // +2 salas por andar
-        floor_last: 3, // último andar, leva até a r_starting_room
+        min_room: 9, // lado mínimo da sala
+        min_rooms: _rooms[0], // andar 1: 3, andar 2: 4-5, andar 3: 5-6
+        max_rooms: _rooms[1],
+        floor_last: 3, // último andar
         split_jitter: 0.2, // sempre divide no meio e varia até 20% do lado
         loop_chance: 0.25, // chance de abrir portas extras
         door_width: 2, // largura da porta
@@ -41,50 +47,47 @@ function procgen_config() {
         max_attempts: 20,
 
         // tiles
-        tile_floor: 153,
-        tile_wall: 0,
         tile_collision: 1,
 
-        // Paredes
-        walls: [161, 163, 148, 160, 147, 155, 144, 164, 150, 162, 161, 173, 146, 166, 157, 165],
-        wall_left: 152,
-        wall_right: 154,
-        wall_top: 145,
+        // Piso
+        // (sala, cozinha, banheiro, despensa, escritório, lavanderia)
+        floors: [[266, 280], [266, 280], [266, 280], [266, 280], [266, 280], [266, 280]],
 
-        // Tapetes 3x3 por cômodo
-        rug_scale: 0.7, // tamanho do tapete
+        // Paredes
+        wall_h: [117, 118, 119],   // horizontal
+        wall_v: [72, 94, 116],     // vertical
+        wall_corner: { tl: 73, tr: 74, bl: 117, br: 119 },
+        wall_block: 75,            // cruzamentos
+        face_top: [185, 186],     
+        face_bot: [207, 208],    
+        door_top: [112, 113],
+        door_bot: [134, 135],   
+        tileset_floor: ts_modern_pack,
+        tileset_walls: ts_modern_pack,
+
+        // Tapetes por cômodo
+        rug_scale: [0.6, 0.5, 0.5, 0.5, 0.55, 0.5], // tamanho do tapete por cômodo
         rugs: [
-            [[96, 97, 98, 104, 105, 106, 112, 113, 114], [99, 100, 101, 107, 108, 109, 115, 116, 117]],
-            [[48, 49, 50, 56, 57, 58, 64, 65, 66],       [51, 52, 53, 59, 60, 61, 67, 68, 69]],
-            [[3, 4, 5, 11, 12, 13, 19, 20, 21]],
-            [],
-            [[96, 97, 98, 104, 105, 106, 112, 113, 114]], // sala de jantar
-            [[48, 49, 50, 56, 57, 58, 64, 65, 66]], // escritório
-            []
+            [{ spr: spr_furniture_09 }, _rug_a], // sala
+            [], // cozinha 
+            [_rug_c], // banheiro
+            [], // despensa
+            [_rug_a], // escritório
+            [] // lavanderia
         ],
 
         // layers
         layer_floor: "Floor",
         layer_wall: "Walls",
         layer_collision: "Collision",
-        layer_decor: "Decor",
+        layer_decor: "Decor", // só limpa o que foi pintado no editor
+        tileset_rugs: ts_modern_pack,
+        depth_rugs: 590, 
+        depth_props: 350,
+        depth_tops: 345,
+        depth_frames: 250, // batente da porta
 
         decor_blocks: true,
-
-        // props dos presets
-        props: {
-            shelf: 187,
-            cabinet: 188,
-            dresser: 193,
-            bed: [184, 185, 186],
-            plant: [196, 197, 198],
-            table: 190,
-            stool: 204,
-            chest: 199,
-            barrel: 205,
-            stove: 212,
-            toilet: 194
-        },
 
         // saída do andar
         exit_room: _last ? r_starting_room : r_procedural, // último andar
@@ -93,10 +96,10 @@ function procgen_config() {
         exit_y: _last ? 544 : -1,
 
         // inimigos
-        chasers: [[1, 2], [1, 3], [2, 4]][_f - 1],
-        clowns:  [[0, 1], [1, 2], [1, 2]][_f - 1],
-        mimics:  [[0, 2], [2, 4], [3, 5]][_f - 1],
-	    balloons: [[2, 4], [3, 6], [4, 8]][_f - 1], 
+        chasers: [[1, 1], [1, 2], [2, 2]][_f - 1],
+        clowns:  [[0, 1], [0, 1], [1, 1]][_f - 1],
+        mimics:  [[0, 1], [1, 1], [1, 2]][_f - 1],
+        balloons: [[1, 2], [2, 3], [2, 4]][_f - 1],
 
         // itens espalhados
         items: [
@@ -108,81 +111,111 @@ function procgen_config() {
 
 
 // ----------------------------------------------------------------------------
+//  MÓVEIS
+// ----------------------------------------------------------------------------
+function procgen_props() {
+    var _d = {
+        // cozinha
+        fridge:    { spr: spr_furniture_13 },
+        stove:     { spr: [spr_furniture_19, spr_furniture_06] },
+        sink:      { spr: spr_furniture_17 },
+        counter:   { spr: [spr_furniture_61, spr_furniture_62, spr_furniture_63], top_y: 11,
+                     tops: [spr_furniture_04, spr_furniture_05, spr_furniture_20, spr_furniture_21, spr_furniture_29, spr_furniture_31, spr_furniture_36, spr_furniture_42] },
+        table:     { spr: [spr_furniture_56, spr_furniture_62, spr_furniture_63], top_y: 11,
+                     tops: [spr_furniture_20, spr_furniture_21, spr_furniture_29, spr_furniture_36, spr_furniture_42, spr_furniture_46] },
+        chair:     { spr: spr_furniture_67, spr_l: spr_furniture_67, spr_r: spr_furniture_70, fh: 1, chair: true },
+        chair_up:  { spr: spr_furniture_68, fh: 1, chair: true },
+        // sala
+        tv:        { spr: spr_furniture_53 },
+        fireplace: { spr: spr_furniture_27 },
+        sofa:      { spr: spr_furniture_71 },
+        armchair:  { spr: spr_furniture_65, spr_l: spr_furniture_65, spr_r: spr_furniture_66 },
+        sidetable: { spr: [spr_furniture_10, spr_furniture_80], top_y: 8, tops: [spr_furniture_01, spr_furniture_02, spr_furniture_46] },
+        plant:     { spr: spr_furniture_38 },
+        planter:   { spr: spr_furniture_00 },
+        // escritório, despensa e lavanderia
+        desk:      { spr: [spr_furniture_43, spr_furniture_58] },
+        cabinet:   { spr: [spr_furniture_07, spr_furniture_11, spr_furniture_81], top_y: 8,
+                     tops: [spr_furniture_01, spr_furniture_02, spr_furniture_36, spr_furniture_46, spr_furniture_48] },
+        wardrobe:  { spr: spr_furniture_83 },
+        bench:     { spr: spr_furniture_12 },
+        box:       { spr: spr_furniture_32 },
+        basket:    { spr: spr_furniture_48 },
+        bin:       { spr: spr_furniture_54 },
+        // banheiro
+        toilet:    { spr: [spr_furniture_15, spr_furniture_16] },
+        tub:       { spr: [spr_furniture_49, spr_furniture_50] },
+        // decoração de parede
+        picture:   { spr: [spr_furniture_08, spr_furniture_14] },
+        note:      { spr: spr_furniture_45 },
+        towel:     { spr: spr_furniture_59 }
+    };
+    _d.desk.seat = _d.chair_up; // cadeira embaixo da mesa de trabalho
+    return _d;
+}
+
+
+// ----------------------------------------------------------------------------
 //  PRESETS
 // ----------------------------------------------------------------------------
 function procgen_presets() {
-    // móveis encostados
-    // mesa fica no meio e banquinho ao redor de mesa
-    var _p = array_create(7, []);
-    _p[PG_ROOM.LIVING] = [ // sala: estantes na parede, mesa de centro, plantas nos cantos
-        { prop: "shelf",   place: PG_PLACE.WALL_ROW,  lo: 4, hi: 6 },
-        { prop: "cabinet", place: PG_PLACE.WALL_ROW,  lo: 1, hi: 2 },
-        { prop: "table",   place: PG_PLACE.CENTER,    lo: 1, hi: 1, flank: "stool" },
-        { prop: "plant",   place: PG_PLACE.CORNER,    lo: 2, hi: 3 },
-        { prop: "shelf",   place: PG_PLACE.WALL_SIDE, lo: 1, hi: 2 },
-        { prop: "cabinet", place: PG_PLACE.WALL_SIDE, lo: 1, hi: 1 },
-        { prop: "chest",   place: PG_PLACE.CORNER,    lo: 0, hi: 1 },
-        { prop: "stool",   place: PG_PLACE.WALL_SIDE, lo: 1, hi: 2 }  // NOVO
+    var _p = array_create(6, []);
+    _p[PG_ROOM.LIVING] = [
+        { at: PG_AT.RUN,    runs: [["cabinet", "tv", "cabinet"], ["fireplace", "cabinet", "planter"], ["planter", "tv", "sidetable"]] },
+        { at: PG_AT.CENTER, prop: "sofa",      lo: 1, hi: 1 },
+        { at: PG_AT.SIDE,   prop: "armchair",  lo: 1, hi: 2 },
+        { at: PG_AT.SIDE,   prop: "sidetable", lo: 0, hi: 1 },
+        { at: PG_AT.CORNER, prop: "plant",     lo: 1, hi: 2 },
+        { at: PG_AT.WALL,   prop: "picture",   lo: 2, hi: 3 }
     ];
-    _p[PG_ROOM.BEDROOM] = [ // quarto: cama com a cabeceira na parede, cômoda, baú no canto
-        { prop: "bed",     place: PG_PLACE.WALL_TOP,  lo: 1, hi: 1 },
-        { prop: "dresser", place: PG_PLACE.WALL_ROW,  lo: 1, hi: 2 },
-        { prop: "shelf",   place: PG_PLACE.WALL_ROW,  lo: 1, hi: 2 },
-        { prop: "dresser", place: PG_PLACE.WALL_SIDE, lo: 1, hi: 1 },
-        { prop: "cabinet", place: PG_PLACE.WALL_SIDE, lo: 1, hi: 1 },
-        { prop: "chest",   place: PG_PLACE.CORNER,    lo: 1, hi: 1 },
-        { prop: "plant",   place: PG_PLACE.CORNER,    lo: 1, hi: 2 },
-        { prop: "stool",   place: PG_PLACE.WALL_SIDE, lo: 1, hi: 2 } 
+    _p[PG_ROOM.KITCHEN] = [
+        { at: PG_AT.RUN,    runs: [["fridge", "stove", "sink", "counter", "counter"], ["counter", "stove", "sink", "fridge", "counter"]] },
+        { at: PG_AT.CENTER, prop: "table",     lo: 1, hi: 1, flank: "chair" },
+        { at: PG_AT.SIDE,   prop: "cabinet",   lo: 0, hi: 1 },
+        { at: PG_AT.CORNER, prop: "bin",       lo: 1, hi: 1 },
+        { at: PG_AT.CORNER, prop: "plant",     lo: 0, hi: 1 },
+        { at: PG_AT.WALL,   prop: "picture",   lo: 1, hi: 2 },
+        { at: PG_AT.WALL,   prop: "note",      lo: 0, hi: 1 }
     ];
-    _p[PG_ROOM.KITCHEN] = [ // cozinha: bancada (fogão + armários) na parede, mesa com banquinhos
-        { prop: "stove",   place: PG_PLACE.WALL_TOP,  lo: 1, hi: 1 },
-        { prop: "cabinet", place: PG_PLACE.WALL_ROW,  lo: 4, hi: 6 },
-        { prop: "table",   place: PG_PLACE.CENTER,    lo: 1, hi: 1, flank: "stool" },
-        { prop: "cabinet", place: PG_PLACE.WALL_SIDE, lo: 1, hi: 2 },
-        { prop: "shelf",   place: PG_PLACE.WALL_SIDE, lo: 1, hi: 1 },
-        { prop: "barrel",  place: PG_PLACE.CORNER,    lo: 1, hi: 2 }
+    _p[PG_ROOM.BATHROOM] = [
+        { at: PG_AT.RUN,    runs: [["toilet", "sink", "tub"], ["tub", "toilet", "sink"], ["sink", "toilet", "tub"]] },
+        { at: PG_AT.CORNER, prop: "bin",       lo: 1, hi: 1 },
+        { at: PG_AT.CORNER, prop: "plant",     lo: 0, hi: 1 },
+        { at: PG_AT.WALL,   prop: "towel",     lo: 1, hi: 1 },
+        { at: PG_AT.WALL,   prop: "picture",   lo: 0, hi: 1 }
     ];
-    _p[PG_ROOM.BATHROOM] = [ // banheiro: vaso na parede, armários, planta
-        { prop: "toilet",  place: PG_PLACE.WALL_TOP,  lo: 1, hi: 1 },
-        { prop: "cabinet", place: PG_PLACE.WALL_ROW,  lo: 2, hi: 3 },
-        { prop: "cabinet", place: PG_PLACE.WALL_SIDE, lo: 1, hi: 1 },
-        { prop: "plant",   place: PG_PLACE.CORNER,    lo: 1, hi: 2 }
+    _p[PG_ROOM.STORAGE] = [
+        { at: PG_AT.RUN,    runs: [["wardrobe", "cabinet", "cabinet", "bench"], ["cabinet", "wardrobe", "wardrobe"]] },
+        { at: PG_AT.SIDE,   prop: "cabinet",   lo: 1, hi: 2 },
+        { at: PG_AT.SIDE,   prop: "wardrobe",  lo: 0, hi: 1 },
+        { at: PG_AT.SIDE,   prop: "box",       lo: 2, hi: 3 },
+        { at: PG_AT.CORNER, prop: "box",       lo: 1, hi: 2 },
+        { at: PG_AT.CORNER, prop: "basket",    lo: 0, hi: 1 },
+        { at: PG_AT.WALL,   prop: "note",      lo: 1, hi: 1 }
     ];
-    _p[PG_ROOM.DINING] = [ // sala de jantar: mesa grande no meio com cadeiras, aparadores na parede
-        { prop: "table",   place: PG_PLACE.CENTER,    lo: 1, hi: 1, flank: "stool" },
-        { prop: "cabinet", place: PG_PLACE.WALL_ROW,  lo: 3, hi: 4 },
-        { prop: "shelf",   place: PG_PLACE.WALL_ROW,  lo: 1, hi: 2 },
-        { prop: "cabinet", place: PG_PLACE.WALL_SIDE, lo: 1, hi: 2 },
-        { prop: "plant",   place: PG_PLACE.CORNER,    lo: 2, hi: 3 },
-        { prop: "stool",   place: PG_PLACE.WALL_SIDE, lo: 1, hi: 2 }
+    _p[PG_ROOM.OFFICE] = [
+        { at: PG_AT.RUN,    runs: [["cabinet", "desk", "wardrobe"], ["desk", "cabinet", "cabinet"], ["wardrobe", "desk", "cabinet"]] },
+        { at: PG_AT.SIDE,   prop: "cabinet",   lo: 1, hi: 2 },
+        { at: PG_AT.CORNER, prop: "plant",     lo: 1, hi: 2 },
+        { at: PG_AT.CORNER, prop: "bin",       lo: 1, hi: 1 },
+        { at: PG_AT.WALL,   prop: "picture",   lo: 1, hi: 2 },
+        { at: PG_AT.WALL,   prop: "note",      lo: 1, hi: 2 }
     ];
-    _p[PG_ROOM.OFFICE] = [ // escritório: mesa na parede com cadeira, estantes de livros
-        { prop: "table",   place: PG_PLACE.WALL_TOP,  lo: 1, hi: 1, flank: "stool" },
-        { prop: "shelf",   place: PG_PLACE.WALL_ROW,  lo: 4, hi: 6 },
-        { prop: "shelf",   place: PG_PLACE.WALL_SIDE, lo: 2, hi: 3 },
-        { prop: "cabinet", place: PG_PLACE.WALL_SIDE, lo: 1, hi: 1 },
-        { prop: "plant",   place: PG_PLACE.CORNER,    lo: 1, hi: 2 },
-        { prop: "chest",   place: PG_PLACE.CORNER,    lo: 0, hi: 1 },
-        { prop: "stool",   place: PG_PLACE.WALL_SIDE, lo: 1, hi: 1 }
-    ];
-    _p[PG_ROOM.STORAGE] = [ // despensa: prateleiras, barris e baús nas paredes e cantos
-        { prop: "shelf",   place: PG_PLACE.WALL_ROW,  lo: 4, hi: 6 },
-        { prop: "barrel",  place: PG_PLACE.CORNER,    lo: 2, hi: 4 },
-        { prop: "chest",   place: PG_PLACE.CORNER,    lo: 1, hi: 2 },
-        { prop: "barrel",  place: PG_PLACE.WALL_SIDE, lo: 2, hi: 3 },
-        { prop: "chest",   place: PG_PLACE.WALL_SIDE, lo: 1, hi: 2 },
-        { prop: "cabinet", place: PG_PLACE.WALL_SIDE, lo: 1, hi: 1 }
+    _p[PG_ROOM.LAUNDRY] = [
+        { at: PG_AT.RUN,    runs: [["sink", "counter", "cabinet"], ["cabinet", "sink", "counter"]] }, // bancada de dobrar roupa na parede
+        { at: PG_AT.CORNER, prop: "basket",    lo: 2, hi: 3 },
+        { at: PG_AT.CORNER, prop: "bin",       lo: 0, hi: 1 },
+        { at: PG_AT.SIDE,   prop: "wardrobe",  lo: 0, hi: 1 },
+        { at: PG_AT.WALL,   prop: "towel",     lo: 1, hi: 1 },
+        { at: PG_AT.WALL,   prop: "note",      lo: 0, hi: 1 }
     ];
     return _p;
 }
 
-// andar atual e número de salas dele (5, 7, 9)
+// andar atual (1 a 3)
 function procgen_floor() {
     if (!variable_global_exists("pg_floor")) global.pg_floor = 1;
     return clamp(global.pg_floor, 1, 3);
-}
-function procgen_floor_rooms(_f) {
-    return 5 + 2 * (_f - 1);
 }
 
 
@@ -215,16 +248,18 @@ function procgen_try(_cfg) {
     // BSP
     var _bsp = procgen_bsp(_cfg);
     var _rooms = _bsp.leaves;
-
+	if (array_length(_rooms) < _cfg.min_rooms) return undefined;
     for (var _i = 0; _i < array_length(_rooms); _i++) {
         var _r = _rooms[_i];
         _r.idx   = _i;
         _r.links = []; // índices das salas ligadas por porta
-        _r.type  = PG_ROOM.BEDROOM;
+        _r.type  = -1;
         _r.cx    = _r.x + _r.w div 2; // célula central
-        _r.cy    = _r.y + _r.h div 2;
+        _r.cy    = (_r.y + 1 + PG_FACE + _r.y + _r.h - 2) div 2; // centro do chão
         _r.area  = (_r.w - 2) * (_r.h - 2); // área interna 
         _r.dist  = -1; // distância até a entrada
+        _r.focus_x = -1; // coluna da TV/lareira
+        _r.placed  = {}; // móveis colocados na sala
     }
 
     var _plan = {
@@ -232,21 +267,33 @@ function procgen_try(_cfg) {
         grid:  ds_grid_create(_cfg.cols, _cfg.rows),
         decor: ds_grid_create(_cfg.cols, _cfg.rows),
         rug:   ds_grid_create(_cfg.cols, _cfg.rows),
+        face:  ds_grid_create(_cfg.cols, _cfg.rows),
+        frames: [], // batentes de porta
+        map_frames: -1, // tilemap dos batentes
+        lids: {}, lid_cells: [], // topo da parede por cima das portas horizontais
+        strips: [],
         root: _bsp.root, inner: _bsp.inner, rooms: _rooms,
         doors: [],
         start: undefined, goal: undefined, // entrada e saída 
         seed: 0, attempt: 0,
         ox: 0, oy: 0, cell: _cfg.cell,
         stools: [], // células das cadeiras
+		props: [],
+		wall_used: {},
         mismatch: [],
         walk: [] // células que o jogador realmente alcança
     };
     ds_grid_clear(_plan.decor, 0);
+    ds_grid_clear(_plan.face, 0);
+    _plan.stools = [];
+    _plan.props = [];
     ds_grid_clear(_plan.rug, 0);
 
     procgen_carve(_plan); // paredes e chão
-    if (!procgen_connect(_plan, _cfg)) { procgen_destroy(_plan); return undefined; }  
+    if (!procgen_proportions_ok(_plan)) { procgen_destroy(_plan); return undefined; }
+    if (!procgen_connect(_plan, _cfg)) { procgen_destroy(_plan); return undefined; }  // portas que ligam a casa
     procgen_assign_roles(_plan);
+    procgen_connect_loops(_plan, _cfg); // portas extras
     if (!procgen_validate(_plan)) { procgen_destroy(_plan); return undefined; }
 
     // decoração
@@ -255,13 +302,9 @@ function procgen_try(_cfg) {
         ds_grid_clear(_plan.decor, 0);
         ds_grid_clear(_plan.rug, 0);
         procgen_decorate(_plan, _cfg);
-        _ok = procgen_validate_decor(_plan);
+        _ok = procgen_validate_decor(_plan) && procgen_has_required(_plan);
     }
-    if (!_ok) {
-        ds_grid_clear(_plan.decor, 0);
-        _plan.stools = [];
-        if (!procgen_validate_decor(_plan)) { procgen_destroy(_plan); return undefined; }
-    }
+    if (!_ok) { procgen_destroy(_plan); return undefined; }
     return _plan;
 }
 
@@ -271,6 +314,7 @@ function procgen_destroy(_plan) {
     if (ds_exists(_plan.grid,  ds_type_grid)) ds_grid_destroy(_plan.grid);
     if (ds_exists(_plan.decor, ds_type_grid)) ds_grid_destroy(_plan.decor);
     if (ds_exists(_plan.rug,   ds_type_grid)) ds_grid_destroy(_plan.rug);
+    if (ds_exists(_plan.face,  ds_type_grid)) ds_grid_destroy(_plan.face);
 }
 
 
@@ -361,7 +405,9 @@ function procgen_carve(_plan) {
     ds_grid_clear(_plan.grid, PG_TILE.WALL);
     for (var _i = 0; _i < array_length(_plan.rooms); _i++) {
         var _r = _plan.rooms[_i];
-        ds_grid_set_region(_plan.grid, _r.x + 1, _r.y + 1, _r.x + _r.w - 2, _r.y + _r.h - 2, PG_TILE.FLOOR);
+        // o chão começa depois do painel da parede de cima
+        ds_grid_set_region(_plan.grid, _r.x + 1, _r.y + 1 + PG_FACE, _r.x + _r.w - 2, _r.y + _r.h - 2, PG_TILE.FLOOR);
+        ds_grid_set_region(_plan.face, _r.x + 1, _r.y + 1, _r.x + _r.w - 2, _r.y + PG_FACE, 1);
     }
 }
 
@@ -375,7 +421,7 @@ function procgen_shared_wall(_a, _b) {
     var _bx2 = _b.x + _b.w - 1, _by2 = _b.y + _b.h - 1;
 
     if (_ax2 == _b.x || _bx2 == _a.x) { // parede vertical
-        var _ylo = max(_a.y, _b.y) + 1;
+        var _ylo = max(_a.y, _b.y) + 1 + PG_FACE; // porta lateral não pode encostar no painel
         var _yhi = min(_ay2, _by2) - 1;
         if (_yhi >= _ylo) return { vertical: true, at: (_ax2 == _b.x) ? _b.x : _a.x, lo: _ylo, hi: _yhi };
     }
@@ -401,6 +447,7 @@ function procgen_add_door(_plan, _a, _b, _w, _dw) {
     if (_w.hi - _w.lo + 1 < _dw) return false;
     var _len = _dw;
     var _p   = irandom_range(_w.lo, _w.hi - _len + 1);
+    if (_w.hi - _w.lo + 1 >= _len + 2) _p = irandom_range(_w.lo + 1, _w.hi - _len);
 
     // confere todas as células da porta antes de abrir
     for (var _i = 0; _i < _len; _i++) {
@@ -412,6 +459,18 @@ function procgen_add_door(_plan, _a, _b, _w, _dw) {
         var _cx = _w.vertical ? _w.at : _p + _i;
         var _cy = _w.vertical ? _p + _i : _w.at;
         ds_grid_set(_plan.grid, _cx, _cy, PG_TILE.DOOR);
+
+        if (!_w.vertical) { 
+            variable_struct_set(_plan.lids, string(_cx) + "_" + string(_cy), true);
+            array_push(_plan.lid_cells, [_cx, _cy]);
+            for (var _k = 1; _k <= PG_FACE; _k++) {
+                ds_grid_set(_plan.grid, _cx, _cy + _k, PG_TILE.DOOR);
+                ds_grid_set(_plan.face, _cx, _cy + _k, 0);
+            }
+            var _side = (_i == 0) ? 0 : 1;
+            array_push(_plan.frames, [_cx, _cy + 1, true, _side]);
+            array_push(_plan.frames, [_cx, _cy + PG_FACE, false, _side]);
+        }
     }
 
     array_push(_a.links, _b.idx);
@@ -443,15 +502,31 @@ function procgen_connect(_plan, _cfg) {
         if (!_ok) return false;
     }
 
-    // portas extras entre salas vizinhas ainda não ligadas
+    return true;
+}
+
+// portas extras
+function procgen_connect_loops(_plan, _cfg) {
     var _rooms = _plan.rooms;
     for (var _i = 0; _i < array_length(_rooms); _i++) {
         for (var _j = _i + 1; _j < array_length(_rooms); _j++) {
-            if (procgen_in(_rooms[_i].links, _j)) continue;
+            var _a = _rooms[_i], _b = _rooms[_j];
+            if (procgen_in(_a.links, _j)) continue;
+            if (_a.type == PG_ROOM.BATHROOM || _b.type == PG_ROOM.BATHROOM) continue;
+            if (_a.type == PG_ROOM.STORAGE  || _b.type == PG_ROOM.STORAGE)  continue;
             if (random(1) >= _cfg.loop_chance) continue;
-            var _ew = procgen_shared_wall(_rooms[_i], _rooms[_j]);
-            if (!is_undefined(_ew)) procgen_add_door(_plan, _rooms[_i], _rooms[_j], _ew, _cfg.door_width);
+            var _ew = procgen_shared_wall(_a, _b);
+            if (!is_undefined(_ew)) procgen_add_door(_plan, _a, _b, _ew, _cfg.door_width);
         }
+    }
+}
+
+// salas com proporção de cômodo
+function procgen_proportions_ok(_plan) {
+    for (var _i = 0; _i < array_length(_plan.rooms); _i++) {
+        var _r = _plan.rooms[_i];
+        var _ratio = (_r.w - 2) / (_r.h - 2 - PG_FACE);
+        if (_ratio > 2.5 || _ratio < 0.45) return false;
     }
     return true;
 }
@@ -489,55 +564,68 @@ function procgen_assign_roles(_plan) {
     _plan.start = _start;
     _plan.goal  = _goal;
 
-    // cômodos
+    // sala inicial
     _start.type = PG_ROOM.LIVING;
 
-    var _bath = undefined;
-    if (_n >= 3) {
-        for (var _i = 0; _i < _n; _i++) {
-            var _r = _rooms[_i];
-            if (_r == _start || _r == _goal) continue;
-            if (is_undefined(_bath) || _r.area < _bath.area) _bath = _r;
-        }
-        if (!is_undefined(_bath)) _bath.type = PG_ROOM.BATHROOM;
-    }
-
+    // cozinha
     var _kit = undefined;
     for (var _k = 0; _k < array_length(_start.links); _k++) {
         var _r = _rooms[_start.links[_k]];
-        if (_r == _bath || _r == _goal) continue;
         if (is_undefined(_kit) || _r.area > _kit.area) _kit = _r;
-    }
-    if (is_undefined(_kit)) { // fallback: qualquer vizinha
-        for (var _k = 0; _k < array_length(_start.links); _k++) {
-            var _r = _rooms[_start.links[_k]];
-            if (_r != _bath) { _kit = _r; break; }
-        }
     }
     if (!is_undefined(_kit)) _kit.type = PG_ROOM.KITCHEN;
 
-    // as mais perto da entrada viram (jantar -> escritório -> despensa)
-    // o resto fica como quarto (longe da entrada)
-    var _rest = [];
-    for (var _i = 0; _i < _n; _i++) {
-        var _r = _rooms[_i];
-        if (_r != _start && _r != _bath && _r != _kit) array_push(_rest, _r);
-    }
-    array_sort(_rest, function(_a, _b) { return (_a.dist != _b.dist) ? (_a.dist - _b.dist) : (_b.area - _a.area); });
-
-    var _extras = clamp(array_length(_rest) - 2, 0, 3); 
-    var _kinds = [PG_ROOM.DINING, PG_ROOM.OFFICE, PG_ROOM.STORAGE];
-
-    // sala de jantar: de preferência colada na cozinha
-    if (_extras > 0 && !is_undefined(_kit)) {
-        for (var _i = 0; _i < _extras; _i++) {
-            if (procgen_in(_kit.links, _rest[_i].idx)) {
-                var _t = _rest[0]; _rest[0] = _rest[_i]; _rest[_i] = _t;
-                break;
+    // banheiro
+    var _free = [];
+    for (var _i = 0; _i < _n; _i++) if (_rooms[_i].type == -1) array_push(_free, _rooms[_i]);
+    array_sort(_free, function(_a, _b) { return _a.area - _b.area; });
+    var _bath = undefined;
+    if (array_length(_free) > 0) {
+        var _bi = -1; // banheiro sem saída
+        for (var _i = 0; _i < array_length(_free); _i++) {
+            if (array_length(_free[_i].links) == 1 && _free[_i] != _goal) { _bi = _i; break; }
+        }
+        if (_bi == -1) {
+            for (var _i = 0; _i < array_length(_free); _i++) {
+                if (_free[_i] != _goal) { _bi = _i; break; }
             }
         }
+        if (_bi != -1) {
+            _bath = _free[_bi];
+            _bath.type = PG_ROOM.BATHROOM;
+            array_delete(_free, _bi, 1);
+        }
     }
-    for (var _i = 0; _i < _extras; _i++) _rest[_i].type = _kinds[_i];
+
+    // o resto sorteia entre escritório, lavanderia e despensa
+    var _kinds = [PG_ROOM.LAUNDRY, PG_ROOM.OFFICE, PG_ROOM.STORAGE];
+    procgen_shuffle(_kinds);
+    procgen_shuffle(_free);
+    var _m = min(array_length(_free), array_length(_kinds));
+    for (var _i = 0; _i < _m; _i++) _free[_i].type = _kinds[_i];
+
+    // lavanderia perto da cozinha ou do banheiro
+    for (var _i = 0; _i < _m; _i++) {
+        if (_free[_i].type != PG_ROOM.LAUNDRY || procgen_wet(_free[_i], _kit, _bath)) continue;
+        for (var _j = 0; _j < _m; _j++) {
+            if (_j == _i || !procgen_wet(_free[_j], _kit, _bath)) continue;
+            _free[_i].type = _free[_j].type;
+            _free[_j].type = PG_ROOM.LAUNDRY;
+            break;
+        }
+    }
+
+    if (_goal.type == PG_ROOM.STORAGE) {
+        _goal.type = PG_ROOM.OFFICE;
+        for (var _i = 0; _i < _n; _i++) {
+            if (_rooms[_i] != _goal && _rooms[_i].type == PG_ROOM.OFFICE) { _rooms[_i].type = PG_ROOM.STORAGE; break; }
+        }
+    }
+}
+
+function procgen_wet(_r, _kit, _bath) {
+    return (!is_undefined(_kit)  && procgen_in(_r.links, _kit.idx))
+        || (!is_undefined(_bath) && procgen_in(_r.links, _bath.idx));
 }
 
 
@@ -583,7 +671,6 @@ function procgen_walk(_plan) {
         for (var _y = 0; _y < _rows; _y++)
             _free[_x + _y * _cols] = (ds_grid_get(_plan.grid, _x, _y) != PG_TILE.WALL) && (ds_grid_get(_plan.decor, _x, _y) == 0);
 
-    // bloco com origem (x, y) ocupa x..x+1, y..y+1
     var _ok = array_create(_cols * _rows, false);
     for (var _x = 0; _x < _cols - 1; _x++) {
         for (var _y = 0; _y < _rows - 1; _y++) {
@@ -644,118 +731,317 @@ function procgen_validate_decor(_plan) {
 // ============================================================================
 // DECORAÇÃO
 // ============================================================================
+
 function procgen_decorate(_plan, _cfg) {
+    _plan.props = [];
+    _plan.strips = [];
     _plan.stools = [];
+    _plan.wall_used = {};
+    var _defs = procgen_props();
     var _presets = procgen_presets();
 
     for (var _i = 0; _i < array_length(_plan.rooms); _i++) {
         var _r = _plan.rooms[_i];
+        _r.focus_x = -1;
+        _r.placed = {};
         procgen_rug(_plan, _cfg, _r);
 
         var _rules = _presets[_r.type];
         for (var _k = 0; _k < array_length(_rules); _k++) {
             var _rule = _rules[_k];
-            if (!variable_struct_exists(_cfg.props, _rule.prop)) continue;
-            var _want = irandom_range(_rule.lo, _rule.hi);
-            if (_want <= 0) continue;
 
-            if (_rule.place == PG_PLACE.WALL_ROW) {
-                procgen_place_row(_plan, _cfg, _r, _rule.prop, _want);
+            if (_rule.at == PG_AT.RUN) {
+                procgen_place_run(_plan, _defs, _r, _rule.runs[irandom(array_length(_rule.runs) - 1)]);
                 continue;
             }
-
-            var _cells = procgen_place_candidates(_r, _rule.place);
-            procgen_shuffle(_cells);
-
-            var _placed = 0;
-            for (var _c = 0; _c < array_length(_cells) && _placed < _want; _c++) {
-                var _cx = _cells[_c][0], _cy = _cells[_c][1];
-                if (!procgen_decor_ok(_plan, _cx, _cy)) continue;
-                ds_grid_set(_plan.decor, _cx, _cy, procgen_prop(_cfg, _rule.prop));
-                _placed++;
-				if (_rule.prop == "stool") array_push(_plan.stools, [_cx, _cy]);
-
-                if (variable_struct_exists(_rule, "flank")) { // banquinhos dos dois lados da mesa
-                    for (var _s = -1; _s <= 1; _s += 2) {
-                        if (procgen_cell_free(_plan, _cx + _s, _cy)) {
-                            ds_grid_set(_plan.decor, _cx + _s, _cy, procgen_prop(_cfg, _rule.flank));
-                            array_push(_plan.stools, [_cx + _s, _cy]);
-                        }
-                    }
-                }
+            repeat (irandom_range(_rule.lo, _rule.hi)) {
+                if (_rule.at == PG_AT.WALL) procgen_place_wall(_plan, _defs, _r, _rule.prop);
+                else procgen_place_one(_plan, _defs, _r, _rule);
             }
         }
     }
 }
 
-// valor do prop 
-function procgen_prop(_cfg, _name) {
-    var _v = variable_struct_get(_cfg.props, _name);
-    return is_array(_v) ? _v[irandom(array_length(_v) - 1)] : _v;
-}
-
-// tapete 3x3 esticado, centralizado e menor que a sala
+// tapete
 function procgen_rug(_plan, _cfg, _r) {
     var _sets = _cfg.rugs[_r.type];
     if (array_length(_sets) == 0) return;
+    var _pick = _sets[irandom(array_length(_sets) - 1)];
+    var _iw = _r.w - 2, _ih = _r.h - 2 - PG_FACE;
+    var _fy = _r.y + 1 + PG_FACE;     
 
-    var _iw = _r.w - 2, _ih = _r.h - 2;
-    var _rw = max(3, floor(_iw * _cfg.rug_scale));
-    var _rh = max(3, floor(_ih * _cfg.rug_scale));
+    if (is_struct(_pick)) { // sprite
+        var _w = sprite_get_width(_pick.spr), _h = sprite_get_height(_pick.spr);
+        if (_w > _iw * _plan.cell - 32 || _h > _ih * _plan.cell - 32) return;
+        array_push(_plan.props, { spr: _pick.spr, kind: "rug", chair: false, el: -1,
+            x: (_r.x + 1) * _plan.cell + (_iw * _plan.cell - _w) div 2,
+            y: _fy * _plan.cell + (_ih * _plan.cell - _h) div 2 });
+        return;
+    }
+
+    var _rw = max(3, floor(_iw * _cfg.rug_scale[_r.type]));
+    var _rh = max(3, floor(_ih * _cfg.rug_scale[_r.type]));
     if (_rw > _iw - 2 || _rh > _ih - 2) return; // sem margem de chão
 
-    var _set = _sets[irandom(array_length(_sets) - 1)];
     var _x0 = _r.x + 1 + (_iw - _rw) div 2;
-    var _y0 = _r.y + 1 + (_ih - _rh) div 2;
+    var _y0 = _fy + (_ih - _rh) div 2;
     for (var _i = 0; _i < _rw; _i++) {
         for (var _j = 0; _j < _rh; _j++) {
             var _col = (_i == 0) ? 0 : ((_i == _rw - 1) ? 2 : 1);
             var _row = (_j == 0) ? 0 : ((_j == _rh - 1) ? 2 : 1);
-            ds_grid_set(_plan.rug, _x0 + _i, _y0 + _j, _set[_row * 3 + _col]);
+            ds_grid_set(_plan.rug, _x0 + _i, _y0 + _j, _pick[_row * 3 + _col]);
         }
     }
 }
 
-// fileira de objetos colados na parede de cima
-function procgen_place_row(_plan, _cfg, _r, _prop, _n) {
-    var _x0 = _r.x + 1, _x1 = _r.x + _r.w - 2, _y = _r.y + 1;
-    var _len = min(_n, _x1 - _x0 + 1);
+// sprite do móvel
+function procgen_pick_spr(_def, _side) {
+    if (_side == "l" && variable_struct_exists(_def, "spr_l")) return _def.spr_l;
+    if (_side == "r" && variable_struct_exists(_def, "spr_r")) return _def.spr_r;
+    return is_array(_def.spr) ? _def.spr[irandom(array_length(_def.spr) - 1)] : _def.spr;
+}
 
-    for (var _t = 0; _t < 12; _t++) {
-        var _sx = irandom_range(_x0, _x1 - _len + 1);
-        var _ok = true;
-        for (var _i = 0; _i < _len && _ok; _i++) _ok = procgen_decor_ok(_plan, _sx + _i, _y);
-        if (!_ok) continue;
-        for (var _i = 0; _i < _len; _i++) ds_grid_set(_plan.decor, _sx + _i, _y, procgen_prop(_cfg, _prop));
-        return;
+// footprint em células
+function procgen_footprint(_spr, _def, _top) {
+    var _w = sprite_get_width(_spr), _h = sprite_get_height(_spr);
+    var _fw = variable_struct_exists(_def, "fw") ? _def.fw : max(1, (_w + 8) div 16);
+    var _fh;
+    if (variable_struct_exists(_def, "fh")) _fh = _def.fh;
+    else _fh = _top ? max(1, ceil((_h - 16 * PG_FACE) / 16)) : max(1, (_h + 8) div 16);
+    return [_fw, _fh];
+}
+
+function procgen_area_ok(_plan, _x, _y, _w, _h, _ring) {
+    for (var _dx = 0; _dx < _w; _dx++)
+        for (var _dy = 0; _dy < _h; _dy++)
+            if (!procgen_cell_free(_plan, _x + _dx, _y + _dy)) return false;
+    if (!_ring) return true;
+
+    for (var _dx = -1; _dx <= _w; _dx++) {
+        for (var _dy = -1; _dy <= _h; _dy++) {
+            var _nx = _x + _dx, _ny = _y + _dy;
+            if (_nx < 0 || _ny < 0 || _nx >= _plan.cols || _ny >= _plan.rows) continue;
+            if (ds_grid_get(_plan.decor, _nx, _ny) != 0) return false;
+        }
+    }
+    return true;
+}
+
+// registra o móvel
+function procgen_put(_plan, _def, _spr, _x, _y, _fw, _fh) {
+    var _c = _plan.cell;
+    var _w = sprite_get_width(_spr), _h = sprite_get_height(_spr);
+    var _p = {
+        spr: _spr, kind: "prop", el: -1,
+        x: _x * _c + (_fw * _c - _w) div 2,
+        y: (_y + _fh) * _c - _h,
+        cx: _x, cy: _y + _fh - 1,
+        chair: variable_struct_exists(_def, "chair") && _def.chair
+    };
+    array_push(_plan.props, _p);
+    var _id = array_length(_plan.props);
+    for (var _dx = 0; _dx < _fw; _dx++)
+        for (var _dy = 0; _dy < _fh; _dy++)
+            ds_grid_set(_plan.decor, _x + _dx, _y + _dy, _id);
+    if (_p.chair) array_push(_plan.stools, [_p.cx, _p.cy]);
+
+    var _over = _h - _fh * _c;
+    if (_over > 0 && _y - 1 >= 0) {
+        for (var _dx = 0; _dx < _fw; _dx++) {
+            if (ds_grid_get(_plan.grid, _x + _dx, _y - 1) != PG_TILE.FLOOR) continue; // parede/painel já bloqueia
+            if (ds_grid_get(_plan.decor, _x + _dx, _y - 1) != 0) continue;
+            array_push(_plan.strips, [_x + _dx, _y - 1, _over]);
+        }
+    }
+
+    // objetos pequenos em cima
+    if (variable_struct_exists(_def, "tops")) {
+        var _slots = max(1, _w div 22);
+        var _sw = _w div _slots;
+        for (var _s = 0; _s < _slots; _s++) {
+            if (random(1) > 0.65) continue;
+            var _t = _def.tops[irandom(array_length(_def.tops) - 1)];
+            var _tw = sprite_get_width(_t), _th = sprite_get_height(_t);
+            array_push(_plan.props, { spr: _t, kind: "top", chair: false, el: -1,
+                x: _p.x + _s * _sw + irandom(max(0, _sw - _tw)),
+                y: _p.y + _def.top_y - _th });
+        }
+    }
+
+    // cadeira embaixo
+    if (variable_struct_exists(_def, "seat")) {
+        var _sx = _x + _fw div 2, _sy = _y + _fh;
+        if (procgen_cell_free(_plan, _sx, _sy)) procgen_put(_plan, _def.seat, procgen_pick_spr(_def.seat, ""), _sx, _sy, 1, 1);
     }
 }
 
-function procgen_place_candidates(_r, _place) {
-    var _x0 = _r.x + 1, _y0 = _r.y + 1;
-    var _x1 = _r.x + _r.w - 2, _y1 = _r.y + _r.h - 2;
-    var _out = [];
+// cadeiras dos dois lados da mesa
+function procgen_flank(_plan, _def, _x, _y, _fw, _fh) {
+    var _sy = _y + _fh - 1;
+    for (var _s = 0; _s < 2; _s++) {
+        var _sx = (_s == 0) ? _x - 1 : _x + _fw;
+        if (!procgen_cell_free(_plan, _sx, _sy)) continue;
+        procgen_put(_plan, _def, procgen_pick_spr(_def, (_s == 0) ? "l" : "r"), _sx, _sy, 1, 1);
+    }
+}
 
-    switch (_place) {
-        case PG_PLACE.WALL_TOP:
-            for (var _x = _x0; _x <= _x1; _x++) array_push(_out, [_x, _y0]);
+// fileira colada na parede de cima
+function procgen_place_run(_plan, _defs, _r, _names) {
+    var _all = procgen_required();
+    var _req = _all[_r.type]; // essenciais do cômodo
+    var _items = [];
+    for (var _i = 0; _i < array_length(_names); _i++) {
+        var _def = variable_struct_get(_defs, _names[_i]);
+        var _spr = procgen_pick_spr(_def, "");
+        var _fp = procgen_footprint(_spr, _def, true);
+        array_push(_items, { name: _names[_i], def: _def, spr: _spr, fw: _fp[0], fh: _fp[1] });
+    }
+    var _x0 = _r.x + 1, _y0 = _r.y + 1 + PG_FACE, _iw = _r.w - 2;
+
+    while (array_length(_items) > 0) {
+        var _sum = 0, _fhm = 1;
+        for (var _i = 0; _i < array_length(_items); _i++) {
+            _sum += _items[_i].fw;
+            _fhm = max(_fhm, _items[_i].fh);
+        }
+        if (_sum <= _iw) {
+            for (var _t = 0; _t < 12; _t++) {
+                var _sx = irandom_range(_x0, _x0 + _iw - _sum);
+                if (!procgen_area_ok(_plan, _sx, _y0, _sum, _fhm, true)) continue;
+                for (var _i = 0; _i < array_length(_items); _i++) {
+                    var _it = _items[_i];
+                    procgen_put(_plan, _it.def, _it.spr, _sx, _y0, _it.fw, _it.fh);
+                    procgen_mark(_r, _it.name);
+                    if (_it.name == "tv" || _it.name == "fireplace") _r.focus_x = _sx + _it.fw div 2;
+                    _sx += _it.fw;
+                }
+                return true;
+            }
+        }
+        // não coube
+        var _drop = array_length(_items) - 1;
+        for (var _i = array_length(_items) - 1; _i >= 0; _i--) {
+            var _n = _items[_i].name;
+            if (!procgen_in(_req, _n) && _n != "tv" && _n != "fireplace") { _drop = _i; break; }
+        }
+        array_delete(_items, _drop, 1);
+    }
+    return false;
+}
+
+// um móvel numa posição sorteada
+function procgen_place_one(_plan, _defs, _r, _rule) {
+    var _def = variable_struct_get(_defs, _rule.prop);
+    var _spr = procgen_pick_spr(_def, "");
+    var _ft = procgen_footprint(_spr, _def, true);  // colado na parede de cima
+    var _ff = procgen_footprint(_spr, _def, false);
+    var _x0 = _r.x + 1, _y0 = _r.y + 1 + PG_FACE, _x1 = _r.x + _r.w - 2, _y1 = _r.y + _r.h - 2;
+
+    var _c = [];
+    switch (_rule.at) {
+        case PG_AT.TOP:
+            for (var _x = _x0; _x <= _x1 - _ft[0] + 1; _x++) array_push(_c, [_x, _y0, "", true]);
         break;
-        case PG_PLACE.WALL_SIDE: // encostado na parede esquerda ou direita
-            for (var _y = _y0; _y <= _y1; _y++) array_push(_out, [_x0, _y], [_x1, _y]);
+        case PG_AT.BOTTOM:
+            for (var _x = _x0; _x <= _x1 - _ff[0] + 1; _x++) array_push(_c, [_x, _y1 - _ff[1] + 1, "", false]);
         break;
-        case PG_PLACE.CORNER:
-            array_push(_out, [_x0, _y0], [_x1, _y0], [_x0, _y1], [_x1, _y1]);
+        case PG_AT.SIDE:
+            for (var _y = _y0; _y <= _y1 - _ff[1] + 1; _y++) array_push(_c, [_x0, _y, "l", false], [_x1 - _ff[0] + 1, _y, "r", false]);
         break;
-        case PG_PLACE.CENTER:
-            for (var _dx = -1; _dx <= 1; _dx++)
-                for (var _dy = -1; _dy <= 1; _dy++) array_push(_out, [_r.cx + _dx, _r.cy + _dy]);
+        case PG_AT.CORNER:
+            array_push(_c, [_x0, _y0, "l", true], [_x1 - _ft[0] + 1, _y0, "r", true],
+                           [_x0, _y1 - _ff[1] + 1, "l", false], [_x1 - _ff[0] + 1, _y1 - _ff[1] + 1, "r", false]);
+        break;
+        case PG_AT.CENTER: // o mais perto do centro da sala
+            var _ccx = (_rule.prop == "sofa" && _r.focus_x >= 0) ? _r.focus_x : _r.cx;
+            var _jit = (_r.focus_x >= 0) ? 0.4 : 1.5;
+			var _align = (_rule.prop == "sofa" && _r.focus_x >= 0);
+			var _wx = _align ? 4 : 1;
+            for (var _dx = -3; _dx <= 3; _dx++)
+                for (var _dy = -3; _dy <= 3; _dy++)
+                    array_push(_c, [_ccx - _ff[0] div 2 + _dx, _r.cy - _ff[1] div 2 + _dy, "", false, abs(_dx) * _wx + abs(_dy) + ((_align && _dy < 0) ? 0.5 : 0) + random(_jit)]);
         break;
         default:
             for (var _x = _x0; _x <= _x1; _x++)
-                for (var _y = _y0; _y <= _y1; _y++) array_push(_out, [_x, _y]);
+                for (var _y = _y0; _y <= _y1; _y++) array_push(_c, [_x, _y, "", false]);
         break;
     }
-    return _out;
+    if (_rule.at == PG_AT.CENTER) array_sort(_c, function(_a, _b) { return sign(_a[4] - _b[4]); });
+    else procgen_shuffle(_c);
+
+    for (var _i = 0; _i < array_length(_c); _i++) {
+        var _p = _c[_i];
+        var _fp = _p[3] ? _ft : _ff;
+        if (_p[0] < _x0 || _p[1] < _y0 || _p[0] + _fp[0] - 1 > _x1 || _p[1] + _fp[1] - 1 > _y1) continue;
+        if (!procgen_area_ok(_plan, _p[0], _p[1], _fp[0], _fp[1], true)) continue;
+
+        procgen_put(_plan, _def, procgen_pick_spr(_def, _p[2]), _p[0], _p[1], _fp[0], _fp[1]);
+        procgen_mark(_r, _rule.prop);
+        if (variable_struct_exists(_rule, "flank")) {
+            procgen_flank(_plan, variable_struct_get(_defs, _rule.flank), _p[0], _p[1], _fp[0], _fp[1]);
+        }
+        return true;
+    }
+    return false;
+}
+
+function procgen_place_wall(_plan, _defs, _r, _prop) {
+    var _def = variable_struct_get(_defs, _prop);
+    var _spr = procgen_pick_spr(_def, "");
+    var _w = sprite_get_width(_spr), _h = sprite_get_height(_spr);
+    var _fw = max(1, (_w + 8) div 16);
+    var _fy = _r.y + 1; // primeira linha do painel
+    var _fb = _r.y + 1 + PG_FACE;   // primeira linha de chão
+
+    var _xs = [];
+    for (var _x = _r.x + 1; _x <= _r.x + _r.w - 2 - _fw + 1; _x++) array_push(_xs, _x);
+    procgen_shuffle(_xs);
+
+    for (var _i = 0; _i < array_length(_xs); _i++) {
+        var _x = _xs[_i], _ok = true;
+        for (var _k = -1; _k <= _fw && _ok; _k++) {
+            var _cx = _x + _k;
+            _ok = ds_grid_get(_plan.decor, _cx, _fb) == 0
+               && !variable_struct_exists(_plan.wall_used, string(_cx) + "_" + string(_fy));
+            if (_ok && _k >= 0 && _k < _fw) _ok = ds_grid_get(_plan.face, _cx, _fy) == 1;
+        }
+        if (!_ok) continue;
+
+        for (var _k = -1; _k <= _fw; _k++) variable_struct_set(_plan.wall_used, string(_x + _k) + "_" + string(_fy), true);
+        array_push(_plan.props, { spr: _spr, kind: "prop", chair: false, el: -1,
+            x: _x * _plan.cell + (_fw * _plan.cell - _w) div 2,
+            y: _fy * _plan.cell + (PG_FACE * _plan.cell - _h) div 2 - 2 });
+        return true;
+    }
+    return false;
+}
+
+function procgen_required() {
+    var _q = array_create(6, []);
+    _q[PG_ROOM.LIVING]   = ["sofa"];
+    _q[PG_ROOM.KITCHEN]  = ["fridge", "stove", "sink", "table"];
+    _q[PG_ROOM.BATHROOM] = ["toilet", "sink"];
+    _q[PG_ROOM.STORAGE]  = [];
+    _q[PG_ROOM.OFFICE]   = ["desk"];
+    _q[PG_ROOM.LAUNDRY]  = ["sink"];
+    return _q;
+}
+
+function procgen_mark(_r, _name) {
+    variable_struct_set(_r.placed, _name, true);
+}
+
+function procgen_has_required(_plan) {
+    var _req = procgen_required();
+    for (var _i = 0; _i < array_length(_plan.rooms); _i++) {
+        var _r = _plan.rooms[_i];
+        var _list = _req[_r.type];
+        for (var _k = 0; _k < array_length(_list); _k++) {
+            if (!variable_struct_exists(_r.placed, _list[_k])) return false;
+        }
+        if (_r.type == PG_ROOM.LIVING && !variable_struct_exists(_r.placed, "tv") && !variable_struct_exists(_r.placed, "fireplace")) return false;
+    }
+    return true;
 }
 
 // chão livre, sem porta por perto, fora da entrada e da saída
@@ -763,8 +1049,8 @@ function procgen_cell_free(_plan, _x, _y) {
     if (ds_grid_get(_plan.grid, _x, _y) != PG_TILE.FLOOR) return false;
     if (ds_grid_get(_plan.decor, _x, _y) != 0) return false;
 
-    for (var _dx = -1; _dx <= 1; _dx++) {
-        for (var _dy = -1; _dy <= 1; _dy++) {
+    for (var _dx = -2; _dx <= 2; _dx++) {
+        for (var _dy = -2; _dy <= 2; _dy++) {
             var _nx = _x + _dx, _ny = _y + _dy;
             if (_nx < 0 || _ny < 0 || _nx >= _plan.cols || _ny >= _plan.rows) continue;
             if (ds_grid_get(_plan.grid, _nx, _ny) == PG_TILE.DOOR) return false;
@@ -772,18 +1058,6 @@ function procgen_cell_free(_plan, _x, _y) {
     }
     if (abs(_x - _plan.start.cx) <= 1 && abs(_y - _plan.start.cy) <= 1) return false;
     if (abs(_x - _plan.goal.cx)  <= 1 && abs(_y - _plan.goal.cy)  <= 1) return false;
-    return true;
-}
-
-// além de livre, não encosta em outro objeto
-function procgen_decor_ok(_plan, _x, _y) {
-    if (!procgen_cell_free(_plan, _x, _y)) return false;
-    for (var _dx = -1; _dx <= 1; _dx++) {
-        for (var _dy = -1; _dy <= 1; _dy++) {
-            if (abs(_dx) + abs(_dy) == 2) continue; // diagonal pode encostar
-            if (ds_grid_get(_plan.decor, _x + _dx, _y + _dy) != 0) return false;
-        }
-    }
     return true;
 }
 
@@ -802,8 +1076,29 @@ function procgen_apply(_plan, _cfg, _ox, _oy) {
 
     var _mf = procgen_layer_map(_cfg.layer_floor);
     var _mw = procgen_layer_map(_cfg.layer_wall);
+    if (_mf != -1) tilemap_tileset(_mf, _cfg.tileset_floor);
+    if (_mw != -1) tilemap_tileset(_mw, _cfg.tileset_walls);
+
+    // tipo do cômodo de cada célula
+    var _rtype = array_create(_plan.cols * _plan.rows, -1);
+    for (var _i = 0; _i < array_length(_plan.rooms); _i++) {
+        var _r = _plan.rooms[_i];
+        for (var _rx = _r.x + 1; _rx <= _r.x + _r.w - 2; _rx++)
+            for (var _ry = _r.y + 1; _ry <= _r.y + _r.h - 2; _ry++) _rtype[_rx + _ry * _plan.cols] = _r.type;
+    }
     var _mc = procgen_layer_map(_cfg.layer_collision);
-    var _md = procgen_layer_map(_cfg.layer_decor);
+    var _mr = procgen_apply_props(_plan, _cfg, _ox, _oy); // tapetes e sprites
+
+    for (var _i = 0; _i < array_length(_plan.frames); _i++) {
+        var _f = _plan.frames[_i];
+        var _ft = _f[2] ? _cfg.door_top[_f[3]] : _cfg.door_bot[_f[3]];
+        if (_plan.map_frames != -1) tilemap_set(_plan.map_frames, _ft, _ox + _f[0], _oy + _f[1]);
+    }
+
+    for (var _i = 0; _i < array_length(_plan.lid_cells); _i++) {
+        var _l = _plan.lid_cells[_i];
+        if (_plan.map_frames != -1) tilemap_set(_plan.map_frames, procgen_wall_tile(_plan, _cfg, _l[0], _l[1]), _ox + _l[0], _oy + _l[1]);
+    }
 
     for (var _x = 0; _x < _plan.cols; _x++) {
         for (var _y = 0; _y < _plan.rows; _y++) {
@@ -811,21 +1106,58 @@ function procgen_apply(_plan, _cfg, _ox, _oy) {
             var _tx = _ox + _x, _ty = _oy + _y;
 
             if (_t == PG_TILE.WALL) {
-                if (_mw != -1) tilemap_set(_mw, procgen_wall_tile(_plan, _cfg, _x, _y), _tx, _ty);
+                if (_mw != -1) {
+                    var _tile;
+                    if (ds_grid_get(_plan.face, _x, _y) == 1) { // painel: linha de cima ou de baixo
+                        var _low = (_y > 0 && ds_grid_get(_plan.face, _x, _y - 1) == 1);
+                        _tile = _low ? _cfg.face_bot[_x mod 2] : _cfg.face_top[_x mod 2];
+                    } else {
+                        _tile = procgen_wall_tile(_plan, _cfg, _x, _y);
+                    }
+                    tilemap_set(_mw, _tile, _tx, _ty);
+                }
                 procgen_set_collision(_mc, _cfg, _tx, _ty);
             } else {
-                var _rug = ds_grid_get(_plan.rug, _x, _y);
-                var _ft = (_rug > 0) ? _rug : _cfg.tile_floor;
-                if (_mf != -1 && _ft > 0) tilemap_set(_mf, _ft, _tx, _ty);
-
-                var _dec = ds_grid_get(_plan.decor, _x, _y);
-                if (_dec > 0) {
-                    if (_md != -1) tilemap_set(_md, _dec, _tx, _ty);
-                    if (_cfg.decor_blocks) procgen_set_collision(_mc, _cfg, _tx, _ty);
+                if (_mf != -1) {
+                    var _rt = _rtype[_x + _y * _plan.cols];
+                    var _pair = _cfg.floors[max(0, _rt)];
+                    tilemap_set(_mf, _pair[(_x + _y) mod 2], _tx, _ty); // xadrez
                 }
+
+                var _rug = ds_grid_get(_plan.rug, _x, _y);
+                if (_rug > 0 && _mr != -1) tilemap_set(_mr, _rug, _tx, _ty);
+
+                if (_cfg.decor_blocks && ds_grid_get(_plan.decor, _x, _y) > 0) procgen_set_collision(_mc, _cfg, _tx, _ty);
             }
         }
     }
+
+    if (_cfg.decor_blocks) {
+        for (var _i = 0; _i < array_length(_plan.strips); _i++) {
+            var _st = _plan.strips[_i];
+            procgen_set_collision_strip(_mc, _cfg, _ox + _st[0], _oy + _st[1], _st[2]);
+        }
+    }
+}
+
+function procgen_apply_props(_plan, _cfg, _ox, _oy) {
+    var _names = ["PG_Rugs", "PG_Props", "PG_Tops", "PG_Frames"];
+    var _depth = [_cfg.depth_rugs, _cfg.depth_props, _cfg.depth_tops, _cfg.depth_frames];
+    var _ly = [];
+    for (var _i = 0; _i < 4; _i++) {
+        if (layer_exists(_names[_i])) layer_destroy(_names[_i]);
+        array_push(_ly, layer_create(_depth[_i], _names[_i]));
+    }
+    var _map = layer_tilemap_create(_ly[0], 0, 0, _cfg.tileset_rugs, room_width div _cfg.cell, room_height div _cfg.cell);
+    _plan.map_frames = layer_tilemap_create(_ly[3], 0, 0, _cfg.tileset_rugs, room_width div _cfg.cell, room_height div _cfg.cell);
+
+    for (var _i = 0; _i < array_length(_plan.props); _i++) {
+        var _p = _plan.props[_i];
+        var _l = (_p.kind == "rug") ? _ly[0] : ((_p.kind == "top") ? _ly[2] : _ly[1]);
+        _p.el = layer_sprite_create(_l, _ox * _cfg.cell + _p.x, _oy * _cfg.cell + _p.y, _p.spr);
+        layer_sprite_speed(_p.el, 0);
+    }
+    return _map;
 }
 
 function procgen_verify_applied(_plan, _cfg, _ox, _oy) {
@@ -834,8 +1166,11 @@ function procgen_verify_applied(_plan, _cfg, _ox, _oy) {
     if (_mc == -1) return 0;
 
     var _k = max(1, _cfg.cell div tilemap_get_tile_width(_mc));
+    var _skip = {}; // células com só uma faixa de colisão
+    for (var _i = 0; _i < array_length(_plan.strips); _i++) variable_struct_set(_skip, string(_plan.strips[_i][0]) + "_" + string(_plan.strips[_i][1]), true);
     for (var _x = 0; _x < _plan.cols; _x++) {
         for (var _y = 0; _y < _plan.rows; _y++) {
+            if (variable_struct_exists(_skip, string(_x) + "_" + string(_y))) continue;
             var _want = (ds_grid_get(_plan.grid, _x, _y) == PG_TILE.WALL)
                      || (_cfg.decor_blocks && ds_grid_get(_plan.decor, _x, _y) > 0);
             var _n = 0;
@@ -851,24 +1186,26 @@ function procgen_verify_applied(_plan, _cfg, _ox, _oy) {
 
 function procgen_is_wall(_plan, _x, _y) {
     if (_x < 0 || _y < 0 || _x >= _plan.cols || _y >= _plan.rows) return 0;
-    return (ds_grid_get(_plan.grid, _x, _y) == PG_TILE.WALL) ? 1 : 0;
+    if (ds_grid_get(_plan.face, _x, _y) == 1) return 0;
+    if (ds_grid_get(_plan.grid, _x, _y) == PG_TILE.WALL) return 1;
+    return variable_struct_exists(_plan.lids, string(_x) + "_" + string(_y)) ? 1 : 0;
 }
 
-// parede automática pelos 4 vizinhos
+// parede estrutural pelos 4 vizinhos
 function procgen_wall_tile(_plan, _cfg, _x, _y) {
-    if (_cfg.tile_wall > 0) return _cfg.tile_wall;
+    var _n = procgen_is_wall(_plan, _x, _y - 1);
+    var _e = procgen_is_wall(_plan, _x + 1, _y);
+    var _s = procgen_is_wall(_plan, _x, _y + 1);
+    var _w = procgen_is_wall(_plan, _x - 1, _y);
 
-    var _m = procgen_is_wall(_plan, _x, _y - 1)
-           + procgen_is_wall(_plan, _x + 1, _y) * 2
-           + procgen_is_wall(_plan, _x, _y + 1) * 4
-           + procgen_is_wall(_plan, _x - 1, _y) * 8;
+    if ((_e || _w) && !_n && !_s) return _cfg.wall_h[_w ? (_e ? 1 : 2) : 0];
+    if ((_n || _s) && !_e && !_w) return _cfg.wall_v[_n ? (_s ? 1 : 2) : 0];
 
-    if (_m == 5) { // vertical reta
-        if (_x == 0) return _cfg.wall_left;
-        if (_x == _plan.cols - 1) return _cfg.wall_right;
-    }
-    if (_m == 10 && _y == 0) return _cfg.wall_top; // horizontal da borda de cima
-    return _cfg.walls[_m];
+    if (_e && _s && !_n && !_w) return _cfg.wall_corner.tl;
+    if (_s && _w && !_n && !_e) return _cfg.wall_corner.tr;
+    if (_n && _e && !_s && !_w) return _cfg.wall_corner.bl;
+    if (_n && _w && !_s && !_e) return _cfg.wall_corner.br;
+    return _cfg.wall_block;
 }
 
 function procgen_layer_map(_name) {
@@ -885,6 +1222,17 @@ function procgen_set_collision(_map, _cfg, _tx, _ty) {
             tilemap_set(_map, _cfg.tile_collision, _tx * _k + _i, _ty * _k + _j);
 }
 
+// colisão só na parte de baixo da célula
+function procgen_set_collision_strip(_map, _cfg, _tx, _ty, _px) {
+    if (_map == -1) return;
+    var _tw = tilemap_get_tile_width(_map);
+    var _k = max(1, _cfg.cell div _tw);
+    var _rows = clamp(ceil(_px / _tw), 1, _k);
+    for (var _i = 0; _i < _k; _i++)
+        for (var _j = _k - _rows; _j < _k; _j++)
+            tilemap_set(_map, _cfg.tile_collision, _tx * _k + _i, _ty * _k + _j);
+}
+
 // paredes e móveis no mp_grid do obj_manager
 function procgen_sync_mp_grid(_plan, _cfg, _ox, _oy, _mp) {
     for (var _x = 0; _x < _plan.cols; _x++) {
@@ -893,6 +1241,9 @@ function procgen_sync_mp_grid(_plan, _cfg, _ox, _oy, _mp) {
                         || (_cfg.decor_blocks && ds_grid_get(_plan.decor, _x, _y) > 0);
             if (_blocked) mp_grid_add_cell(_mp, _ox + _x, _oy + _y);
         }
+    }
+    if (_cfg.decor_blocks) {
+        for (var _i = 0; _i < array_length(_plan.strips); _i++) mp_grid_add_cell(_mp, _ox + _plan.strips[_i][0], _oy + _plan.strips[_i][1]);
     }
 }
 
@@ -970,28 +1321,25 @@ function procgen_spawn_enemy(_obj, _plan, _cfg, _ox, _oy, _rooms) {
 
 // transforma n cadeiras em mímicos
 function procgen_spawn_mimics(_plan, _cfg, _ox, _oy, _n) {
-    var _md = procgen_layer_map(_cfg.layer_decor);
-    if (_md == -1 || _n <= 0) return;
+    if (_n <= 0) return;
 
-    var _stool = _cfg.props.stool;
     var _cells = [];
-    for (var _x = 0; _x < _plan.cols; _x++) {
-        for (var _y = 0; _y < _plan.rows; _y++) {
-            if (ds_grid_get(_plan.decor, _x, _y) != _stool) continue;
-            var _p = procgen_cell_to_px(_x, _y, _cfg, _ox, _oy);
-            array_push(_cells, { tx: _ox + _x, ty: _oy + _y, px: _p[0], py: _p[1] });
-        }
+    for (var _i = 0; _i < array_length(_plan.props); _i++) {
+        var _p = _plan.props[_i];
+        if (!_p.chair) continue;
+        var _px = procgen_cell_to_px(_p.cx, _p.cy, _cfg, _ox, _oy);
+        array_push(_cells, { px: _px[0], py: _px[1], el: _p.el });
     }
     _n = min(_n, array_length(_cells) - 1);
-	if (_n <= 0) return; // precisa de cadeira sobrando pra ele trocar de lugar
+    if (_n <= 0) return; // precisa de cadeira sobrando pra ele trocar de lugar
 
     array_shuffle(_cells);
-    var _shared = { cells: _cells, taken: array_create(array_length(_cells), false), map: _md, tile: _stool };
+    var _shared = { cells: _cells, taken: array_create(array_length(_cells), false) };
 
-    for (var _i = 0; _i < _n; _i++) {	
+    for (var _i = 0; _i < _n; _i++) {
         var _c = _cells[_i];
         _shared.taken[_i] = true;
-        tilemap_set(_md, 0, _c.tx, _c.ty); // tira só o visual, a colisão continua
+        layer_sprite_alpha(_c.el, 0); // tira só o visual, a colisão continua
         instance_create_layer(_c.px, _c.py, "Instances", obj_mimic, { shared: _shared, cell_i: _i });
     }
 }
@@ -1024,9 +1372,9 @@ function procgen_spawn_balloons(_plan, _cfg, _ox, _oy, _n) {
 //  DEBUG
 // ============================================================================
 function procgen_debug_draw(_plan, _px, _py, _s) {
-    var _room_col = [make_color_rgb(70,110,160), make_color_rgb(110,150,90),
-                     make_color_rgb(190,140,70), make_color_rgb(140,100,160),
-                     make_color_rgb(200,200,90), make_color_rgb(90,170,170), make_color_rgb(150,120,100)];
+    // sala, cozinha, banheiro, despensa, escritório, lavanderia
+    var _room_col = [make_color_rgb(70,110,160), make_color_rgb(190,140,70), make_color_rgb(140,100,160),
+                     make_color_rgb(150,120,100), make_color_rgb(90,170,170), make_color_rgb(110,150,90)];
 
     for (var _x = 0; _x < _plan.cols; _x++) {
         for (var _y = 0; _y < _plan.rows; _y++) {
