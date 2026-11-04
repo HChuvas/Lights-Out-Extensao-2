@@ -29,7 +29,7 @@ for (var i = 0; i < 2; i++) {
     );
 	
 	if (!is_undefined(inventory._items[i])) {
-	    var item_sprite = inventory._items[i].sprite;
+	    var item_sprite = global.items[$ inventory._items[i].name].sprite;
 
 	    var sprite_w = sprite_get_width(item_sprite);
 	    var sprite_h = sprite_get_height(item_sprite);

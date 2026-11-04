@@ -3,16 +3,20 @@ function Inventory () constructor{
 	_items = array_create(2, undefined);
 	selected_index = 0;
 	
-    item_add = function(_name, _quantity, _sprite) {
+    item_add = function(_name, _quantity) {
+        if (is_undefined(global.items[$ _name])) {
+            show_debug_message("Item não existe: " + _name);
+            return false;
+        }
+
         for (var i = 0; i < array_length(_items); i++) {
             if (is_undefined(_items[i])) {
                 _items[i] = {
                     name: _name,
-                    quantity: _quantity,
-                    sprite: _sprite
+                    quantity: _quantity
                 };
 
-                show_debug_message("Item " + _name +"no slot " + string(i+1));
+                show_debug_message("Item " + _name + " no slot " + string(i+1));
 
                 return true;
             }
@@ -23,13 +27,27 @@ function Inventory () constructor{
     };
 	
 	item_use = function() {
-        if (is_undefined(_items[selected_index])) {
+        var _item = _items[selected_index];
+        if (is_undefined(_item)) {
             show_debug_message("Slot selecionado está vazio");
             return;
         }
-        
-        show_debug_message("Usando " + _items[selected_index].name);
-        Player.item_held = _items[selected_index].name
+
+        show_debug_message("Usando " + _item.name);
+        var _def = global.items[$ _item.name];
+        Player.item_held = _item.name;
+        _def.on_use(Player);
+
+        if (_def.consumable) {
+            _item.quantity -= 1;
+            if (_item.quantity <= 0) _items[selected_index] = undefined;
+        }
+    };
+	
+	item_stop = function() {
+        if (Player.item_held == "") return;
+        global.items[$ Player.item_held].on_stop(Player);
+        Player.item_held = "";
     };
 	
 	select_slot = function(_index) {
