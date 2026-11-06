@@ -3,9 +3,12 @@ if (!variable_global_exists("cell") || !variable_global_exists("solid_maps")) ex
 
 // Cria o grid uma vez
 if (!ready) {
+    enemy_unstick();
     build_grid();
     ready = true;
 }
+
+if (hits_wall(x, y) && enemy_unstick()) on_path = false;
 
 // Atualizações por frame
 arm_cooldown = max(0, arm_cooldown - 1);
@@ -24,6 +27,14 @@ if (_see && state != CLOWN.FLEE) {
     start_flee();
     update_anim();
     exit;
+}
+
+// dá passagem
+if (state != CLOWN.FLEE && !on_path) {
+    var _ch = instance_nearest(x, y, obj_chaser);
+    if (_ch != noone && point_distance(x, y, _ch.x, _ch.y) < 28) {
+        if (go_random(patrol_spd)) state = CLOWN.PATROL;
+    }
 }
 
 // Máquina de estados
@@ -112,3 +123,5 @@ switch (state) {
 
 update_anim();
 enemy_separation();
+last_x = x;
+last_y = y;
