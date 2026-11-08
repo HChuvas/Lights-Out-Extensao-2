@@ -29,11 +29,15 @@ function procgen_config() {
     var _p_sala   = { top: [192, 193], bot: [214, 215] }; // cinza azulado (sala)
     var _p_verde  = { top: [185, 186], bot: [207, 208] }; // verde escuro (cozinha)
     var _p_branco = { top: [104, 105], bot: [126, 127] }; // branco (banheiro)
+    var _p_laundry = { top: [354, 355], bot: [376, 377] }; // azul esverdeado (lavanderia)
+    var _p_office = { top: [359, 360], bot: [381, 382] }; // branco e azul escuro (escritório)
+    var _p_storage = { top: [364, 365], bot: [386, 387] }; // marrom (depósito)
 
     // pisos
     var _fl_wood  = [254, 255, 276, 277]; // madeira escura
     var _fl_blue  = [247, 248, 269, 270]; // cinza azulado
     var _fl_light = [261, 262, 283, 284]; // cinza claro
+    var _fl_alt_wood = [368, 369, 370, 371]; // madeira alternativa
 
     return {
         floor_n: _f,
@@ -61,16 +65,16 @@ function procgen_config() {
             _fl_wood,
             [280, 266],
             _fl_light,
-            _fl_blue,
+            _fl_alt_wood,
             [273],
-            [302]
+            [280]
         ],
 
         wall_h: [117, 118, 119],
         wall_v: [72, 94, 116],
         wall_corner: { tl: 73, tr: 74, bl: 117, br: 119 },
         wall_block: 75,
-        faces: [_p_sala, _p_verde, _p_branco, _p_verde, _p_sala, _p_branco],
+        faces: [_p_sala, _p_verde, _p_branco, _p_storage, _p_office, _p_laundry],
         door_top: [112, 113],
         door_bot: [134, 135],
         tileset_floor: ts_modern_pack,

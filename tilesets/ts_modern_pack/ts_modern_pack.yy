@@ -8,7 +8,7 @@
     "TileSerialiseData":[],
   },
   "name":"ts_modern_pack",
-  "out_columns":20,
+  "out_columns":21,
   "out_tilehborder":2,
   "out_tilevborder":2,
   "parent":{
@@ -32,7 +32,7 @@
   "tilehsep":0,
   "tilevsep":0,
   "tileWidth":16,
-  "tilexoff":10,
-  "tileyoff":0,
-  "tile_count":390,
+  "tilexoff":11,
+  "tileyoff":16,
+  "tile_count":462,
 }
