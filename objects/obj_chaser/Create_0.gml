@@ -9,8 +9,8 @@ ACE = 0.15;
 direction = 0;
 
 //stamina param
-STAMINA = 1.0;
-MAX_STAMINA = 2.0;
+STAMINA = 1.60;
+MAX_STAMINA = 1.60;
 REST_REGEN = 0.15;
 
 //states params
@@ -125,28 +125,28 @@ function state_behavior(){
 
 //get all objects in line of sight
 function raycasting_pov(vision_range = IDLE_VISION_RANGE){
+	var collision_tilemap = layer_tilemap_get_id(layer_get_id("Collision"));
 	var objs_in_vision = [];
 	
-	for( var ang = 0; ang < 360; ang = ang + 9){
-			var x2 = lengthdir_x(vision_range, ang);
-			var y2 = lengthdir_y(vision_range, ang);
-			
-			x2 = self.x + x2;
-			y2 = self.y + y2;
-			
-			var hit = collision_line(self.x, self.y, x2, y2, obj_obstacle, false, true);
-			
-			if (hit == noone ){
-				hit = collision_line(self.x, self.y, x2, y2, Player, false, true);
+	for( var _ang = 0; _ang < 360; _ang += 9){
+        var x2 = self.x + lengthdir_x(vision_range, _ang);
+        var y2 = self.y + lengthdir_y(vision_range, _ang);
+		
+		var hit = collision_line(self.x, self.y, x2, y2, Player, false, true);
+
+		if (hit != noone) {
+		    var wall = collision_line(
+		        self.x, self.y,
+		        hit.x, hit.y,
+		        collision_tilemap,
+		        false, true
+		    );
+
+			if (wall == noone) {
+			    array_push(objs_in_vision, hit);
 			}
-			
-			if ( hit == noone ){
-				hit = collision_line(self.x, self.y, x2, y2, enemy_parent, false, true);
-			}
-			
-			if ( hit != noone ){
-				array_push(objs_in_vision, hit);
-			}
+		}
+		
 	}
 	
 	objs_in_vision = array_unique(objs_in_vision);
@@ -215,7 +215,7 @@ function path_move(){
 	if (_dist <= VEL + ACE){
 		path_point_index += 1;
 		
-	} else {
+	}  else {
 		//if not, continue 
 		var _dir = point_direction(self.x, self.y, _x, _y);
 		direction = _dir;
