@@ -1,7 +1,4 @@
-function enemy_separation() {
-    var _radius = 25;
-    var _strength = 0.5;
-    var _max_push = 2;
+function enemy_separation(_radius = 25, _strength = 0.5, _max_push = 2) {
 
     var _tilemap = layer_tilemap_get_id("Collision");
     var _count = instance_number(enemy_parent);
