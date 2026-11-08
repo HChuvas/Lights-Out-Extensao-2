@@ -1,11 +1,12 @@
 event_inherited();
 
 //vision params
-VISION_RANGE = 125;
-SHOOT_RANGE = 50;
+VISION_RANGE = 150;
+SHOOT_RANGE = 100;
+SHOOT_ANGLE = [350, 0, 10]
 
 //movement params
-VEL = 1.5;
+VEL = 1.25;
 direction = 0;
 
 //states params
@@ -15,22 +16,23 @@ enum SPIDER_STATES {
 	TRAVEL,
 	CHASE,
 	SHOOT,
-	RUN
+	STOP
 }
 CURRENT_STATE = SPIDER_STATES.TRAVEL;
 
 //time params
-PERCEPTION_INTEVAL_TIME = 1;		//time inteval to do a perception / avoid calling the perception funtion each step
+PERCEPTION_INTEVAL_TIME = 5;		//time inteval to do a perception / avoid calling the perception funtion each step
 ATTACK_DELAY_TIME = 0.2;		//DUH  / avoid apam attacks
-WATCH_TIME = 2;
 MAX_ACTION_TIME_LEN = 10;
 SPRITE_CHANGE_INTEVAL = 2;
 WATCH_TIME_RANGE = [2, 4];
 
 //attack params
 ATTACK_DAMAGE = 1;
-ATTACK_LIFETIME = 0.5;
+ATTACK_LIFETIME = 10;
 ATTACKING  = false;
+ATTACK_VEL = 1.5;
+STOP_AFTER_ATTACK = 1;
 
 //alarm for max action len // avoid infinite action time
 alarm[0] = -1;
@@ -45,6 +47,8 @@ alarm[3] = PERCEPTION_INTEVAL_TIME;
 alarm[4] = -1;
 //alarm to do the attack
 alarm[5] = -1
+//alarm to wait after an attack
+alarm[6] = -1;
 
 //path var
 my_path = path_add();
@@ -64,8 +68,6 @@ web_patrol_range = 100;
 PATROL_TO_TRAVEL_CHANCE = 20;
 randomise();
 rng = irandom(100);
-
-
 
 //logic of each state
 function state_behavior(){
@@ -94,37 +96,80 @@ function state_behavior(){
 			return;
 			
 		case(SPIDER_STATES.CHASE):
-			/*var _player_in_shoot_distance = self.perception(SHOOT_RANGE);
-			if (_player_in_shoot_distance != noone){
-				CURRENT_STATE = SPIDER_STATES.SHOOT;
-			}*/
 			//verify player new position if in line of sight
 			if (alarm[4] == -1){
-				alarm[4] = fps * PERCEPTION_INTEVAL_TIME;
+				alarm[4] = PERCEPTION_INTEVAL_TIME;
 				on_path = false;
 				create_path(player_last_place_seen[0], player_last_place_seen[1]);
+			}
+			//verify if player in attack range
+			var _player_in_shoot_distance = self.perception(SHOOT_RANGE, SHOOT_ANGLE );
+			if (_player_in_shoot_distance != noone){
+				reset_alarms();
+				CURRENT_STATE = SPIDER_STATES.SHOOT;
 			}
 			return;
 			
 		case(SPIDER_STATES.SHOOT):
-				//do code that shoots :p
-				show_debug_message("POW");
-		case(SPIDER_STATES.RUN):
-				// do code that runs
+				if (alarm[5] == -1){
+					alarm[5] = ATTACK_DELAY_TIME*fps;
+				}
+				return;
+		case(SPIDER_STATES.STOP):
+			if (alarm[6] == -1){
+				alarm[6] = STOP_AFTER_ATTACK * fps;
+			}
 	}
 }
 
-//get next eb to spider go
+//get next web to spider go
 function get_next_web_position(){
 	var _max_web_count = instance_number(obj_spider_web);
 
-	if ( web_counter >= _max_web_count - 1 ){ web_counter = 0;}
-	else { web_counter++ }
+	if (_max_web_count != 1){
+		while(true){
+			web_counter = irandom_range(0, _max_web_count - 1);
+			
+			if (web_counter != actual_web_id){
+				break;
+			}
+		}
+	} 
 	
 	var _web = instance_find(obj_spider_web, web_counter);
 	
 	return [_web.x, _web.y]
 }
+
+function get_farthest_web_position(){
+    var _max_web_count = instance_number(obj_spider_web);
+
+    var _best_web = noone;
+    var _max_distance = -1;
+	var _indice_web = noone;
+
+    for (var i = 0; i < _max_web_count; i++){
+        var _web = instance_find(obj_spider_web, i);
+
+        var _dist = point_distance(
+            _web.x, _web.y,
+            Player.x, Player.y
+        );
+
+        if (_dist > _max_distance){
+            _max_distance = _dist;
+            _best_web = _web;
+			_indice_web = i;
+        }
+    }
+	
+	actual_web_id = _indice_web;
+    if (_best_web != noone){
+        return [_best_web.x, _best_web.y];
+    }
+
+    return [x, y];
+	}
 
 function get_unocupied_position_in_web_range(){
 	var _web = instance_find(obj_spider_web, web_counter);
@@ -143,38 +188,53 @@ function get_unocupied_position_in_web_range(){
 }
 
 //get all objects in line of sight
-function raycasting_pov(vision_range = VISION_RANGE){
-	var objs_in_vision = [];
+function raycasting_pov(vision_range = VISION_RANGE, ang = noone) {
+	var collision_tilemap = layer_tilemap_get_id(layer_get_id("Collision"));
 	
-	for( var ang = 0; ang < 360; ang = ang + 9){
-			var x2 = lengthdir_x(vision_range, ang);
-			var y2 = lengthdir_y(vision_range, ang);
-			
-			x2 = self.x + x2;
-			y2 = self.y + y2;
-			
-			var hit = collision_line(self.x, self.y, x2, y2, obj_obstacle, false, true);
-			
-			if (hit == noone ){
-				hit = collision_line(self.x, self.y, x2, y2, Player, false, true);
-			}
-			
-			if ( hit == noone ){
-				hit = collision_line(self.x, self.y, x2, y2, enemy_parent, false, true);
-			}
-			
-			if ( hit != noone ){
-				array_push(objs_in_vision, hit);
+	var _dir = direction_cardinal();
+    var objs_in_vision = [ ];
+	var angles = [];
+	
+	if (ang != noone) {
+		angles = ang 
+		for (var i = 0; i < array_length(ang); i++) {
+		    angles[i] = _dir + ang[i]; 
+		}
+	} else {
+        for (var i = 0; i < 360; i += 3) {
+            array_push(angles, i);
+        }
+    }
+
+    for (var i = 0; i < array_length(angles); i++) {
+		var _ang = angles[i];
+
+        var x2 = self.x + lengthdir_x(vision_range, _ang);
+        var y2 = self.y + lengthdir_y(vision_range, _ang);
+		
+		var hit = collision_line(self.x, self.y, x2, y2, Player, false, true);
+
+		if (hit != noone) {
+		    var wall = collision_line(
+		        self.x, self.y,
+		        hit.x, hit.y,
+		        collision_tilemap,
+		        false, true
+		    );
+
+			    if (wall == noone) {
+			        array_push(objs_in_vision, hit);
+			    }
 			}
 	}
-	
-	objs_in_vision = array_unique(objs_in_vision);
-	return objs_in_vision;
+
+    return array_unique(objs_in_vision);
 }
 
+
 //return only the player in line of sight
-function perception(vision_range = VISION_RANGE){
-	var _objs_in_vision = self.raycasting_pov(vision_range);
+function perception(vision_range = VISION_RANGE, ang = noone){
+	var _objs_in_vision  = self.raycasting_pov(vision_range, ang); 
 	var _player_in_vision = noone;
 	
 	for (var i = 0; i < array_length(_objs_in_vision); i++ ){
@@ -185,6 +245,8 @@ function perception(vision_range = VISION_RANGE){
 	}
 	return _player_in_vision;
 }
+
+
 
 function create_path(target_x = noone, target_y = noone){
 	if(mp_grid_path(obj_manager.map_grid, my_path, self.x, self.y, target_x, target_y,  true) ){ 
@@ -201,13 +263,10 @@ function path_move(){
 	
 	//reached end of the path
 	if (path_point_index == path_number_points){
-		show_debug_message( obj_manager.cell_size);
-		on_path = false;
-		path_point_index = noone;
-		path_number_points = noone;
-			//reset states 
-			state_change();
-			return;
+		reset_path();
+		//reset states 
+		state_change(true);
+		return;
 	}
 	
 	var _x = path_get_point_x(my_path, path_point_index);
@@ -219,7 +278,8 @@ function path_move(){
 	if (_dist <= VEL + obj_manager.cell_size){
 		path_point_index += 1;
 		
-	} else {
+	} 
+	if (path_point_index == path_number_points){ return } else {
 		//if not, continue 
 		var _dir = point_direction(self.x, self.y, _x, _y);
 		direction = _dir;
@@ -243,13 +303,7 @@ can_hear_alert = function() {
 hear_alert = function(_x, _y) {
     if (!can_hear_alert()) return false;
 
-    alarm[0] = -1;
-    alarm[1] = -1;
-    alarm[2] = -1;
-
-    on_path = false;
-    path_point_index = noone;
-    path_number_points = noone;
+    reset_path();
 
     VEL = 1;
     player_last_place_seen = [_x, _y];
@@ -302,7 +356,9 @@ function change_sprite() {
 	}
 }
 	
-function state_change(){
+function state_change(end_of_a_path = false){
+	reset_alarms();
+	
 	alarm[0] = MAX_ACTION_TIME_LEN * fps;
 	switch(CURRENT_STATE){
 		case(SPIDER_STATES.WATCH): 
@@ -315,9 +371,33 @@ function state_change(){
 			
 		case(SPIDER_STATES.PATROL):  CURRENT_STATE = SPIDER_STATES.WATCH; return;
 		case(SPIDER_STATES.TRAVEL): CURRENT_STATE = SPIDER_STATES.PATROL; return;
-		case(SPIDER_STATES.CHASE):  CURRENT_STATE = SPIDER_STATES.TRAVEL; return;
-		case(SPIDER_STATES.SHOOT):  CURRENT_STATE = SPIDER_STATES.RUN; return;
-		case(SPIDER_STATES.RUN):	CURRENT_STATE = SPIDER_STATES.TRAVEL; return;
+		case(SPIDER_STATES.CHASE):  if (end_of_a_path){ CURRENT_STATE = SPIDER_STATES.WATCH;} else {CURRENT_STATE = SPIDER_STATES.CHASE;} return;
+		case(SPIDER_STATES.SHOOT):  CURRENT_STATE = SPIDER_STATES.STOP; return;
+		case(SPIDER_STATES.STOP):	CURRENT_STATE = SPIDER_STATES.WATCH; return;
 	}
+}
+
+function reset_alarms() {
+	alarm[0] = -1;
+	alarm[2] = -1;
+	alarm[4] = -1;
+	alarm[5] = -1;
+	alarm[6] = -1;
+
+}
+
+function direction_cardinal(_dir = direction) {
+    _dir = ((_dir mod 360) + 360) mod 360; 
+
+    if (_dir > 315 or _dir <= 45) return 0;
+    if (_dir <= 135) return 90;
+    if (_dir <= 225) return 180;
+    return 270;
+}
+
+function reset_path(){
+		on_path = false;
+		path_point_index = noone;
+		path_number_points = noone;
 
 }
