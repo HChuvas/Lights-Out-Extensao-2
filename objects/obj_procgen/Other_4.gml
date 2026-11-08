@@ -88,14 +88,23 @@ for (var _d = 0; _d < array_length(cfg.items); _d++) {
     repeat (_def.count) array_push(_drops, _def.obj);
 }
 
-var _cells = procgen_item_cells(plan, array_length(_drops));
-for (var _d = 0; _d < array_length(_cells); _d++) {
-    var _ip = procgen_cell_to_px(_cells[_d][0], _cells[_d][1], cfg, ox, oy);
-
-    // compensa a origem do sprite para o item ficar centralizado na célula
+// itens em cima de móveis
+var _spots = procgen_item_spots(plan, cfg, ox, oy, array_length(_drops));
+for (var _d = 0; _d < array_length(_spots); _d++) {
+    var _s = _spots[_d];
     var _spr = object_get_sprite(_drops[_d]);
-    var _ix = _ip[0] - sprite_get_width(_spr) div 2 + sprite_get_xoffset(_spr);
-    var _iy = _ip[1] - sprite_get_height(_spr) div 2 + sprite_get_yoffset(_spr);
+    var _ix, _iy;
 
-    instance_create_layer(_ix, _iy, "Instances", _drops[_d]);
+    if (_s.floor) {
+        // no chão, centraliza na célula
+        _ix = _s.x - sprite_get_width(_spr) div 2 + sprite_get_xoffset(_spr);
+        _iy = _s.y - sprite_get_height(_spr) div 2 + sprite_get_yoffset(_spr);
+    } else {
+        // no móvel, a base do sprite fica apoiada na superfície
+        _ix = _s.x - sprite_get_width(_spr) div 2 + sprite_get_xoffset(_spr);
+        _iy = _s.y - sprite_get_height(_spr) + sprite_get_yoffset(_spr);
+    }
+
+    var _inst = instance_create_layer(_ix, _iy, "Instances", _drops[_d]);
+    if (!_s.floor) _inst.depth = _s.depth; // desenha por cima do móvel
 }
