@@ -99,6 +99,7 @@
     {"id":{"name":"enemy_separation","path":"scripts/enemy_separation/enemy_separation.yy",},},
     {"id":{"name":"get_random_unocupied_grid_cell","path":"scripts/get_random_unocupied_grid_cell/get_random_unocupied_grid_cell.yy",},},
     {"id":{"name":"Inventory","path":"scripts/Inventory/Inventory.yy",},},
+    {"id":{"name":"player_enemy_separation","path":"scripts/player_enemy_separation/player_enemy_separation.yy",},},
     {"id":{"name":"reaction","path":"scripts/reaction/reaction.yy",},},
     {"id":{"name":"scr_procgen","path":"scripts/scr_procgen/scr_procgen.yy",},},
     {"id":{"name":"ambient_sound","path":"sounds/ambient_sound/ambient_sound.yy",},},
