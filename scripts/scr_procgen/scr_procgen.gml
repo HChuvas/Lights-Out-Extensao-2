@@ -30,14 +30,14 @@ function procgen_config() {
     var _p_verde  = { top: [185, 186], bot: [207, 208] }; // verde escuro (cozinha)
     var _p_branco = { top: [104, 105], bot: [126, 127] }; // branco (banheiro)
     var _p_laundry = { top: [354, 355], bot: [376, 377] }; // azul esverdeado (lavanderia)
-    var _p_office = { top: [359, 360], bot: [381, 382] }; // branco e azul escuro (escritório)
+    var _p_office = { top: [192, 193], bot: [214, 215] }; // temporário, igual ao da sala
     var _p_storage = { top: [364, 365], bot: [386, 387] }; // marrom (depósito)
 
     // pisos
     var _fl_wood  = [254, 255, 276, 277]; // madeira escura
     var _fl_blue  = [247, 248, 269, 270]; // cinza azulado
     var _fl_light = [261, 262, 283, 284]; // cinza claro
-    var _fl_alt_wood = [368, 369, 370, 371]; // madeira alternativa
+    var _fl_alt_wood = [254, 255, 276, 277]; // madeira alternativa (deixei igual a da escura por enquanto)
 
     return {
         floor_n: _f,
@@ -1714,4 +1714,46 @@ function layer_tilemap_first(_names) {
         }
     }
     return noone;
+}
+
+// ============================================================================
+//  SALVAR ANDARES
+// ============================================================================
+function pg_clear_saves() {
+    global.pg_saved = {};
+    global.pg_arrive = "start";
+}
+
+function pg_get_save(_f) {
+    if (!variable_global_exists("pg_saved")) global.pg_saved = {};
+    return variable_struct_get(global.pg_saved, "f" + string(_f));
+}
+
+function pg_drop_save(_f) {
+    if (!variable_global_exists("pg_saved")) return;
+    variable_struct_remove(global.pg_saved, "f" + string(_f));
+}
+
+function pg_save_floor() {
+    if (!instance_exists(obj_procgen)) return;
+    var _pg = obj_procgen;
+    if (is_undefined(_pg.plan)) return;
+    if (!variable_global_exists("pg_saved")) global.pg_saved = {};
+
+    var _items = [];
+    for (var _d = 0; _d < array_length(_pg.cfg.items); _d++) {
+        with (_pg.cfg.items[_d].obj) {
+            array_push(_items, { obj: object_index, x: x, y: y, depth: depth });
+        }
+    }
+    var _balloons = [];
+    with (Balloon) {
+        if (!popping) array_push(_balloons, { x: x, y: y });
+    }
+
+    variable_struct_set(global.pg_saved, "f" + string(procgen_floor()), {
+        seed: _pg.plan.seed,
+        items: _items,
+        balloons: _balloons
+    });
 }
