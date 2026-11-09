@@ -2,12 +2,15 @@
 // on_use(player):  roda uma vez quando E é pressionado
 // on_stop(player): roda uma vez quando E é solto
 // consumable:      true = gasta 1 de quantity a cada uso
+// destroy_on_consume: true = item é destruído e retirado do inventário quando quantity chega em 0
 
 global.items = {
 
     flashlight: {
         sprite: spr_flashlight_in,
+        consumed_sprite: spr_flashlight_out,
         consumable: true,
+        destroy_on_consume: false,
         light: noone,
         on_use: function(_player) {
             light = instance_create_layer(_player.x, _player.y, "Instances", obj_light_cone);
@@ -23,6 +26,7 @@ global.items = {
     water_cup: {
         sprite: spr_water_cup,
         consumable: true,
+        destroy_on_consume: true,
         on_use: function(_player) {
             if (_player.life_points < 3) _player.life_points += 1;
         },

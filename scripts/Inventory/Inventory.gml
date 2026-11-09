@@ -13,7 +13,8 @@ function Inventory () constructor{
             if (is_undefined(_items[i])) {
                 _items[i] = {
                     name: _name,
-                    quantity: _quantity
+                    quantity: _quantity,
+                    consumed: false,
                 };
 
                 show_debug_message("Item " + _name + " no slot " + string(i+1));
@@ -36,11 +37,21 @@ function Inventory () constructor{
         show_debug_message("Usando " + _item.name);
         var _def = global.items[$ _item.name];
         Player.item_held = _item.name;
-        _def.on_use(Player);
+        if (_item.quantity > 0) _def.on_use(Player);
 
         if (_def.consumable) {
             _item.quantity -= 1;
-            if (_item.quantity <= 0) _items[selected_index] = undefined;
+            if (_item.quantity <= 0) 
+            {
+                if (_def.destroy_on_consume) 
+                {
+                    _items[selected_index] = undefined;
+                }
+                else
+                {
+                    _item.consumed = true;
+                }
+            }
         }
     };
 	
