@@ -1,7 +1,7 @@
 event_inherited();
 
 //vision params
-IDLE_VISION_RANGE = 50;
+IDLE_VISION_RANGE = 75;
 
 //movement params
 VEL = 1.0;
@@ -26,7 +26,7 @@ CURRENT_STATE = CHASER_STATES.WATCH;
 //time params
 WATCH_TO_PATROL_RNG = 75;		//chance% to patrol after a watch time
 WATCH_TIME_RANGE = [4, 8];		//set watch time: range 4s - 8s
-MAX_PATROL_TIME_DURATION = 2;		//max time doing a patrol / avoid patrol to too long
+MAX_PATROL_TIME_DURATION = 10;		//max time doing a patrol / avoid patrol to too long
 PERCEPTION_INTEVAL_TIME = 0.5;		//time inteval to do a perception / avoid calling the perception funtion each step
 REST_INTEVAL_TIME = 0.5;		//time inteval to rest_regen stamina / avoid regen stamina per step
 ATTACK_DELAY_TIME = 0.2;		//DUH  / avoid apam attacks

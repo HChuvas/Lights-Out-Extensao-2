@@ -31,7 +31,10 @@
   "resourceType":"GMObject",
   "resourceVersion":"2.0",
   "solid":false,
-  "spriteId":null,
+  "spriteId":{
+    "name":"spr_chaser_attack_HB",
+    "path":"sprites/spr_chaser_attack_HB/spr_chaser_attack_HB.yy",
+  },
   "spriteMaskId":null,
   "visible":true,
 }

@@ -1,5 +1,5 @@
 //atack if not resting
-if ( CURRENT_STATE != CHASER_STATES.REST ) {
+if ( CURRENT_STATE != CHASER_STATES.REST and !other.imune ) {
 	//reset path and vel aceleration
 	on_path = false;
 	path_point_index = noone;

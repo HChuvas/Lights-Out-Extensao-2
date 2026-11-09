@@ -1,7 +1,25 @@
+if keyboard_check(ord("L")) game_restart();
+
+if (life_points <= 0) {
+    life_points = 0;
+    persistent = false;
+    audio_stop_sound(ambient_sound);
+    audio_play_sound(death_sound, 1, false);
+    room_goto(r_game_over);
+    exit;
+}
+
+if (life_points <= 0) {
+    life_points = 0;
+	persistent = false;
+    room_goto(r_game_over);
+    exit;
+}
+
 if (fade > 0)
 {
-    fade -= 0.05;
-    if (fade <= 0) frozen = false;
+	fade -= 0.05;
+	if (fade <= 0) frozen = false;
 }
 if (frozen) exit;
 
@@ -15,9 +33,12 @@ var _vspd = (_down - _up) * player_speed;
 
 if ((_hspd != 0 || _vspd != 0) && item_held == "")
 {
-	move_and_collide(_hspd, _vspd, [wall_map, collision_map, Clown, Balloon], 4, 0, 0, player_speed, player_speed);
+	var _solids = [Clown, Balloon];
+    if (wall_map != noone) array_push(_solids, wall_map);
+    if (collision_map != noone) array_push(_solids, collision_map);
+	move_and_collide(_hspd, _vspd, _solids, 4, 0, 0, player_speed, player_speed);
     var _rx = round(x), _ry = round(y);
-    if (!place_meeting(_rx, _ry, [wall_map, collision_map, Clown, Balloon])) { x = _rx; y = _ry; }
+    if (!place_meeting(_rx, _ry, _solids)) { x = _rx; y = _ry; }
     glow.x = x; glow.y = y;
 }
 
