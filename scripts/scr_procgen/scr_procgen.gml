@@ -1723,6 +1723,7 @@ function layer_tilemap_first(_names) {
 function pg_clear_saves() {
     global.pg_saved = {};
     global.pg_arrive = "start";
+    global.pg_resume_floor = 0;
 }
 
 function pg_get_save(_f) {
