@@ -11,11 +11,13 @@ global.items = {
         consumed_sprite: spr_flashlight_out,
         consumable: true,
         destroy_on_consume: false,
+        usable: true,
         light: noone,
         on_use: function(_player) {
             light = instance_create_layer(_player.x, _player.y, "Instances", obj_light_cone);
             light.owner = _player;
         },
+        check_availability: noone,
         on_stop: function(_player) {
             if (instance_exists(light)) instance_destroy(light);
             light = noone;
@@ -27,8 +29,16 @@ global.items = {
         sprite: spr_water_cup,
         consumable: true,
         destroy_on_consume: true,
+        usable: false,
         on_use: function(_player) {
             if (_player.life_points < 3) _player.life_points += 1;
+        },
+        check_availability: function(_player) {
+            if (_player.life_points < 3) 
+            {
+                usable = true;    
+            }
+            else usable = false;
         },
         on_stop: function(_player) {},
     },

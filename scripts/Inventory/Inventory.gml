@@ -30,14 +30,24 @@ function Inventory () constructor{
 	item_use = function() {
         var _item = _items[selected_index];
         if (is_undefined(_item)) {
-            show_debug_message("Slot selecionado está vazio");
+            show_debug_message("Slot vazio");
             return;
         }
-
-        show_debug_message("Usando " + _item.name);
+        
         var _def = global.items[$ _item.name];
+        if (_def.usable == false) 
+        {
+            show_debug_message("Item não utilizável no momento");
+            return;
+        }
+        
+        show_debug_message("Usando " + _item.name);
         Player.item_held = _item.name;
-        if (_item.quantity > 0) _def.on_use(Player);
+        if (_item.quantity > 0)
+        {
+            _def.on_use(Player);
+        }
+        else return;
 
         if (_def.consumable) {
             _item.quantity -= 1;
@@ -59,6 +69,15 @@ function Inventory () constructor{
         if (Player.item_held == "") return;
         global.items[$ Player.item_held].on_stop(Player);
         Player.item_held = "";
+    };
+    
+    item_check_availability = function() {
+        var _item = _items[selected_index];
+        if is_undefined(_item) return;
+        if (global.items[$ _item.name].check_availability != noone)
+        {
+            global.items[$ _item.name].check_availability(Player);
+        }
     };
 	
 	select_slot = function(_index) {
