@@ -30,14 +30,14 @@ function procgen_config() {
     var _p_verde  = { top: [185, 186], bot: [207, 208] }; // verde escuro (cozinha)
     var _p_branco = { top: [104, 105], bot: [126, 127] }; // branco (banheiro)
     var _p_laundry = { top: [354, 355], bot: [376, 377] }; // azul esverdeado (lavanderia)
-    var _p_office = { top: [192, 193], bot: [214, 215] }; // temporário, igual ao da sala
+    var _p_office = { top: [359, 360], bot: [381, 382] }; // branco e azul escuro (escritório)
     var _p_storage = { top: [364, 365], bot: [386, 387] }; // marrom (depósito)
 
     // pisos
     var _fl_wood  = [254, 255, 276, 277]; // madeira escura
     var _fl_blue  = [247, 248, 269, 270]; // cinza azulado
     var _fl_light = [261, 262, 283, 284]; // cinza claro
-    var _fl_alt_wood = [254, 255, 276, 277]; // madeira alternativa (deixei igual a da escura por enquanto)
+    var _fl_alt_wood = [368, 369, 370, 371]; // madeira alternativa
 
     return {
         floor_n: _f,
@@ -1243,6 +1243,7 @@ function procgen_cell_free(_plan, _x, _y) {
 //  APLICAÇÃO
 // ============================================================================
 function procgen_apply(_plan, _cfg, _ox, _oy) {
+
     var _clear = [_cfg.layer_floor, _cfg.layer_wall, _cfg.layer_collision, _cfg.layer_decor, "BottomWalls"];
     for (var _c = 0; _c < array_length(_clear); _c++) {
         var _cm = procgen_layer_map(_clear[_c]);
