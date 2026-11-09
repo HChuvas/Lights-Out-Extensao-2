@@ -1243,6 +1243,7 @@ function procgen_cell_free(_plan, _x, _y) {
 //  APLICAÇÃO
 // ============================================================================
 function procgen_apply(_plan, _cfg, _ox, _oy) {
+
     var _clear = [_cfg.layer_floor, _cfg.layer_wall, _cfg.layer_collision, _cfg.layer_decor, "BottomWalls"];
     for (var _c = 0; _c < array_length(_clear); _c++) {
         var _cm = procgen_layer_map(_clear[_c]);
@@ -1714,4 +1715,46 @@ function layer_tilemap_first(_names) {
         }
     }
     return noone;
+}
+
+// ============================================================================
+//  SALVAR ANDARES
+// ============================================================================
+function pg_clear_saves() {
+    global.pg_saved = {};
+    global.pg_arrive = "start";
+}
+
+function pg_get_save(_f) {
+    if (!variable_global_exists("pg_saved")) global.pg_saved = {};
+    return variable_struct_get(global.pg_saved, "f" + string(_f));
+}
+
+function pg_drop_save(_f) {
+    if (!variable_global_exists("pg_saved")) return;
+    variable_struct_remove(global.pg_saved, "f" + string(_f));
+}
+
+function pg_save_floor() {
+    if (!instance_exists(obj_procgen)) return;
+    var _pg = obj_procgen;
+    if (is_undefined(_pg.plan)) return;
+    if (!variable_global_exists("pg_saved")) global.pg_saved = {};
+
+    var _items = [];
+    for (var _d = 0; _d < array_length(_pg.cfg.items); _d++) {
+        with (_pg.cfg.items[_d].obj) {
+            array_push(_items, { obj: object_index, x: x, y: y, depth: depth });
+        }
+    }
+    var _balloons = [];
+    with (Balloon) {
+        if (!popping) array_push(_balloons, { x: x, y: y });
+    }
+
+    variable_struct_set(global.pg_saved, "f" + string(procgen_floor()), {
+        seed: _pg.plan.seed,
+        items: _items,
+        balloons: _balloons
+    });
 }

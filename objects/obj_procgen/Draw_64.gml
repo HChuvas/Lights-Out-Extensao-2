@@ -9,3 +9,5 @@ draw_rectangle(8, 8, 8 + cfg.cols * debug_scale + 8, 8 + cfg.rows * debug_scale 
 draw_set_alpha(1);
 procgen_debug_draw(plan, 12, 12, debug_scale);
 draw_set_color(c_white);
+
+

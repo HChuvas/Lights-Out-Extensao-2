@@ -4,6 +4,7 @@ hover = point_in_rectangle(mouse_gui_x, mouse_gui_y, btn_x - btn_w/2, btn_y - bt
 
 if ((hover && mouse_check_button_pressed(mb_left)) || keyboard_check_pressed(vk_enter)) {
     global.pg_floor = 1;
+	pg_clear_saves();
     room_goto(r_procedural);
 }
 
