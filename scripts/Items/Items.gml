@@ -7,7 +7,7 @@ global.items = {
 
     flashlight: {
         sprite: spr_flashlight_in,
-        consumable: false,
+        consumable: true,
         light: noone,
         on_use: function(_player) {
             light = instance_create_layer(_player.x, _player.y, "Instances", obj_light_cone);
@@ -22,8 +22,10 @@ global.items = {
     // placeholder: ainda sem função
     water_cup: {
         sprite: spr_water_cup,
-        consumable: false,
-        on_use: function(_player) {},
+        consumable: true,
+        on_use: function(_player) {
+            if (_player.life_points < 3) _player.life_points += 1;
+        },
         on_stop: function(_player) {},
     },
 
