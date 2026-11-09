@@ -1,3 +1,7 @@
+// Slow da teia de aranha
+check_spider_web();
+
+
 // Checagem inicial
 if (!variable_global_exists("cell") || !variable_global_exists("solid_maps")) exit;
 
@@ -10,17 +14,23 @@ if (!ready) {
 
 if (hits_wall(x, y) && enemy_unstick()) on_path = false;
 
+
 // Atualizações por frame
 arm_cooldown = max(0, arm_cooldown - 1);
 alert_cd = max(0, alert_cd - 1);
+
 follow_path();
 watchdog();
 
+
 // Visão
 var _see = false;
+
 if (instance_exists(Player)) {
-    _see = (point_distance(x, y, Player.x, Player.y) <= sight_radius) && !wall_line(x, y, Player.x, Player.y);
+    _see = (point_distance(x, y, Player.x, Player.y) <= sight_radius)
+        && !wall_line(x, y, Player.x, Player.y);
 }
+
 
 // Transição para fuga
 if (_see && state != CLOWN.FLEE) {
@@ -29,13 +39,16 @@ if (_see && state != CLOWN.FLEE) {
     exit;
 }
 
-// dá passagem
+
+// Dá passagem
 if (state != CLOWN.FLEE && !on_path) {
     var _ch = instance_nearest(x, y, obj_chaser);
+
     if (_ch != noone && point_distance(x, y, _ch.x, _ch.y) < 28) {
         if (go_random(patrol_spd)) state = CLOWN.PATROL;
     }
 }
+
 
 // Máquina de estados
 switch (state) {
@@ -44,10 +57,13 @@ switch (state) {
         idle_timer--;
 
         if (arm_cooldown <= 0 && instance_number(Balloon) < max_balloons) {
+
             if (go_random(arm_spd, balloon_min_dist, true)
              || go_random(arm_spd, balloon_min_dist)
              || go_random(arm_spd, balloon_min_dist * 0.5)) {
+
                 state = CLOWN.ARM;
+
             } else {
                 arm_cooldown = tps;
             }
@@ -61,11 +77,14 @@ switch (state) {
         }
     break;
 
+
     case CLOWN.PATROL:
         if (on_path) break;
+
         idle_timer = 2 * tps;
         state = CLOWN.IDLE;
     break;
+
 
     case CLOWN.ARM:
         if (on_path) break;
@@ -81,6 +100,7 @@ switch (state) {
         state = CLOWN.IDLE;
     break;
 
+
     case CLOWN.FLEE:
         flee_timer--;
         repath_t--;
@@ -92,7 +112,9 @@ switch (state) {
             var _pd = point_distance(x, y, Player.x, Player.y);
 
             if (repath_t <= 0 && _pd < sight_radius * 1.5 && (!on_path || path_near_player())) {
-                repath_t = flee_from(Player.x, Player.y) ? round(0.5 * tps) : round(0.2 * tps);
+                repath_t = flee_from(Player.x, Player.y)
+                    ? round(0.5 * tps)
+                    : round(0.2 * tps);
             }
 
             // Fallback anti-bodyblock
@@ -100,11 +122,12 @@ switch (state) {
                 var _away = point_direction(Player.x, Player.y, x, y);
                 var _offs = [0, 45, -45, 90, -90];
 
-                panic = step_toward(_away + panic_off, flee_spd);
+                panic = step_toward(_away + panic_off, flee_spd * VEL_MODIFIER);
 
                 for (var _k = 0; _k < 5 && !panic; _k++) {
                     if (_offs[_k] == panic_off) continue;
-                    if (step_toward(_away + _offs[_k], flee_spd)) {
+
+                    if (step_toward(_away + _offs[_k], flee_spd * VEL_MODIFIER)) {
                         panic = true;
                         panic_off = _offs[_k];
                     }
@@ -121,7 +144,9 @@ switch (state) {
     break;
 }
 
+
 update_anim();
 enemy_separation();
+
 last_x = x;
 last_y = y;

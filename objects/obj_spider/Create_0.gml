@@ -1,9 +1,9 @@
 event_inherited();
 
 //vision params
-VISION_RANGE = 150;
-SHOOT_RANGE = 100;
-SHOOT_ANGLE = [350, 0, 10]
+VISION_RANGE = 175;
+SHOOT_RANGE = 125;
+SHOOT_ANGLE = [350 ,0, 10]
 
 //movement params
 VEL = 1.25;
@@ -32,7 +32,7 @@ ATTACK_DAMAGE = 1;
 ATTACK_LIFETIME = 10;
 ATTACKING  = false;
 ATTACK_VEL = 1.5;
-STOP_AFTER_ATTACK = 1;
+STOP_AFTER_ATTACK = 0.75;
 
 //alarm for max action len // avoid infinite action time
 alarm[0] = -1;

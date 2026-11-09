@@ -212,7 +212,7 @@ function path_move(){
 	var _dist = point_distance(x, y, _x, _y);
 	
 	//reched point go to the next
-	if (_dist <= VEL + ACE){
+	if (_dist <= FINAL_VEL + ACE){
 		path_point_index += 1;
 		
 	}  else {
@@ -220,8 +220,8 @@ function path_move(){
 		var _dir = point_direction(self.x, self.y, _x, _y);
 		direction = _dir;
 		
-        var _dx = lengthdir_x(VEL, _dir);
-        var _dy = lengthdir_y(VEL, _dir);
+        var _dx = lengthdir_x(FINAL_VEL, _dir);
+        var _dy = lengthdir_y(FINAL_VEL, _dir);
 		
 		//dont colide with obstacles
         if (!place_meeting(x + _dx, y, [obj_obstacle, enemy_parent])) { x += _dx; }  

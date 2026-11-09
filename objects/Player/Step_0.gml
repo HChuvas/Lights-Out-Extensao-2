@@ -23,20 +23,23 @@ if (fade > 0)
 }
 if (frozen) exit;
 
+check_spider_web();
+FINAL_VEL = player_speed * VEL_MODIFIER;
+
 var _right = keyboard_check(vk_right) || keyboard_check(ord("D"));
 var _left = keyboard_check(vk_left) || keyboard_check(ord("A"));
 var _up = keyboard_check(vk_up) || keyboard_check(ord("W"));
 var _down = keyboard_check(vk_down) || keyboard_check(ord("S"));
 
-var _hspd = (_right - _left) * player_speed;
-var _vspd = (_down - _up) * player_speed;
+var _hspd = (_right - _left) * FINAL_VEL;
+var _vspd = (_down - _up) * FINAL_VEL;
 
 if ((_hspd != 0 || _vspd != 0) && item_held == "")
 {
 	var _solids = [Clown, Balloon];
     if (wall_map != noone) array_push(_solids, wall_map);
     if (collision_map != noone) array_push(_solids, collision_map);
-	move_and_collide(_hspd, _vspd, _solids, 4, 0, 0, player_speed, player_speed);
+	move_and_collide(_hspd, _vspd, _solids, 4, 0, 0, FINAL_VEL, FINAL_VEL);
     var _rx = round(x), _ry = round(y);
     if (!place_meeting(_rx, _ry, _solids)) { x = _rx; y = _ry; }
     light.x = x; light.y = y;
@@ -94,6 +97,12 @@ else
 // lanterna só acende enquanto o item é usado
 var _lantern_on = (item_held == "flashlight");
 if (_lantern_on && !light.on) audio_play_sound(lantern_activate, 1, false);
+//kojima????????
 light.on = _lantern_on;
 
 aply_i_frames();
+
+
+var _border = 0.5;
+
+enemy_separation(8, 2,4, false);

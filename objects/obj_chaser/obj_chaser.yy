@@ -42,7 +42,7 @@
   "properties":[],
   "resourceType":"GMObject",
   "resourceVersion":"2.0",
-  "solid":true,
+  "solid":false,
   "spriteId":{
     "name":"spr_evil_kid_idle_down",
     "path":"sprites/spr_evil_kid_idle_down/spr_evil_kid_idle_down.yy",
