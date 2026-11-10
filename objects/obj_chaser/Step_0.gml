@@ -1,19 +1,12 @@
+//web slow
+FINAL_VEL = VEL * VEL_MODIFIER;
+
+
 rng = irandom(100);
-image_speed = VEL;
-
-if (CURRENT_STATE != CHASER_STATES.REST and CURRENT_STATE != CHASER_STATES.ATTACK ){
-	var _player_in_vision = self.perception();
-	if ( _player_in_vision != noone ){
-		if ( !_player_in_vision.imune ){
-			player_last_place_seen = [_player_in_vision.x,  _player_in_vision.y];
-			CURRENT_STATE = CHASER_STATES.CHASE;
-		}
-	}
-	
-	if (on_path){
-		path_move();
-	}
-}
-
+image_speed = FINAL_VEL;
 state_behavior();
 enemy_separation();
+
+if (on_path){
+	path_move();
+}
