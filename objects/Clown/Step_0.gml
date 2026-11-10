@@ -1,3 +1,6 @@
+// Congela inimigo no lugar caso necessário (ex: Pílula, troca de sala)
+if (global.frozen == true) exit;
+
 // Checagem inicial
 if (!variable_global_exists("cell") || !variable_global_exists("solid_maps")) exit;
 

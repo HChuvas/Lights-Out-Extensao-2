@@ -1,3 +1,6 @@
+// Congela iminigo caso necessário (ex: Pílula, troca de sala)
+if (global.frozen == true) exit;
+
 rng = irandom(100);
 image_speed = VEL;
 

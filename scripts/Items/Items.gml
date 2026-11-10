@@ -24,7 +24,6 @@ global.items = {
         },
     },
 
-    // placeholder: ainda sem função
     water_cup: {
         sprite: spr_water_cup,
         consumable: true,
@@ -43,4 +42,22 @@ global.items = {
         on_stop: function(_player) {},
     },
 
+    pill: {
+        sprite: spr_pill,
+        consumable: true,
+        destroy_on_consume: true,
+        usable: true,
+        timer_instance: noone,
+        on_use: function (_player) {
+            if (instance_exists(timer_instance))
+            {
+                instance_destroy(timer_instance);
+                timer_instance = noone;
+            }
+            else timer_instance = instance_create_layer(_player.x, _player.y, "Instances", obj_pill_timer);
+        },
+        check_availability: noone,
+        on_stop: function(_player) {},
+    },
+    
 };
