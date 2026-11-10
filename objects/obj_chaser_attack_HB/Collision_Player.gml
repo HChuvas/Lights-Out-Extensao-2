@@ -1,5 +1,5 @@
-if ( is_hit == false and !other.imune ){
+if ( is_hit == false ){
 	is_hit = true;
 	other.hited = true;
-	other.damage_taken = damage;
+	other.life_points = other.life_points - damage;
 }

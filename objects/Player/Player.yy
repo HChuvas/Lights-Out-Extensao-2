@@ -16,10 +16,7 @@
     "name":"Light's Out Test",
     "path":"Light's Out Test.yyp",
   },
-  "parentObjectId":{
-    "name":"obj_character_parent",
-    "path":"objects/obj_character_parent/obj_character_parent.yy",
-  },
+  "parentObjectId":null,
   "persistent":true,
   "physicsAngularDamping":0.1,
   "physicsDensity":0.5,

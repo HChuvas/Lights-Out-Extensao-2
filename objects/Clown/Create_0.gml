@@ -335,9 +335,6 @@ go_random = function(_spd, _balloon_dist = 0, _open = false) {
 follow_path = function() {
     if (!on_path) return;
 
-    // Aplica o slow da teia
-    var _spd = move_spd * VEL_MODIFIER;
-
     if (path_i >= path_get_number(move_path)) {
         on_path = false;
         arrived = true;
@@ -347,20 +344,18 @@ follow_path = function() {
     var _tx = path_get_point_x(move_path, path_i);
     var _ty = path_get_point_y(move_path, path_i);
 
-    if (point_distance(x, y, _tx, _ty) <= _spd) {
+    if (point_distance(x, y, _tx, _ty) <= move_spd) {
         path_i++;
         stuck_t = 0;
         return;
     }
 
-    var _moved = step_to_point(_tx, _ty, _spd);
+    var _moved = step_to_point(_tx, _ty, move_spd);
     stuck_t = _moved ? 0 : stuck_t + 1;
 
     if (stuck_t > 12) {
         stuck_t = 0;
-
         if (retry_n < 1 && go_to(goal_x, goal_y, move_spd, retry_n + 1)) return;
-
         abandon_goal();
     }
 }

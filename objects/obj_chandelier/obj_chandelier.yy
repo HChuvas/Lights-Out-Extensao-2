@@ -8,8 +8,8 @@
   "name":"obj_chandelier",
   "overriddenProperties":[],
   "parent":{
-    "name":"Light",
-    "path":"folders/Objects/Light.yy",
+    "name":"Objects",
+    "path":"folders/Objects.yy",
   },
   "parentObjectId":{
     "name":"obj_light",
