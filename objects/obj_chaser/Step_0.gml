@@ -1,5 +1,4 @@
 //web slow
-check_spider_web();
 FINAL_VEL = VEL * VEL_MODIFIER;
 
 

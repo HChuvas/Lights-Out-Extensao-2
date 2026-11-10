@@ -1,9 +1,9 @@
 {
   "$GMScript":"v1",
-  "%Name":"check_spider_web",
+  "%Name":"aply_slow",
   "isCompatibility":false,
   "isDnD":false,
-  "name":"check_spider_web",
+  "name":"aply_slow",
   "parent":{
     "name":"Scripts",
     "path":"folders/Scripts.yy",

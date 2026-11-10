@@ -1,7 +1,3 @@
-// Slow da teia de aranha
-check_spider_web();
-
-
 // Checagem inicial
 if (!variable_global_exists("cell") || !variable_global_exists("solid_maps")) exit;
 
