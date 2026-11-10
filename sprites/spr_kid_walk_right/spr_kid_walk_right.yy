@@ -26,7 +26,7 @@
   ],
   "name":"spr_kid_walk_right",
   "nineSlice":null,
-  "origin":4,
+  "origin":9,
   "parent":{
     "name":"Movement",
     "path":"folders/Sprites/Player/Movement.yy",
@@ -88,7 +88,7 @@
     "visibleRange":null,
     "volume":1.0,
     "xorigin":7,
-    "yorigin":10,
+    "yorigin":14,
   },
   "swatchColours":null,
   "swfPrecision":0.5,
