@@ -6,8 +6,6 @@ wall_map = layer_tilemap_get_id("Walls")
 bottom_wall_map = layer_tilemap_get_id("BottomWalls")
 camera = instance_create_layer(x, y, "Instances", obj_camera)
 glow = instance_create_layer(x, y, "Instances", obj_player_natural_light);
-light = instance_create_layer(x, y, "Instances", obj_light_cone);
-light.on = false;
 frozen = false;
 fade = 0;
 display_set_gui_size(1280, 720);

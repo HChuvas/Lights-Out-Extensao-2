@@ -1,0 +1,46 @@
+// Todos os itens do jogo ficam aqui, procurados pelo nome.
+// on_use(player):  roda uma vez quando E é pressionado
+// on_stop(player): roda uma vez quando E é solto
+// consumable:      true = gasta 1 de quantity a cada uso
+// destroy_on_consume: true = item é destruído e retirado do inventário quando quantity chega em 0
+
+global.items = {
+
+    flashlight: {
+        sprite: spr_flashlight_in,
+        consumed_sprite: spr_flashlight_out,
+        consumable: true,
+        destroy_on_consume: false,
+        usable: true,
+        light: noone,
+        on_use: function(_player) {
+            light = instance_create_layer(_player.x, _player.y, "Instances", obj_light_cone);
+            light.owner = _player;
+        },
+        check_availability: noone,
+        on_stop: function(_player) {
+            if (instance_exists(light)) instance_destroy(light);
+            light = noone;
+        },
+    },
+
+    // placeholder: ainda sem função
+    water_cup: {
+        sprite: spr_water_cup,
+        consumable: true,
+        destroy_on_consume: true,
+        usable: false,
+        on_use: function(_player) {
+            if (_player.life_points < 3) _player.life_points += 1;
+        },
+        check_availability: function(_player) {
+            if (_player.life_points < 3) 
+            {
+                usable = true;    
+            }
+            else usable = false;
+        },
+        on_stop: function(_player) {},
+    },
+
+};
