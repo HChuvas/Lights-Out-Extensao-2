@@ -1,5 +1,7 @@
+var _player_in_vision
+
 if (CURRENT_STATE != SPIDER_STATES.STOP and CURRENT_STATE != SPIDER_STATES.SHOOT ){
-	var _player_in_vision = self.perception();
+	_player_in_vision = self.perception();
 	if ( _player_in_vision != noone ){
 		if ( !_player_in_vision.imune ){
 			player_last_place_seen = [_player_in_vision.x,  _player_in_vision.y];
