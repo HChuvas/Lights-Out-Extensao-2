@@ -23,7 +23,7 @@
   ],
   "name":"spr_kid_idle_right",
   "nineSlice":null,
-  "origin":9,
+  "origin":4,
   "parent":{
     "name":"Movement",
     "path":"folders/Sprites/Player/Movement.yy",
@@ -76,7 +76,7 @@
     "visibleRange":null,
     "volume":1.0,
     "xorigin":7,
-    "yorigin":14,
+    "yorigin":10,
   },
   "swatchColours":null,
   "swfPrecision":0.5,

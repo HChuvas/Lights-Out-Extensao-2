@@ -32,7 +32,7 @@ var _vspd = (_down - _up);
 
 if ((_hspd != 0 || _vspd != 0) && item_held == "")
 {
-    var _solids = [Clown, Balloon];
+    var _solids = [Balloon];
 
     if (wall_map != noone) array_push(_solids, wall_map);
     if (collision_map != noone) array_push(_solids, collision_map);
@@ -123,4 +123,4 @@ aply_i_frames();
 
 var _border = 0.5;
 
-enemy_separation(8, 2, 4, false);
+enemy_separation(5, 2, 4, false);
