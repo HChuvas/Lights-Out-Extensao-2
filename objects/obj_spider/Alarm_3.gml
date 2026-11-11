@@ -4,6 +4,7 @@ if (CURRENT_STATE != SPIDER_STATES.STOP and CURRENT_STATE != SPIDER_STATES.SHOOT
 	
 	if ( _player_in_shoot_vision != noone ){
 		if ( !_player_in_shoot_vision.imune ){
+			reset_path()
 			reset_alarms();
 			CURRENT_STATE = SPIDER_STATES.SHOOT;
 		}

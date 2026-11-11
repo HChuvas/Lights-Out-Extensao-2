@@ -1,4 +1,4 @@
-image_speed = VEL;
+image_speed = 1;
 rng = irandom(100);
 state_behavior();
 enemy_separation();

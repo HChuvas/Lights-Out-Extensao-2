@@ -23,8 +23,9 @@ CURRENT_STATE = SPIDER_STATES.TRAVEL;
 //time params
 PERCEPTION_INTEVAL_TIME = 5;		//time inteval to do a perception / avoid calling the perception funtion each step
 ATTACK_DELAY_TIME = 0.2;		//DUH  / avoid apam attacks
+ATTACK_DURATION_TIME = 30;
 MAX_ACTION_TIME_LEN = 10;
-SPRITE_CHANGE_INTEVAL = 2;
+SPRITE_CHANGE_INTEVAL = 4;
 WATCH_TIME_RANGE = [2, 4];
 
 //attack params
@@ -333,19 +334,37 @@ function change_sprite() {
 
         case SPIDER_STATES.PATROL:
             switch (_dir) {
-                case "right": _new_sprite = spr_spider_idle_right; break;
-                case "up":    _new_sprite = spr_spider_idle_up;    break;
-                case "left":  _new_sprite = spr_spider_idle_left;  break;
-                case "down":  _new_sprite = spr_spider_idle_down;  break;
+                case "right": _new_sprite = spr_spider_walk_right; break;
+                case "up":    _new_sprite = spr_spider_walk_up;    break;
+                case "left":  _new_sprite = spr_spider_walk_left;  break;
+                case "down":  _new_sprite = spr_spider_walk_down;  break;
             }
             break;
-
-        default: 
+		
+		case SPIDER_STATES.TRAVEL:
             switch (_dir) {
                 case "right": _new_sprite = spr_spider_walk_right; break;
                 case "up":    _new_sprite = spr_spider_walk_up;    break;
                 case "left":  _new_sprite = spr_spider_walk_left;  break;
                 case "down":  _new_sprite = spr_spider_walk_down;  break;
+            }
+            break;
+		    
+			case SPIDER_STATES.CHASE:
+	            switch (_dir) {
+	                case "right": _new_sprite = spr_spider_walk_right; break;
+	                case "up":    _new_sprite = spr_spider_walk_up;    break;
+	                case "left":  _new_sprite = spr_spider_walk_left;  break;
+	                case "down":  _new_sprite = spr_spider_walk_down;  break;
+	            }
+				break;
+
+        default: 
+            switch (_dir) {
+                case "right": _new_sprite = spr_spider_idle_right; break;
+                case "up":    _new_sprite = spr_spider_idle_up;    break;
+                case "left":  _new_sprite = spr_spider_idle_left;  break;
+                case "down":  _new_sprite = spr_spider_idle_down;  break;
             }
             break;
     }
