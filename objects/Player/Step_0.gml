@@ -123,7 +123,7 @@ else
     item_held = "";
 }
 
-
+/*
 // Lanterna só acende enquanto o item é usado
 var _lantern_on = (item_held == "flashlight");
 
@@ -132,7 +132,7 @@ if (_lantern_on && !light.on) {
 }
 
 light.on = _lantern_on;
-
+*/
 
 aply_i_frames();
 
