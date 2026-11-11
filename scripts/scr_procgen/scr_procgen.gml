@@ -120,7 +120,9 @@ function procgen_config() {
         item_off_y: 0,
         items: [
             { obj: obj_flashlight, name: "flashlight", count: 1, unique: true  },
-            { obj: obj_water_cup,  name: "water_cup",  count: 1, unique: false }
+            { obj: obj_water_cup,  name: "water_cup",  count: 1, unique: false },
+            { obj: obj_pill, name: "pill", count: 1, unique: false},
+            { obj: obj_glue, name: "glue", count: 1, unique: false},
         ]
     };
 }

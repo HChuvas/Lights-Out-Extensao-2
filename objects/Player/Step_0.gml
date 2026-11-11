@@ -88,13 +88,15 @@ if (item_held != "")
 
 // --- interação (F) ---
 // caixa na frente do bbox do jogador, na direção em que ele olha
+// _side alarga a caixa para os lados (pega itens um pouco ao lado)
+var _side = 6;
 var _x1 = bbox_left, _y1 = bbox_top, _x2 = bbox_right, _y2 = bbox_bottom;
 switch (facing)
 {
-	case "right": _x1 = bbox_right;                  _x2 = bbox_right + interact_range;  break;
-	case "left":  _x1 = bbox_left - interact_range;  _x2 = bbox_left;                   break;
-	case "down":  _y1 = bbox_bottom;                 _y2 = bbox_bottom + interact_range; break;
-	case "up":    _y1 = bbox_top - interact_range;   _y2 = bbox_top;                    break;
+	case "right": _x1 = bbox_right;                  _x2 = bbox_right + interact_range;  _y1 -= _side; _y2 += _side; break;
+	case "left":  _x1 = bbox_left - interact_range;  _x2 = bbox_left;                   _y1 -= _side; _y2 += _side; break;
+	case "down":  _y1 = bbox_bottom;                 _y2 = bbox_bottom + interact_range; _x1 -= _side; _x2 += _side; break;
+	case "up":    _y1 = bbox_top - interact_range;   _y2 = bbox_top;                    _x1 -= _side; _x2 += _side; break;
 }
 
 // pega o interagível mais perto do centro do jogador

@@ -81,15 +81,20 @@ function Inventory () constructor{
     };
 	
 	select_slot = function(_index) {
-        if (_index>=0 && _index<array_length(_items)) {
-            selected_index = _index;
-
+        if (_index<array_length(_items)) {
+            if(_index == -1){
+                selected_index = selected_index ? 0 : 1;
+            }
+            else
+            {
+                selected_index = _index;
+            }
             if (is_undefined(_items[selected_index])) {
                 show_debug_message("Slot " + string(_index + 1) + " vazio");
             } else {
                 show_debug_message(
-                    "Selecionado: " + _items[selected_index].name
-                );
+                "Selecionado: " + _items[selected_index].name
+            );
             }
         }
     };

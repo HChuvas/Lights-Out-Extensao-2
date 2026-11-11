@@ -4,6 +4,6 @@ if (other != obj_spider) {
 			return;
 		}
 	}
-	aply_slow(affected_by_web, 0.5);
+	aply_slow(affected_by_web, slow_amount);
 	array_push(affected, other)
 }

@@ -59,5 +59,22 @@ global.items = {
         check_availability: noone,
         on_stop: function(_player) {},
     },
+
+    glue: {
+        sprite: spr_glue,
+        consumable: true,
+        destroy_on_consume: true,
+        usable: true,
+        puddle_min: 40,   // raio mínimo da poça (px)
+        puddle_max: 50,   // raio máximo da poça (px)
+        on_use: function(_player) {
+            instance_create_layer(_player.x, _player.y, "Instances", obj_glue_throw,
+                { owner: _player, size: irandom_range(puddle_min, puddle_max) });
+        },
+        check_availability: function(_player) {
+            usable = !instance_exists(obj_glue_throw);   // não joga outra no meio do arremesso
+        },
+        on_stop: function(_player) {},
+    },
     
 };
