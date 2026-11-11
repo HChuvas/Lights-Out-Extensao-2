@@ -118,6 +118,11 @@ function procgen_config() {
 
         // itens
         item_off_y: 0,
+        items_per_floor: [1, 2],  // mín/máx de itens sorteados por andar
+        item_reach: 16,           // = interact_range do Player
+        item_reach_side: 6,       // = _side do Player/Step_0 (folga lateral da caixa de interação)
+        item_reach_margin: 3,     // sobra de segurança (px) pra não depender de arredondamento
+        item_sink_max: 4,         // quanto (px) o item pode "afundar" no tampo pra ficar alcançável de frente
         items: [
             { obj: obj_flashlight, name: "flashlight", count: 1, unique: true  },
             { obj: obj_water_cup,  name: "water_cup",  count: 1, unique: false },
@@ -969,7 +974,10 @@ function procgen_put(_plan, _def, _spr, _x, _y, _fw, _fh) {
     var _sf = undefined;
     var _sy = variable_struct_exists(_def, "top_y") ? _def.top_y : (variable_struct_exists(_def, "surf_y") ? _def.surf_y : -1);
     if (_sy >= 0) {
-        _sf = { x: _p.x, y: _p.y + _sy, w: _w, cx: _x, cy: _y + _fh - 1, fw: _fw, room: _plan.cur_room, used: [] };
+        // d  = px entre a base do item (linha da superfície) e a base do móvel, onde o player encosta
+        // fx = borda esquerda da pegada do móvel; fpw = largura da pegada
+        _sf = { x: _p.x, y: _p.y + _sy, w: _w, d: _h - _sy, fx: _x * _c, fpw: _fw * _c,
+                cx: _x, cy: _y + _fh - 1, fw: _fw, room: _plan.cur_room, used: [] };
         array_push(_plan.surfaces, _sf);
     }
 
@@ -1544,58 +1552,83 @@ function procgen_spawn_balloons(_plan, _cfg, _ox, _oy, _n) {
 //  ITENS NAS SUPERFÍCIES
 // ============================================================================
 
-function procgen_item_spots(_plan, _cfg, _ox, _oy, _n) {
-    var _cols = _plan.cols;
-    var _pool = [];
-    for (var _i = 0; _i < array_length(_plan.surfaces); _i++) {
-        var _s = _plan.surfaces[_i];
-        if (_plan.rooms[_s.room].dist < 1) continue; // fora da sala inicial
+function procgen_item_reach(_plan, _cfg, _s, _ix, _spr, _drop) {
+    var _c = _cfg.cell, _cols = _plan.cols;
+    var _lim = _cfg.item_reach - _cfg.item_reach_margin;
+    var _w = sprite_get_width(_spr);
+    var _il = _ix - _w div 2, _ir = _il + _w;
+    var _d = _s.d - _drop; // distância
 
-        // o jogador precisa alcançar a frente ou as laterais do móvel
-        var _reach = false;
-        for (var _dx = 0; _dx < _s.fw && !_reach; _dx++) {
-            var _fx = _s.cx + _dx, _fy = _s.cy + 1;
-            if (_fy < _plan.rows && _plan.walk[_fx + _fy * _cols]) _reach = true;
-        }
-        if (!_reach && _s.cx - 1 >= 0 && _plan.walk[(_s.cx - 1) + _s.cy * _cols]) _reach = true;
-        if (!_reach && _s.cx + _s.fw < _cols && _plan.walk[(_s.cx + _s.fw) + _s.cy * _cols]) _reach = true;
-        if (_reach) array_push(_pool, _s);
+    // frente
+    var _col = _ix div _c, _fy = _s.cy + 1;
+    if (_d <= _lim && _col >= 0 && _col < _cols && _fy < _plan.rows && _plan.walk[_col + _fy * _cols]) return true;
+
+    // laterais
+    if (_d <= _lim + _cfg.item_reach_side) {
+        if (_s.cx - 1 >= 0 && _plan.walk[(_s.cx - 1) + _s.cy * _cols] && (_il - _s.fx) <= _lim) return true;
+        if (_s.cx + _s.fw < _cols && _plan.walk[(_s.cx + _s.fw) + _s.cy * _cols] && ((_s.fx + _s.fpw) - _ir) <= _lim) return true;
     }
+    return false;
+}
+
+function procgen_item_spots(_plan, _cfg, _ox, _oy, _objs) {
+    var _pool = [];
+    for (var _i = 0; _i < array_length(_plan.surfaces); _i++) array_push(_pool, _plan.surfaces[_i]);
     procgen_shuffle(_pool);
 
+    // salas longe da entrada -> sala nova -> sala repetida -> sala inicial
+    var _tiers = [[1, true], [1, false], [0, true], [0, false]];
     var _out = [], _used_rooms = {};
-    for (var _pass = 0; _pass < 2 && array_length(_out) < _n; _pass++) {
-        for (var _i = 0; _i < array_length(_pool) && array_length(_out) < _n; _i++) {
-            var _s = _pool[_i];
-            if (_pass == 0 && variable_struct_exists(_used_rooms, string(_s.room))) continue; // 1a passada: salas diferentes
-            var _ix = -1;
-            for (var _t = 0; _t < 8 && _ix < 0; _t++) {
-                var _cand = (_s.w > 12) ? _s.x + 6 + irandom(_s.w - 12) : _s.x + _s.w div 2;
-                var _hit = false;
-                for (var _u = 0; _u < array_length(_s.used); _u++)
-                    if (_cand + 5 > _s.used[_u][0] && _cand - 5 < _s.used[_u][1]) _hit = true;
-                if (!_hit) _ix = _cand;
+
+    for (var _k = 0; _k < array_length(_objs); _k++) {
+        var _spr = object_get_sprite(_objs[_k]);
+        var _hw = sprite_get_width(_spr) div 2;
+        var _placed = false;
+        var _lim = _cfg.item_reach - _cfg.item_reach_margin;
+
+        for (var _t = 0; _t < array_length(_tiers) && !_placed; _t++) {
+            for (var _i = 0; _i < array_length(_pool) && !_placed; _i++) {
+                var _s = _pool[_i];
+                if (_plan.rooms[_s.room].dist < _tiers[_t][0]) continue;
+                if (_tiers[_t][1] && variable_struct_exists(_used_rooms, string(_s.room))) continue;
+
+                var _drop = clamp(_s.d - _lim, 0, _cfg.item_sink_max);
+                var _lo = _s.x + _hw + 1, _hi = _s.x + _s.w - _hw - 1;
+                if (_hi < _lo) continue;
+                var _cands = [];
+                for (var _x = _lo; _x <= _hi; _x += 2) array_push(_cands, _x);
+                procgen_shuffle(_cands);
+
+                for (var _j = 0; _j < array_length(_cands) && !_placed; _j++) {
+                    var _ix = _cands[_j];
+                    var _hit = false;
+                    for (var _u = 0; _u < array_length(_s.used); _u++)
+                        if (_ix + _hw + 1 > _s.used[_u][0] && _ix - _hw - 1 < _s.used[_u][1]) { _hit = true; break; }
+                    if (_hit) continue;
+                    if (!procgen_item_reach(_plan, _cfg, _s, _ix, _spr, _drop)) continue;
+
+                    array_push(_s.used, [_ix - _hw - 1, _ix + _hw + 1]);
+                    variable_struct_set(_used_rooms, string(_s.room), true);
+                    array_push(_out, { obj: _objs[_k], x: _ox * _cfg.cell + _ix, y: _oy * _cfg.cell + _s.y + _drop + _cfg.item_off_y, depth: _cfg.depth_tops - 2, floor: false });
+                    _placed = true;
+                }
             }
-            if (_ix < 0) continue;
-            array_push(_s.used, [_ix - 5, _ix + 5]);
-            variable_struct_set(_used_rooms, string(_s.room), true);
-            array_push(_out, { x: _ox * _cfg.cell + _ix, y: _oy * _cfg.cell + _s.y + _cfg.item_off_y, depth: _cfg.depth_tops - 2, floor: false });
         }
+        if (!_placed) show_debug_message("procgen: sem móvel alcançável para " + object_get_name(_objs[_k]) + " (item descartado)");
     }
 
-    // fallback no chão se faltar superfície
-    var _miss = _n - array_length(_out);
-    if (_miss > 0) {
-        var _fc = procgen_item_cells(_plan, _miss);
-        for (var _i = 0; _i < array_length(_fc); _i++) {
-            var _p = procgen_cell_to_px(_fc[_i][0], _fc[_i][1], _cfg, _ox, _oy);
-            array_push(_out, { x: _p[0], y: _p[1], depth: undefined, floor: true });
+    if (array_length(_out) == 0 && array_length(_objs) > 0) {
+        var _fc = procgen_item_cells(_plan, 1);
+        if (array_length(_fc) > 0) {
+            var _p = procgen_cell_to_px(_fc[0][0], _fc[0][1], _cfg, _ox, _oy);
+            array_push(_out, { obj: _objs[0], x: _p[0], y: _p[1], depth: undefined, floor: true });
+            show_debug_message("procgen: nenhum móvel alcançável, item caiu no chão");
         }
     }
     return _out;
 }
 
-// células de chão para n itens, em salas diferentes, longe da entrada e da saída
+// células de chão para n itens
 function procgen_item_cells(_plan, _n) {
     var _pool = [];
     for (var _i = 0; _i < array_length(_plan.rooms); _i++) {

@@ -114,25 +114,29 @@ if (!is_undefined(_saved)) {
 if (!instance_exists(obj_inventory)) instance_create_layer(0, 0, "Instances", obj_inventory);
 
 if (!is_undefined(_saved)) {
-    // andar já visitado: recria só o que não foi pego
+    // andar já visitado
     for (var _d = 0; _d < array_length(_saved.items); _d++) {
         var _si = _saved.items[_d];
         var _it = instance_create_layer(_si.x, _si.y, "Instances", _si.obj);
         _it.depth = _si.depth;
     }
 } else {
-    // gera os itens
-    var _drops = [];
+    // sorteia de 1 a 2 itens do andar 
+    var _pool = [];
     for (var _d = 0; _d < array_length(cfg.items); _d++) {
         var _def = cfg.items[_d];
-        repeat (_def.count) array_push(_drops, _def.obj);
+        repeat (_def.count) array_push(_pool, _def.obj);
     }
+    procgen_shuffle(_pool);
+    var _n_items = clamp(irandom_range(cfg.items_per_floor[0], cfg.items_per_floor[1]), 0, array_length(_pool));
+    var _drops = [];
+    for (var _d = 0; _d < _n_items; _d++) array_push(_drops, _pool[_d]);
 
     // itens em cima de móveis
-    var _spots = procgen_item_spots(plan, cfg, ox, oy, array_length(_drops));
+    var _spots = procgen_item_spots(plan, cfg, ox, oy, _drops);
     for (var _d = 0; _d < array_length(_spots); _d++) {
         var _s = _spots[_d];
-        var _spr = object_get_sprite(_drops[_d]);
+        var _spr = object_get_sprite(_s.obj);
         var _ix, _iy;
 
         if (_s.floor) {
@@ -145,7 +149,7 @@ if (!is_undefined(_saved)) {
             _iy = _s.y - sprite_get_height(_spr) + sprite_get_yoffset(_spr);
         }
 
-        var _inst = instance_create_layer(_ix, _iy, "Instances", _drops[_d]);
+        var _inst = instance_create_layer(_ix, _iy, "Instances", _s.obj);
         if (!_s.floor) _inst.depth = _s.depth; // desenha por cima do móvel
     }
 }
