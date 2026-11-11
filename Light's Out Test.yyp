@@ -295,8 +295,8 @@
   "resourceType":"GMProject",
   "resourceVersion":"2.0",
   "RoomOrderNodes":[
-    {"roomId":{"name":"r_title","path":"rooms/r_title/r_title.yy",},},
     {"roomId":{"name":"r_show_room","path":"rooms/r_show_room/r_show_room.yy",},},
+    {"roomId":{"name":"r_title","path":"rooms/r_title/r_title.yy",},},
     {"roomId":{"name":"r_starting_room","path":"rooms/r_starting_room/r_starting_room.yy",},},
     {"roomId":{"name":"MovementTest","path":"rooms/MovementTest/MovementTest.yy",},},
     {"roomId":{"name":"r_middle_room","path":"rooms/r_middle_room/r_middle_room.yy",},},

@@ -7,7 +7,7 @@ if (global.frozen) {
     exit;
 }
 
-image_speed = VEL;
+image_speed = VEL * VEL_MODIFIER;
 rng = irandom(100);
 state_behavior();
 enemy_separation();
