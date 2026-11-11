@@ -1,5 +1,5 @@
 if (!ATTACKING){
-
+	reset_path();
 	var _attack_data = [ {
     owner: id,
     damage: ATTACK_DAMAGE,
@@ -69,11 +69,9 @@ var _spawn_y = y;
 		instance_create_layer(_spawn_x, _spawn_y, layer, obj_spider_attack, _attack_data[1]);
 		instance_create_layer(_spawn_x, _spawn_y, layer, obj_spider_attack, _attack_data[2]);
 	ATTACKING = true;
-	alarm[5] = 1;
+	alarm[5] = ATTACK_DURATION_TIME;
 } else {
 	ATTACKING = false;
-	on_path = false;
-	path_point_index = noone;
-	path_number_points = noone;
+	reset_path();
 	state_change();
 }
