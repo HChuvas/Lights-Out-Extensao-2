@@ -285,8 +285,9 @@ function path_move(){
 		var _dir = point_direction(self.x, self.y, _x, _y);
 		direction = _dir;
 		
-        var _dx = lengthdir_x(VEL, _dir);
-        var _dy = lengthdir_y(VEL, _dir);
+        var _vel = VEL * VEL_MODIFIER;   // slow da cola
+        var _dx = lengthdir_x(_vel, _dir);
+        var _dy = lengthdir_y(_vel, _dir);
 		
 		//dont colide with obstacles
         if (!place_meeting(x + _dx, y, [obj_obstacle, enemy_parent])) { x += _dx; }  

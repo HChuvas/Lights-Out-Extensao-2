@@ -14,8 +14,7 @@ if (fade > 0)
     fade -= 0.05;
     if (fade <= 0) frozen = false;
 }
-
-if (frozen) exit;
+if (frozen) { target = noone; exit; }
 
 
 //slow spider web
@@ -81,61 +80,45 @@ switch (facing)
 
 // mostra o sprite de "segurando item", seja qual for o item
 if (item_held != "")
-/*
-var _target = light.angle;
-
-var _moving = (_hspd != 0 || _vspd != 0);
-
-switch (facing)
-{
-    case "down":
-        sprite_index = _moving ? spr_kid_walk_down : spr_kid_idle_down;
-        _target = 270;
-    break;
-
-    case "up":
-        sprite_index = _moving ? spr_kid_walk_up : spr_kid_idle_up;
-        _target = 90;
-    break;
-
-    case "left":
-        sprite_index = _moving ? spr_kid_walk_left : spr_kid_idle_left;
-        _target = 180;
-    break;
-
-    case "right":
-        sprite_index = _moving ? spr_kid_walk_right : spr_kid_idle_right;
-        _target = 0;
-    break;
-}
-
-light.angle += angle_difference(_target, light.angle) * 0.3;
-*/
-
-if (item_held != "" && keyboard_check(ord("E")))
 {
     var _spr = asset_get_index("spr_kid_" + item_held + "_" + facing);
-
     if (_spr != -1) sprite_index = _spr;
 }
-else
+
+
+// --- interação (F) ---
+// caixa na frente do bbox do jogador, na direção em que ele olha
+// _side alarga a caixa para os lados (pega itens um pouco ao lado)
+var _side = 6;
+var _x1 = bbox_left, _y1 = bbox_top, _x2 = bbox_right, _y2 = bbox_bottom;
+switch (facing)
 {
-    item_held = "";
+	case "right": _x1 = bbox_right;                  _x2 = bbox_right + interact_range;  _y1 -= _side; _y2 += _side; break;
+	case "left":  _x1 = bbox_left - interact_range;  _x2 = bbox_left;                   _y1 -= _side; _y2 += _side; break;
+	case "down":  _y1 = bbox_bottom;                 _y2 = bbox_bottom + interact_range; _x1 -= _side; _x2 += _side; break;
+	case "up":    _y1 = bbox_top - interact_range;   _y2 = bbox_top;                    _x1 -= _side; _x2 += _side; break;
 }
 
-/*
-// Lanterna só acende enquanto o item é usado
-var _lantern_on = (item_held == "flashlight");
-
-if (_lantern_on && !light.on) {
-    audio_play_sound(lantern_activate, 1, false);
+// pega o interagível mais perto do centro do jogador
+target = noone;
+var _list = ds_list_create();
+var _n = collision_rectangle_list(_x1, _y1, _x2, _y2, obj_interactable, false, true, _list, false);
+var _cx = (bbox_left + bbox_right) / 2;
+var _cy = (bbox_top + bbox_bottom) / 2;
+var _best = infinity;
+for (var i = 0; i < _n; i++)
+{
+	var _inst = _list[| i];
+	var _d = point_distance(_cx, _cy, (_inst.bbox_left + _inst.bbox_right) / 2, (_inst.bbox_top + _inst.bbox_bottom) / 2);
+	if (_d < _best) { _best = _d; target = _inst; }
 }
+ds_list_destroy(_list);
 
-light.on = _lantern_on;
-*/
+if (target != noone && item_held == "" && keyboard_check_pressed(ord("F")))
+{
+	target.interact();
+}
 
 aply_i_frames();
-
-var _border = 0.5;
 
 enemy_separation(5, 2, 4, false);
