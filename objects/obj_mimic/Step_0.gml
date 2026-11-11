@@ -1,3 +1,7 @@
+// Congela inimigo caso necessário (ex: Pílula, troca de sala)
+if (global.frozen) { image_speed = 0; exit; }
+image_speed = 1;
+
 if (!instance_exists(Player)) exit;
 var _fps = game_get_speed(gamespeed_fps);
 timer--;

@@ -1,8 +1,11 @@
-var timer_destroy = function () {
-    global.frozen = false;
-    instance_destroy(self);
+// Pílula: congela e esconde os inimigos por 5 segundos
+global.frozen = true;
+
+with (enemy_parent) {
+    instance_create_layer(x, y, "Instances", obj_enemy_poof);
+    image_alpha = 0;
 }
 
-var _timer = time_source_create(time_source_game, 5, time_source_units_seconds, timer_destroy);
-time_source_start(_timer);
-global.frozen = true;
+fade = 0;            // 0 = invisível, 1 = normal
+fading = false;
+alarm[0] = 5 * game_get_speed(gamespeed_fps);

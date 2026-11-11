@@ -51,5 +51,5 @@ function take_damage(){
 }
 
 // interação (F)
-interact_range = 24; // alcança itens em cima dos móveis (até ~21 px acima)
+interact_range = 20; // alcança itens em cima dos móveis (até ~21 px acima)
 target = noone;
