@@ -21,7 +21,7 @@ if (fade > 0)
 	fade -= 0.05;
 	if (fade <= 0) frozen = false;
 }
-if (frozen) exit;
+if (frozen) { target = noone; exit; }
 
 var _right = keyboard_check(vk_right) || keyboard_check(ord("D"));
 var _left = keyboard_check(vk_left) || keyboard_check(ord("A"));
@@ -75,4 +75,36 @@ if (item_held != "")
 {
     var _spr = asset_get_index("spr_kid_" + item_held + "_" + facing)
     if (_spr != -1) sprite_index = _spr
+}
+
+
+// --- interação (F) ---
+// caixa na frente do bbox do jogador, na direção em que ele olha
+var _x1 = bbox_left, _y1 = bbox_top, _x2 = bbox_right, _y2 = bbox_bottom;
+switch (facing)
+{
+	case "right": _x1 = bbox_right;                  _x2 = bbox_right + interact_range;  break;
+	case "left":  _x1 = bbox_left - interact_range;  _x2 = bbox_left;                   break;
+	case "down":  _y1 = bbox_bottom;                 _y2 = bbox_bottom + interact_range; break;
+	case "up":    _y1 = bbox_top - interact_range;   _y2 = bbox_top;                    break;
+}
+
+// pega o interagível mais perto do centro do jogador
+target = noone;
+var _list = ds_list_create();
+var _n = collision_rectangle_list(_x1, _y1, _x2, _y2, obj_interactable, false, true, _list, false);
+var _cx = (bbox_left + bbox_right) / 2;
+var _cy = (bbox_top + bbox_bottom) / 2;
+var _best = infinity;
+for (var i = 0; i < _n; i++)
+{
+	var _inst = _list[| i];
+	var _d = point_distance(_cx, _cy, (_inst.bbox_left + _inst.bbox_right) / 2, (_inst.bbox_top + _inst.bbox_bottom) / 2);
+	if (_d < _best) { _best = _d; target = _inst; }
+}
+ds_list_destroy(_list);
+
+if (target != noone && item_held == "" && keyboard_check_pressed(ord("F")))
+{
+	target.interact();
 }

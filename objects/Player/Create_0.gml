@@ -29,3 +29,7 @@ function aply_i_frames(){
 	alarm[0] = tps / 2.5;
 	
 }
+
+// interação (F)
+interact_range = 8;
+target = noone;
