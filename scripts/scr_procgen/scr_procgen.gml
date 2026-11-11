@@ -118,11 +118,11 @@ function procgen_config() {
 
         // itens
         item_off_y: 0,
-        items_per_floor: [1, 2],  // mín/máx de itens sorteados por andar
-        item_reach: 16,           // = interact_range do Player
-        item_reach_side: 6,       // = _side do Player/Step_0 (folga lateral da caixa de interação)
-        item_reach_margin: 3,     // sobra de segurança (px) pra não depender de arredondamento
-        item_sink_max: 4,         // quanto (px) o item pode "afundar" no tampo pra ficar alcançável de frente
+        items_per_floor: [1, 2], // itens por andar
+        item_reach: 16, // range do player
+        item_reach_side: 6, // folga
+        item_reach_margin: 3, // sobra 
+        item_sink_max: 4,
         items: [
             { obj: obj_flashlight, name: "flashlight", count: 1, unique: true  },
             { obj: obj_water_cup,  name: "water_cup",  count: 1, unique: false },
@@ -1695,14 +1695,26 @@ function procgen_debug_draw(_plan, _px, _py, _s) {
         draw_circle(_px + _pcx*_s + _s/2, _py + _pcy*_s + _s/2, _s/2 + 1, false);
     }
 
-    // laranja: lanterna, verde: copo de água
-    var _items = [[obj_flashlight, c_orange], [obj_water_cup, c_lime]];
-    for (var _k = 0; _k < array_length(_items); _k++) {
-        draw_set_color(_items[_k][1]);
-        with (_items[_k][0]) {
-            var _icx = floor(x / _plan.cell) - _plan.ox;
-            var _icy = floor(y / _plan.cell) - _plan.oy;
+    // laranja: lanterna, verde: copo de água, azul: remédio, amarelo claro: cola
+    // (lê direto de cfg.items, então item novo aparece no mapa; só precisa de cor aqui)
+    var _item_col = {
+        obj_flashlight: c_orange,
+        obj_water_cup:  c_lime,
+        obj_pill:       make_color_rgb(100, 160, 255),
+        obj_glue:       make_color_rgb(255, 255, 150)
+    };
+    for (var _k = 0; _k < array_length(obj_procgen.cfg.items); _k++) {
+        var _o = obj_procgen.cfg.items[_k].obj;
+        var _nm = object_get_name(_o);
+        draw_set_color(variable_struct_exists(_item_col, _nm) ? variable_struct_get(_item_col, _nm) : c_white);
+        with (_o) {
+            // centro X e base do sprite (a base apoia no móvel; sprites altos não "sobem" de célula)
+            var _icx = floor(((bbox_left + bbox_right) / 2) / _plan.cell) - _plan.ox;
+            var _icy = floor((bbox_bottom - 1) / _plan.cell) - _plan.oy;
             draw_circle(_px + _icx*_s + _s/2, _py + _icy*_s + _s/2, max(2, _s * 0.6), false);
+            draw_set_color(c_black);
+            draw_circle(_px + _icx*_s + _s/2, _py + _icy*_s + _s/2, max(2, _s * 0.6), true);
+            draw_set_color(variable_struct_exists(_item_col, _nm) ? variable_struct_get(_item_col, _nm) : c_white);
         }
     }
 
@@ -1725,7 +1737,6 @@ function procgen_debug_draw(_plan, _px, _py, _s) {
     draw_text_transformed(_px, _py + _plan.rows*_s + 2, "seed " + string(_plan.seed) + "  salas " + string(array_length(_plan.rooms)) + "  portas " + string(array_length(_plan.doors)), 0.5, 0.5, 0);
     draw_text_transformed(_px, _py + _plan.rows*_s + 10, "F2 oculta  F3 novo andar", 0.5, 0.5, 0);
 }
-
 
 // ============================================================================
 //  UTILITÁRIOS
