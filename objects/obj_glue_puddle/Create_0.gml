@@ -1,6 +1,6 @@
 event_inherited();                 // lógica da teia: affected / affected_by_web
 affected_by_web = [enemy_parent];  // gruda só inimigos, nunca o garoto
-slow_amount = 0.5;                 // velocidade na cola (0.5 = metade, 0.25 = um quarto)
+slow_amount = 0.25;                 // velocidade na cola (0.5 = metade, 0.25 = um quarto)
 
 // size = raio da poça em px. Vem do Items; se a poça for posta na sala direto, usa 20
 if (!variable_instance_exists(id, "size")) size = 20;
