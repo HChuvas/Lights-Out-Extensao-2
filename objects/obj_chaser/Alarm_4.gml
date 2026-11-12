@@ -1,4 +1,9 @@
-if (!ATTACKING){
+if (!PREPARING_ATTACK) {
+	PREPARING_ATTACK = true;
+	alarm[4] = ATTACK_DURATION_TIME;
+	return;
+} 
+else if (!ATTACKING){
 	audio_play_sound(chaser_attack, 1, false);
 	var _attack_data =  {
     owner: id,
@@ -32,7 +37,9 @@ var _height = bbox_bottom - bbox_top + 1;
 	
 	ATTACKING = true;
 	alarm[4] = ATTACK_DURATION_TIME;
+	return;
 } else {
+	PREPARING_ATTACK = false;
 	ATTACKING = false;
 	VEL = 1;
 	reaction(2);
