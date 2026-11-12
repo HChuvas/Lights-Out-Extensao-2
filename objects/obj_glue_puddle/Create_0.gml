@@ -9,6 +9,7 @@ x = round(x);
 y = round(y);
 depth = layer_get_depth("Instances") + 1;   // desenha embaixo dos personagens
 glue_color = make_color_rgb(235, 232, 210);
+puddle_sprite = -1;   // troque pelo sprite da poça (ex: spr_glue_puddle_art). -1 = cor lisa
 
 // quanto tempo a poça dura (a cola seca e some)
 life_max = 10 * game_get_speed(gamespeed_fps);   // 10 segundos
@@ -26,9 +27,8 @@ mask_index = spr_glue_puddle;
 image_xscale = n * cell / sprite_get_width(spr_glue_puddle);
 image_yscale = image_xscale;
 
-// Flood fill: a cola escorre do centro pra fora, sem atravessar parede
+// Flood fill: a cola escorre do centro pra fora em círculo, sem atravessar parede
 filled = array_create(n * n, false);
-var _wobble = random(360);   // deixa a borda meio irregular
 var _todo = [];
 if (!is_wall_at(x, y)) {
     filled[half * n + half] = true;
@@ -42,8 +42,7 @@ while (array_length(_todo) > 0) {
         var _a = _next[k][0], _b = _next[k][1];
         if (_a < 0 || _b < 0 || _a >= n || _b >= n) continue;
         if (filled[_b * n + _a]) continue;
-        var _edge = size * (0.85 + 0.15 * dsin(point_direction(half, half, _a, _b) * 3 + _wobble));
-        if (point_distance(half, half, _a, _b) * cell > _edge) continue;
+        if (point_distance(half, half, _a, _b) * cell > size) continue;   // fora do círculo
         if (is_wall_at(left + _a * cell + cell / 2, top + _b * cell + cell / 2)) continue;
         filled[_b * n + _a] = true;
         array_push(_todo, _b * n + _a);
