@@ -949,7 +949,8 @@ function procgen_put(_plan, _def, _spr, _x, _y, _fw, _fh) {
         x: _x * _c + (_fw * _c - _w) div 2,
         y: (_y + _fh) * _c - _h,
         cx: _x, cy: _y + _fh - 1,
-        chair: variable_struct_exists(_def, "chair") && _def.chair
+        chair: variable_struct_exists(_def, "chair") && _def.chair,
+        up: _spr == spr_furniture_68 // cadeira de costas
     };
     array_push(_plan.props, _p);
     var _id = array_length(_plan.props);
@@ -1510,7 +1511,7 @@ function procgen_spawn_mimics(_plan, _cfg, _ox, _oy, _n, _saved = undefined) {
         var _p = _plan.props[_i];
         if (!_p.chair) continue;
         var _px = procgen_cell_to_px(_p.cx, _p.cy, _cfg, _ox, _oy);
-        array_push(_cells, { px: _px[0], py: _px[1], el: _p.el });
+        array_push(_cells, { px: _px[0], py: _px[1], el: _p.el, up: _p.up });
     }
     _n = min(_n, array_length(_cells) - 1);
     if (_n <= 0) return;

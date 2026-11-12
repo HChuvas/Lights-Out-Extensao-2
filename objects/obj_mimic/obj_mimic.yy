@@ -35,8 +35,8 @@
   "resourceVersion":"2.0",
   "solid":false,
   "spriteId":{
-    "name":"spr_mimic_idle",
-    "path":"sprites/spr_mimic_idle/spr_mimic_idle.yy",
+    "name":"spr_mimic_chair_idle_down",
+    "path":"sprites/spr_mimic_chair_idle_down/spr_mimic_chair_idle_down.yy",
   },
   "spriteMaskId":null,
   "visible":true,
