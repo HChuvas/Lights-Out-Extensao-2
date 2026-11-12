@@ -36,8 +36,8 @@
   "resourceVersion":"2.0",
   "solid":false,
   "spriteId":{
-    "name":"Sprite49",
-    "path":"sprites/Sprite49/Sprite49.yy",
+    "name":"spr_stairs_down",
+    "path":"sprites/spr_stairs_down/spr_stairs_down.yy",
   },
   "spriteMaskId":null,
   "visible":true,

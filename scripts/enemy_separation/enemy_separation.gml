@@ -1,13 +1,10 @@
-function enemy_separation() {
-    var _radius = 25;
-    var _strength = 0.5;
-    var _max_push = 2;
+function enemy_separation(_radius = 25, _strength = 0.5, _max_push = 2, _self = true, obj_to_aply = enemy_parent) {
 
     var _tilemap = layer_tilemap_get_id("Collision");
-    var _count = instance_number(obj_chaser);
+    var _count = instance_number(obj_to_aply);
 
     for (var i = 0; i < _count; i++) {
-        var _enemy = instance_find(obj_chaser, i);
+        var _enemy = instance_find(obj_to_aply, i);
 
         if (_enemy == id || !instance_exists(_enemy)) {
             continue;
@@ -41,38 +38,42 @@ function enemy_separation() {
             tilemap: _tilemap
         };
 
-        var _new_x = x + _push.x;
-        var _blocked_x = place_meeting(_new_x, y, obj_obstacle);
+        // Apply separation to self
+        if (_self) {
+            var _new_x = x + _push.x;
+            var _blocked_x = place_meeting(_new_x, y, obj_obstacle);
 
-        if (!_blocked_x && _push.tilemap != -1) {
-            _blocked_x =
-                tilemap_get_at_pixel(_push.tilemap, bbox_left + _push.x, bbox_top) != 0 ||
-                tilemap_get_at_pixel(_push.tilemap, bbox_right + _push.x, bbox_top) != 0 ||
-                tilemap_get_at_pixel(_push.tilemap, bbox_left + _push.x, bbox_bottom) != 0 ||
-                tilemap_get_at_pixel(_push.tilemap, bbox_right + _push.x, bbox_bottom) != 0;
+            if (!_blocked_x && _push.tilemap != -1) {
+                _blocked_x =
+                    tilemap_get_at_pixel(_push.tilemap, bbox_left + _push.x, bbox_top) != 0 ||
+                    tilemap_get_at_pixel(_push.tilemap, bbox_right + _push.x, bbox_top) != 0 ||
+                    tilemap_get_at_pixel(_push.tilemap, bbox_left + _push.x, bbox_bottom) != 0 ||
+                    tilemap_get_at_pixel(_push.tilemap, bbox_right + _push.x, bbox_bottom) != 0;
+            }
+
+            if (!_blocked_x) {
+                x = _new_x;
+            }
+
+            var _new_y = y + _push.y;
+            var _blocked_y = place_meeting(x, _new_y, obj_obstacle);
+
+            if (!_blocked_y && _push.tilemap != -1) {
+                var _offset_y = _new_y - y;
+
+                _blocked_y =
+                    tilemap_get_at_pixel(_push.tilemap, bbox_left, bbox_top + _offset_y) != 0 ||
+                    tilemap_get_at_pixel(_push.tilemap, bbox_right, bbox_top + _offset_y) != 0 ||
+                    tilemap_get_at_pixel(_push.tilemap, bbox_left, bbox_bottom + _offset_y) != 0 ||
+                    tilemap_get_at_pixel(_push.tilemap, bbox_right, bbox_bottom + _offset_y) != 0;
+            }
+
+            if (!_blocked_y) {
+                y = _new_y;
+            }
         }
 
-        if (!_blocked_x) {
-            x = _new_x;
-        }
-
-        var _new_y = y + _push.y;
-        var _blocked_y = place_meeting(x, _new_y, obj_obstacle);
-
-        if (!_blocked_y && _push.tilemap != -1) {
-            var _offset_y = _new_y - y;
-
-            _blocked_y =
-                tilemap_get_at_pixel(_push.tilemap, bbox_left, bbox_top + _offset_y) != 0 ||
-                tilemap_get_at_pixel(_push.tilemap, bbox_right, bbox_top + _offset_y) != 0 ||
-                tilemap_get_at_pixel(_push.tilemap, bbox_left, bbox_bottom + _offset_y) != 0 ||
-                tilemap_get_at_pixel(_push.tilemap, bbox_right, bbox_bottom + _offset_y) != 0;
-        }
-
-        if (!_blocked_y) {
-            y = _new_y;
-        }
-
+        // Apply separation to the other enemy
         if (instance_exists(_enemy)) {
             with (_enemy) {
                 var _ex = x - _push.x;

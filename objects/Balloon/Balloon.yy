@@ -11,7 +11,7 @@
   "overriddenProperties":[],
   "parent":{
     "name":"Clown_Enemy",
-    "path":"folders/Enemies/Clown_Enemy.yy",
+    "path":"folders/Objects/Enemies/Clown_Enemy.yy",
   },
   "parentObjectId":null,
   "persistent":false,
@@ -32,8 +32,8 @@
   "resourceVersion":"2.0",
   "solid":false,
   "spriteId":{
-    "name":"spr_balloon",
-    "path":"sprites/spr_balloon/spr_balloon.yy",
+    "name":"spr_balloon_blue",
+    "path":"sprites/spr_balloon_blue/spr_balloon_blue.yy",
   },
   "spriteMaskId":null,
   "visible":true,

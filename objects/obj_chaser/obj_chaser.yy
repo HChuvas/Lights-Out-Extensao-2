@@ -13,13 +13,14 @@
     {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":0,"eventType":8,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
     {"$GMEvent":"v1","%Name":"","collisionObjectId":{"name":"Player","path":"objects/Player/Player.yy",},"eventNum":0,"eventType":4,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
     {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":6,"eventType":2,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
+    {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":7,"eventType":2,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
   ],
   "managed":true,
   "name":"obj_chaser",
   "overriddenProperties":[],
   "parent":{
     "name":"Chaser_Enemy",
-    "path":"folders/Enemies/Chaser_Enemy.yy",
+    "path":"folders/Objects/Enemies/Chaser_Enemy.yy",
   },
   "parentObjectId":{
     "name":"enemy_parent",
@@ -41,7 +42,7 @@
   "properties":[],
   "resourceType":"GMObject",
   "resourceVersion":"2.0",
-  "solid":true,
+  "solid":false,
   "spriteId":{
     "name":"spr_evil_kid_idle_down",
     "path":"sprites/spr_evil_kid_idle_down/spr_evil_kid_idle_down.yy",

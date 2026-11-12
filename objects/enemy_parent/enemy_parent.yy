@@ -8,10 +8,13 @@
   "name":"enemy_parent",
   "overriddenProperties":[],
   "parent":{
-    "name":"Enemies",
-    "path":"folders/Enemies.yy",
+    "name":"Parents",
+    "path":"folders/Objects/Enemies/Parents.yy",
   },
-  "parentObjectId":null,
+  "parentObjectId":{
+    "name":"obj_character_parent",
+    "path":"objects/obj_character_parent/obj_character_parent.yy",
+  },
   "persistent":false,
   "physicsAngularDamping":0.1,
   "physicsDensity":0.5,
