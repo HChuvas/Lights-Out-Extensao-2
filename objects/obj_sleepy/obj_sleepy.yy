@@ -11,7 +11,7 @@
   "overriddenProperties":[],
   "parent":{
     "name":"Emojis",
-    "path":"folders/Enemies/Emojis.yy",
+    "path":"folders/Objects/Enemies/Emojis.yy",
   },
   "parentObjectId":null,
   "persistent":false,

@@ -11,7 +11,7 @@
   "overriddenProperties":[],
   "parent":{
     "name":"Mimic_Enemy",
-    "path":"folders/Enemies/Mimic_Enemy.yy",
+    "path":"folders/Objects/Enemies/Mimic_Enemy.yy",
   },
   "parentObjectId":{
     "name":"enemy_parent",

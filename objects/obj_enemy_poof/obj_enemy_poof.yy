@@ -29,7 +29,10 @@
   "resourceType":"GMObject",
   "resourceVersion":"2.0",
   "solid":false,
-  "spriteId":{"name":"spr_enemy_disappear","path":"sprites/spr_enemy_disappear/spr_enemy_disappear.yy",},
+  "spriteId":{
+    "name":"spr_enemy_disappear",
+    "path":"sprites/spr_enemy_disappear/spr_enemy_disappear.yy",
+  },
   "spriteMaskId":null,
   "visible":true,
 }
