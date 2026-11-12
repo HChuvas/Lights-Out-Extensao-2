@@ -10,8 +10,10 @@ if (global.frozen) {
 //web slow
 FINAL_VEL = VEL * VEL_MODIFIER;
 
+image_speed = 1;
+
 rng = irandom(100);
-image_speed = FINAL_VEL;
+
 state_behavior();
 enemy_separation(5, 2, 4, true, obj_chaser);
 enemy_separation(12, 2, 4, true, obj_spider);

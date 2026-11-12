@@ -5,13 +5,13 @@ IDLE_VISION_RANGE = 75;
 
 //movement params
 VEL = 1.0;
-ACE = 0.15;
+ACE = 0.2;
 direction = 0;
 
 //stamina param
-STAMINA = 1.60;
-MAX_STAMINA = 1.60;
-REST_REGEN = 0.15;
+STAMINA = 1.6;
+MAX_STAMINA = 1.6;
+REST_REGEN = 0.4;
 
 //states params
 enum CHASER_STATES {
@@ -31,12 +31,13 @@ PERCEPTION_INTEVAL_TIME = 1;		//time inteval to do a perception / avoid calling 
 SPRITE_CHANGE_INTEVAL_TIME = 2;
 REST_INTEVAL_TIME = 0.5;		//time inteval to rest_regen stamina / avoid regen stamina per step
 ATTACK_DELAY_TIME = 0.2;		//DUH  / avoid apam attacks
-ATTACK_DURATION_TIME = 40;  //time to use the sprite animation 
+ATTACK_DURATION_TIME = 20;  //time to use the sprite animation 
 
 //attack params
 ATTACK_DAMAGE = 1;
 ATTACK_LIFETIME = 0.5;
 ATTACKING  = false;
+PREPARING_ATTACK = false
 
 //alarm for watch state
 alarm[0] = -1;
@@ -107,7 +108,7 @@ function state_behavior(){
 			//attack and exhaust stamina (avoid attack spam)
 			case(CHASER_STATES.ATTACK):
 				if (alarm[4] == -1){
-					VEL= 1;
+					FINAL_VEL= 1;
 					image_speed = VEL;
 					STAMINA = 0;
 					alarm[4] = ATTACK_DELAY_TIME*fps;
