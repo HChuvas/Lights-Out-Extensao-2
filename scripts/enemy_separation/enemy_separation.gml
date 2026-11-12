@@ -1,10 +1,10 @@
-function enemy_separation(_radius = 25, _strength = 0.5, _max_push = 2, _self = true) {
+function enemy_separation(_radius = 25, _strength = 0.5, _max_push = 2, _self = true, obj_to_aply = enemy_parent) {
 
     var _tilemap = layer_tilemap_get_id("Collision");
-    var _count = instance_number(enemy_parent);
+    var _count = instance_number(obj_to_aply);
 
     for (var i = 0; i < _count; i++) {
-        var _enemy = instance_find(enemy_parent, i);
+        var _enemy = instance_find(obj_to_aply, i);
 
         if (_enemy == id || !instance_exists(_enemy)) {
             continue;

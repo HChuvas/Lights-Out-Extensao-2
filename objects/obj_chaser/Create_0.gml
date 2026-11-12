@@ -223,9 +223,11 @@ function path_move(){
         var _dx = lengthdir_x(FINAL_VEL, _dir);
         var _dy = lengthdir_y(FINAL_VEL, _dir);
 		
+		var collision_tilemap = layer_tilemap_get_id(layer_get_id("Collision"));
+		
 		//dont colide with obstacles
-        if (!place_meeting(x + _dx, y, [obj_obstacle, enemy_parent])) { x += _dx; }  
-		if (!place_meeting(x, y + _dy, [obj_obstacle, enemy_parent])) { y += _dy; } 
+        if (!place_meeting(x + _dx, y, [collision_tilemap])) { x += _dx; }  
+		if (!place_meeting(x, y + _dy, [collision_tilemap])) { y += _dy; } 
 	}
 }
 

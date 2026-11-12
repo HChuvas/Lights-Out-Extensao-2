@@ -113,7 +113,6 @@
     {"id":{"name":"Inventory","path":"scripts/Inventory/Inventory.yy",},},
     {"id":{"name":"is_wall_at","path":"scripts/is_wall_at/is_wall_at.yy",},},
     {"id":{"name":"Items","path":"scripts/Items/Items.yy",},},
-    {"id":{"name":"player_enemy_separation","path":"scripts/player_enemy_separation/player_enemy_separation.yy",},},
     {"id":{"name":"reaction","path":"scripts/reaction/reaction.yy",},},
     {"id":{"name":"scr_procgen","path":"scripts/scr_procgen/scr_procgen.yy",},},
     {"id":{"name":"ambient_sound","path":"sounds/ambient_sound/ambient_sound.yy",},},
