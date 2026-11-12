@@ -12,7 +12,7 @@
   "overriddenProperties":[],
   "parent":{
     "name":"Spider_Enemy",
-    "path":"folders/Enemies/Spider_Enemy.yy",
+    "path":"folders/Objects/Enemies/Spider_Enemy.yy",
   },
   "parentObjectId":null,
   "persistent":false,

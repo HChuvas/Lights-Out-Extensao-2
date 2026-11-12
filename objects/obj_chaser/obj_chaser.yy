@@ -20,7 +20,7 @@
   "overriddenProperties":[],
   "parent":{
     "name":"Chaser_Enemy",
-    "path":"folders/Enemies/Chaser_Enemy.yy",
+    "path":"folders/Objects/Enemies/Chaser_Enemy.yy",
   },
   "parentObjectId":{
     "name":"enemy_parent",
