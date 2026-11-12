@@ -33,8 +33,8 @@
   "resourceVersion":"2.0",
   "solid":false,
   "spriteId":{
-    "name":"spr_glue",
-    "path":"sprites/spr_glue/spr_glue.yy",
+    "name":"spr_ovrwld_glue",
+    "path":"sprites/spr_ovrwld_glue/spr_ovrwld_glue.yy",
   },
   "spriteMaskId":null,
   "visible":true,

@@ -33,8 +33,8 @@
   "resourceVersion":"2.0",
   "solid":false,
   "spriteId":{
-    "name":"spr_water_cup",
-    "path":"sprites/spr_water_cup/spr_water_cup.yy",
+    "name":"spr_ovrwld_water_cup",
+    "path":"sprites/spr_ovrwld_water_cup/spr_ovrwld_water_cup.yy",
   },
   "spriteMaskId":null,
   "visible":true,

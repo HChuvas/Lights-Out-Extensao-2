@@ -34,8 +34,8 @@
   "resourceVersion":"2.0",
   "solid":false,
   "spriteId":{
-    "name":"spr_pill",
-    "path":"sprites/spr_pill/spr_pill.yy",
+    "name":"spr_ovrwld_pill",
+    "path":"sprites/spr_ovrwld_pill/spr_ovrwld_pill.yy",
   },
   "spriteMaskId":null,
   "visible":true,
