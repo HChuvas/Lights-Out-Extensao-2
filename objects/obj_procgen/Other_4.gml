@@ -58,7 +58,9 @@ Player.y = _in[1];
 
 // saída na sala mais distante
 var _out = procgen_cell_to_px(plan.goal.cx, plan.goal.cy, cfg, ox, oy);
-instance_create_layer(_out[0], _out[1], "Instances", obj_stage_switch, {
+// escada de subida
+instance_create_layer(_out[0] - 12, _out[1] - 12, "Instances", obj_stage_switch, {
+    sprite_index: spr_stairs_up,
     x_pos: cfg.exit_x, y_pos: cfg.exit_y,
     room_name: cfg.exit_room,
     next_floor: cfg.next_floor,
@@ -68,7 +70,8 @@ instance_create_layer(_out[0], _out[1], "Instances", obj_stage_switch, {
 // escada para o andar de baixo
 if (cfg.floor_n > 1) {
     var _dn = procgen_cell_to_px(plan.start.cx, plan.start.cy, cfg, ox, oy);
-    instance_create_layer(_dn[0], _dn[1], "Instances", obj_stage_switch, {
+    instance_create_layer(_dn[0] - 12, _dn[1] - 12, "Instances", obj_stage_switch, {
+        sprite_index: spr_stairs_down,
         x_pos: -1, y_pos: -1,
         room_name: r_procedural,
         next_floor: cfg.floor_n - 1,
@@ -95,7 +98,6 @@ if (!is_undefined(_saved)) {
         if (!_fits) {
             instance_destroy(_inst);
         } else if (point_distance(_inst.x, _inst.y, Player.x, Player.y) < 80) {
-            // estava colado na escada onde o player chegou, nasce em outra sala
             instance_destroy(_inst);
             if (array_length(_spawn_rooms) > 0) procgen_spawn_enemy(_se.obj, plan, cfg, ox, oy, _spawn_rooms);
         }
