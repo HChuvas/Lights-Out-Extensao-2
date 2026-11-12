@@ -34,8 +34,8 @@
   "resourceVersion":"2.0",
   "solid":false,
   "spriteId":{
-    "name":"spr_flashlight_in",
-    "path":"sprites/spr_flashlight_in/spr_flashlight_in.yy",
+    "name":"spr_ovrwld_flashlight",
+    "path":"sprites/spr_ovrwld_flashlight/spr_ovrwld_flashlight.yy",
   },
   "spriteMaskId":null,
   "visible":true,
