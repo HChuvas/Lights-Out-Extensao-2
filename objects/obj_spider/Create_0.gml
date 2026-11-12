@@ -1,5 +1,8 @@
 event_inherited();
 
+// mask
+mask_index = spr_normal_chaser;
+
 //vision params
 VISION_RANGE = 175;
 SHOOT_RANGE = 125;
@@ -56,6 +59,7 @@ my_path = path_add();
 on_path = false;
 path_point_index = noone;
 path_number_points = noone;
+stuck_t = 0;
 
 //POV last place player seen
 player_last_place_seen = [noone, noone];
@@ -85,14 +89,14 @@ function state_behavior(){
 		case(SPIDER_STATES.PATROL):
 			if (!on_path){
 				_pos = get_unocupied_position_in_web_range();
-				create_path(_pos[0],_pos[1]);
+				if (!create_path(_pos[0],_pos[1])) { state_change(); }
 			}
 			return;
 			
 		case(SPIDER_STATES.TRAVEL):
 			if (!on_path){
 				_pos = get_next_web_position();
-				create_path(_pos[0],_pos[1]);
+				if (!create_path(_pos[0],_pos[1])) { state_change(); }
 			}
 			return;
 			
@@ -101,7 +105,7 @@ function state_behavior(){
 			if (alarm[4] == -1){
 				alarm[4] = PERCEPTION_INTEVAL_TIME;
 				on_path = false;
-				create_path(player_last_place_seen[0], player_last_place_seen[1]);
+				if (!create_path(player_last_place_seen[0], player_last_place_seen[1])) { state_change(true); }
 			}
 			//verify if player in attack range
 			var _player_in_shoot_distance = self.perception(SHOOT_RANGE, SHOOT_ANGLE );
@@ -125,21 +129,21 @@ function state_behavior(){
 
 //get next web to spider go
 function get_next_web_position(){
-	var _max_web_count = instance_number(obj_spider_web);
+	var _n = instance_number(obj_spider_web);
+	if (_n == 0){ return [x, y]; }
 
-	if (_max_web_count != 1){
-		while(true){
-			web_counter = irandom_range(0, _max_web_count - 1);
-			
-			if (web_counter != actual_web_id){
-				break;
-			}
-		}
-	} 
-	
+	if (_n > 1){
+		var _tries = 0;
+		do {
+			web_counter = irandom_range(0, _n - 1);
+			_tries++;
+		} until (web_counter != actual_web_id || _tries > 20);
+	} else {
+		web_counter = 0;
+	}
+
 	var _web = instance_find(obj_spider_web, web_counter);
-	
-	return [_web.x, _web.y]
+	return [_web.x, _web.y];
 }
 
 function get_farthest_web_position(){
@@ -173,19 +177,22 @@ function get_farthest_web_position(){
 	}
 
 function get_unocupied_position_in_web_range(){
-	var _web = instance_find(obj_spider_web, web_counter);
-	
-	while (true) {
-		var _x = irandom_range(_web.x - web_patrol_range,_web.x + web_patrol_range);
-		var _y = irandom_range(_web.y - web_patrol_range,_web.y + web_patrol_range);
-	
-		var _pos_x = floor(_x / obj_manager.cell_size);
-		var _pos_y = floor(_y / obj_manager.cell_size);	
-		
-		if(mp_grid_get_cell(obj_manager.map_grid, _pos_x, _pos_y) == 0){
-			return [_pos_x * obj_manager.cell_size, _pos_y * obj_manager.cell_size];
+	var _n = instance_number(obj_spider_web);
+	if (_n == 0){ return [x, y]; }
+	var _web = instance_find(obj_spider_web, min(web_counter, _n - 1));
+	var _cs = obj_manager.cell_size;
+
+	for (var _i = 0; _i < 30; _i++) {
+		var _x = irandom_range(_web.x - web_patrol_range, _web.x + web_patrol_range);
+		var _y = irandom_range(_web.y - web_patrol_range, _web.y + web_patrol_range);
+		var _cx = floor(_x / _cs);
+		var _cy = floor(_y / _cs);
+
+		if (mp_cell_free(obj_manager.map_grid, _cx, _cy)) {
+			return [_cx * _cs + _cs / 2, _cy * _cs + _cs / 2];
 		}
 	}
+	return [_web.x, _web.y];
 }
 
 //get all objects in line of sight
@@ -250,11 +257,17 @@ function perception(vision_range = VISION_RANGE, ang = noone){
 
 
 function create_path(target_x = noone, target_y = noone){
-	if(mp_grid_path(obj_manager.map_grid, my_path, self.x, self.y, target_x, target_y,  true) ){ 
+	var _g = obj_manager.map_grid;
+	var _t = mp_snap_to_free(_g, target_x, target_y, 4);
+	var _s = mp_snap_to_free(_g, self.x, self.y, 2);
+	if (_t != undefined && _s != undefined && mp_grid_path(_g, my_path, _s[0], _s[1], _t[0], _t[1], true)){
 		on_path = true;
 		path_point_index = 1;
 		path_number_points = path_get_number(my_path);
+		stuck_t = 0;
+		return true;
 	}
+	return false;
 }
 
 //manual movement logic
@@ -263,7 +276,7 @@ function path_move(){
 	if (!on_path){ return; }
 	
 	//reached end of the path
-	if (path_point_index == path_number_points){
+	if (path_point_index >= path_number_points){
 		reset_path();
 		//reset states 
 		state_change(true);
@@ -272,27 +285,32 @@ function path_move(){
 	
 	var _x = path_get_point_x(my_path, path_point_index);
 	var _y = path_get_point_y(my_path, path_point_index);
-	
+	var _vel = VEL * VEL_MODIFIER;   // slow da cola
 	var _dist = point_distance(x, y, _x, _y);
 	
-	//reched point go to the next
-	if (_dist <= VEL + obj_manager.cell_size){
+	//reached point go to the next
+	if (_dist <= max(_vel, 1) + 1){
 		path_point_index += 1;
-		
-	} 
-	if (path_point_index == path_number_points){ return } else {
-		//if not, continue 
-		var _dir = point_direction(self.x, self.y, _x, _y);
-		direction = _dir;
-		
-        var _vel = VEL * VEL_MODIFIER;   // slow da cola
-        var _dx = lengthdir_x(_vel, _dir);
-        var _dy = lengthdir_y(_vel, _dir);
-		
-		var collision_tilemap = layer_tilemap_get_id(layer_get_id("Collision"));
-		//dont colide with obstacles
-        if (!place_meeting(x + _dx, y, [collision_tilemap])) { x += _dx; }  
-		if (!place_meeting(x, y + _dy, [collision_tilemap])) { y += _dy; } 
+		return;
+	}
+	
+	var _dir = point_direction(self.x, self.y, _x, _y);
+	direction = _dir;
+	var _dx = lengthdir_x(_vel, _dir);
+	var _dy = lengthdir_y(_vel, _dir);
+	var _px = x, _py = y;
+	
+	var collision_tilemap = layer_tilemap_get_id(layer_get_id("Collision"));
+	//dont colide with obstacles
+	if (!place_meeting(x + _dx, y, [collision_tilemap])) { x += _dx; }  
+	if (!place_meeting(x, y + _dy, [collision_tilemap])) { y += _dy; } 
+	
+	// redo when stuck
+	if (point_distance(_px, _py, x, y) < 0.1) { stuck_t++; } else { stuck_t = 0; }
+	if (stuck_t > 15){
+		stuck_t = 0;
+		reset_path();
+		if (CURRENT_STATE == SPIDER_STATES.CHASE){ alarm[4] = 1; }
 	}
 }
 

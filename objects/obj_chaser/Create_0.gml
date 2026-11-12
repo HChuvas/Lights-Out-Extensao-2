@@ -62,6 +62,7 @@ my_path = path_add();
 on_path = false;
 path_point_index = noone;
 path_number_points = noone;
+stuck_t = 0; //frames stuck
 
 //POV last place player seen
 player_last_place_seen = [noone, noone];
@@ -169,10 +170,14 @@ function perception(){
 }
 
 function create_path(target_x = noone, target_y = noone){
-	if(mp_grid_path(obj_manager.map_grid, my_path, self.x, self.y, target_x, target_y,  true) ){ 
+	var _g = obj_manager.map_grid;
+	var _t = mp_snap_to_free(_g, target_x, target_y, 4);
+	var _s = mp_snap_to_free(_g, self.x, self.y, 2);
+	if(_t != undefined && _s != undefined && mp_grid_path(_g, my_path, _s[0], _s[1], _t[0], _t[1], true) ){ 
 		on_path = true;
 		path_point_index = 1;
 		path_number_points = path_get_number(my_path);
+		stuck_t = 0;
 	} else {
 		//if path not created sucefuly, reset state
 		if (CURRENT_STATE == CHASER_STATES.PATROL) {
@@ -226,9 +231,19 @@ function path_move(){
 		
 		var collision_tilemap = layer_tilemap_get_id(layer_get_id("Collision"));
 		
+		var _px = x, _py = y;
 		//dont colide with obstacles
         if (!place_meeting(x + _dx, y, [collision_tilemap])) { x += _dx; }  
 		if (!place_meeting(x, y + _dy, [collision_tilemap])) { y += _dy; } 
+
+		//redo the way when stuck
+		if (point_distance(_px, _py, x, y) < 0.1) { stuck_t++; } else { stuck_t = 0; }
+		if (stuck_t > 15) {
+			stuck_t = 0;
+			on_path = false;
+			if (CURRENT_STATE == CHASER_STATES.PATROL) { alarm[1] = 1; }
+			else if (CURRENT_STATE == CHASER_STATES.CHASE) { alarm[2] = 1; }
+		}
 	}
 }
 
