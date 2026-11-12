@@ -111,10 +111,12 @@ function procgen_config() {
         exit_y: _last ? 544 : -1,
 
         // inimigos
-        chasers: [[1, 1], [1, 2], [2, 2]][_f - 1],
+        chasers: [[1, 1], [1, 1], [1, 2]][_f - 1],
         clowns:  [[0, 1], [0, 1], [1, 1]][_f - 1],
-        mimics:  [[0, 1], [1, 1], [1, 2]][_f - 1],
+        mimics:  [[0, 1], [1, 2], [1, 2]][_f - 1],
         balloons: [[1, 2], [2, 3], [2, 4]][_f - 1],
+        webs:    [[0, 1], [1, 2], [2, 3]][_f - 1],
+        spiders: [[0, 0], [0, 1], [1, 1]][_f - 1],
 
         // itens
         item_off_y: 0,
@@ -974,8 +976,6 @@ function procgen_put(_plan, _def, _spr, _x, _y, _fw, _fh) {
     var _sf = undefined;
     var _sy = variable_struct_exists(_def, "top_y") ? _def.top_y : (variable_struct_exists(_def, "surf_y") ? _def.surf_y : -1);
     if (_sy >= 0) {
-        // d  = px entre a base do item (linha da superfície) e a base do móvel, onde o player encosta
-        // fx = borda esquerda da pegada do móvel; fpw = largura da pegada
         _sf = { x: _p.x, y: _p.y + _sy, w: _w, d: _h - _sy, fx: _x * _c, fpw: _fw * _c,
                 cx: _x, cy: _y + _fh - 1, fw: _fw, room: _plan.cur_room, used: [] };
         array_push(_plan.surfaces, _sf);
@@ -1500,7 +1500,9 @@ function procgen_spawn_enemy(_obj, _plan, _cfg, _ox, _oy, _rooms) {
     return noone;
 }
 
-function procgen_spawn_mimics(_plan, _cfg, _ox, _oy, _n) {
+function procgen_spawn_mimics(_plan, _cfg, _ox, _oy, _n, _saved = undefined) {
+    // andar já visitado tem a mesma quantidade de antes
+    if (!is_undefined(_saved)) _n = array_length(_saved);
     if (_n <= 0) return;
 
     var _cells = [];
@@ -1514,6 +1516,23 @@ function procgen_spawn_mimics(_plan, _cfg, _ox, _oy, _n) {
     if (_n <= 0) return;
 
     array_shuffle(_cells);
+
+    // leva para o começo as cadeiras onde os mímicos estavam
+    if (!is_undefined(_saved)) {
+        var _front = 0;
+        for (var _s = 0; _s < array_length(_saved); _s++) {
+            for (var _i = _front; _i < array_length(_cells); _i++) {
+                if (point_distance(_cells[_i].px, _cells[_i].py, _saved[_s].x, _saved[_s].y) < 4) {
+                    var _tmp = _cells[_front];
+                    _cells[_front] = _cells[_i];
+                    _cells[_i] = _tmp;
+                    _front++;
+                    break;
+                }
+            }
+        }
+    }
+
     var _shared = { cells: _cells, taken: array_create(array_length(_cells), false) };
 
     for (var _i = 0; _i < _n; _i++) {
@@ -1544,6 +1563,54 @@ function procgen_spawn_balloons(_plan, _cfg, _ox, _oy, _n) {
 
         instance_create_layer(_p[0], _p[1], "Instances", Balloon);
         _made++;
+    }
+}
+
+
+function procgen_spawn_webs(_plan, _cfg, _ox, _oy, _n) {
+    var _webs = [];
+    var _pool = [];
+    for (var _i = 0; _i < array_length(_plan.rooms); _i++) {
+        if (_plan.rooms[_i].dist >= 1) array_push(_pool, _plan.rooms[_i]);
+    }
+    if (array_length(_pool) == 0 || _n <= 0) return _webs;
+
+    for (var _t = 0; _t < _n * 20 && array_length(_webs) < _n; _t++) {
+        var _room = _pool[irandom(array_length(_pool) - 1)];
+        var _c = procgen_random_free_cell(_plan, _room, true);
+        if (is_undefined(_c)) continue;
+        // não trava a escada de entrada nem a de saída
+        if (abs(_c[0] - _plan.goal.cx)  <= 2 && abs(_c[1] - _plan.goal.cy)  <= 2) continue;
+        if (abs(_c[0] - _plan.start.cx) <= 2 && abs(_c[1] - _plan.start.cy) <= 2) continue;
+
+        var _p = procgen_cell_to_px(_c[0], _c[1], _cfg, _ox, _oy);
+        var _near = instance_nearest(_p[0], _p[1], obj_spider_web);
+        if (_near != noone && point_distance(_p[0], _p[1], _near.x, _near.y) < 96) continue;
+
+        array_push(_webs, instance_create_layer(_p[0], _p[1], "Instances", obj_spider_web));
+    }
+    return _webs;
+}
+
+function procgen_spawn_spiders(_n, _webs) {
+    // a aranha viaja entre teias, sem teia ela não spawna
+    if (_n <= 0 || array_length(_webs) == 0) return;
+
+    // prefere teias longe de onde o player chegou
+    var _pool = [];
+    for (var _i = 0; _i < array_length(_webs); _i++) {
+        var _w = _webs[_i];
+        if (!instance_exists(Player) || point_distance(_w.x, _w.y, Player.x, Player.y) > 96) array_push(_pool, _w);
+    }
+    if (array_length(_pool) == 0) _pool = _webs;
+    procgen_shuffle(_pool);
+
+    _n = min(_n, array_length(_pool)); // uma aranha por teia
+    for (var _i = 0; _i < _n; _i++) {
+        var _s = instance_create_layer(_pool[_i].x, _pool[_i].y, "Instances", obj_spider);
+        var _fits = false;
+        with (_s) _fits = enemy_unstick();
+        if (!_fits) instance_destroy(_s);
     }
 }
 
@@ -1696,7 +1763,6 @@ function procgen_debug_draw(_plan, _px, _py, _s) {
     }
 
     // laranja: lanterna, verde: copo de água, azul: remédio, amarelo claro: cola
-    // (lê direto de cfg.items, então item novo aparece no mapa; só precisa de cor aqui)
     var _item_col = {
         obj_flashlight: c_orange,
         obj_water_cup:  c_lime,
@@ -1708,7 +1774,7 @@ function procgen_debug_draw(_plan, _px, _py, _s) {
         var _nm = object_get_name(_o);
         draw_set_color(variable_struct_exists(_item_col, _nm) ? variable_struct_get(_item_col, _nm) : c_white);
         with (_o) {
-            // centro X e base do sprite (a base apoia no móvel; sprites altos não "sobem" de célula)
+            // centro X e base do sprite
             var _icx = floor(((bbox_left + bbox_right) / 2) / _plan.cell) - _plan.ox;
             var _icy = floor((bbox_bottom - 1) / _plan.cell) - _plan.oy;
             draw_circle(_px + _icx*_s + _s/2, _py + _icy*_s + _s/2, max(2, _s * 0.6), false);
@@ -1799,9 +1865,25 @@ function pg_save_floor() {
         if (!popping) array_push(_balloons, { x: x, y: y });
     }
 
+    // teias
+    var _webs = [];
+    with (obj_spider_web) array_push(_webs, { x: x, y: y });
+
+    // inimigos
+    var _enemies = [];
+    with (obj_chaser) array_push(_enemies, { obj: object_index, x: x, y: y });
+    with (Clown)      array_push(_enemies, { obj: object_index, x: x, y: y });
+    with (obj_spider) array_push(_enemies, { obj: object_index, x: x, y: y });
+
+    var _mimics = [];
+    with (obj_mimic) array_push(_mimics, { x: x, y: y });
+
     variable_struct_set(global.pg_saved, "f" + string(procgen_floor()), {
         seed: _pg.plan.seed,
         items: _items,
-        balloons: _balloons
+        balloons: _balloons,
+        webs: _webs,
+        enemies: _enemies,
+        mimics: _mimics
     });
 }

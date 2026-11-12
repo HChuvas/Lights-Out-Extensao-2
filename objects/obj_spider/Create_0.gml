@@ -179,8 +179,8 @@ function get_unocupied_position_in_web_range(){
 		var _x = irandom_range(_web.x - web_patrol_range,_web.x + web_patrol_range);
 		var _y = irandom_range(_web.y - web_patrol_range,_web.y + web_patrol_range);
 	
-		var _pos_x = floor((_x - obj_manager.patrol_x1) / obj_manager.cell_size);
-		var _pos_y = floor((_y -  obj_manager.patrol_y1) / obj_manager.cell_size);	
+		var _pos_x = floor(_x / obj_manager.cell_size);
+		var _pos_y = floor(_y / obj_manager.cell_size);	
 		
 		if(mp_grid_get_cell(obj_manager.map_grid, _pos_x, _pos_y) == 0){
 			return [_pos_x * obj_manager.cell_size, _pos_y * obj_manager.cell_size];

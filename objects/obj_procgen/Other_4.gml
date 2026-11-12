@@ -65,7 +65,7 @@ instance_create_layer(_out[0], _out[1], "Instances", obj_stage_switch, {
     arrive: "start"
 });
 
-// escada para o andar de baixo (só do andar 2 em diante)
+// escada para o andar de baixo
 if (cfg.floor_n > 1) {
     var _dn = procgen_cell_to_px(plan.start.cx, plan.start.cy, cfg, ox, oy);
     instance_create_layer(_dn[0], _dn[1], "Instances", obj_stage_switch, {
@@ -81,11 +81,26 @@ var _spawn_rooms = [];
 for (var _min = 2; _min >= 1 && array_length(_spawn_rooms) == 0; _min--) {
     for (var _i = 0; _i < array_length(plan.rooms); _i++) {
         var _rm = plan.rooms[_i];
-        // ao voltar pela escada, não nasce inimigo na sala onde o player chega
+        // área da escada segura quando volta
         if (_rm.dist >= _min && !(_arrive_goal && _rm == plan.goal)) array_push(_spawn_rooms, _rm);
     }
 }
-if (array_length(_spawn_rooms) > 0) {
+if (!is_undefined(_saved)) {
+    // cada inimigo volta onde estava
+    for (var _e = 0; _e < array_length(_saved.enemies); _e++) {
+        var _se = _saved.enemies[_e];
+        var _inst = instance_create_layer(_se.x, _se.y, "Instances", _se.obj);
+        var _fits = false;
+        with (_inst) _fits = enemy_unstick();
+        if (!_fits) {
+            instance_destroy(_inst);
+        } else if (point_distance(_inst.x, _inst.y, Player.x, Player.y) < 80) {
+            // estava colado na escada onde o player chegou, nasce em outra sala
+            instance_destroy(_inst);
+            if (array_length(_spawn_rooms) > 0) procgen_spawn_enemy(_se.obj, plan, cfg, ox, oy, _spawn_rooms);
+        }
+    }
+} else if (array_length(_spawn_rooms) > 0) {
     // quantidade definida por andar no cfg
     var _n_chasers = irandom_range(cfg.chasers[0], cfg.chasers[1]);
     var _n_clowns  = irandom_range(cfg.clowns[0],  cfg.clowns[1]);
@@ -99,7 +114,17 @@ if (array_length(_spawn_rooms) > 0) {
     }
 }
 
-procgen_spawn_mimics(plan, cfg, ox, oy, irandom_range(cfg.mimics[0], cfg.mimics[1]));
+procgen_spawn_mimics(plan, cfg, ox, oy, irandom_range(cfg.mimics[0], cfg.mimics[1]), is_undefined(_saved) ? undefined : _saved.mimics);
+
+// teias e aranhas
+if (!is_undefined(_saved)) {
+    for (var _w = 0; _w < array_length(_saved.webs); _w++) {
+        instance_create_layer(_saved.webs[_w].x, _saved.webs[_w].y, "Instances", obj_spider_web);
+    }
+} else {
+    var _webs = procgen_spawn_webs(plan, cfg, ox, oy, irandom_range(cfg.webs[0], cfg.webs[1]));
+    procgen_spawn_spiders(irandom_range(cfg.spiders[0], cfg.spiders[1]), _webs);
+}
 
 // balões
 if (!is_undefined(_saved)) {
