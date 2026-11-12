@@ -1837,6 +1837,7 @@ function pg_clear_saves() {
     global.pg_saved = {};
     global.pg_arrive = "start";
     global.pg_resume_floor = 0;
+    global.room_items = {};
 }
 
 function pg_get_save(_f) {
@@ -1858,7 +1859,8 @@ function pg_save_floor() {
     var _items = [];
     for (var _d = 0; _d < array_length(_pg.cfg.items); _d++) {
         with (_pg.cfg.items[_d].obj) {
-            array_push(_items, { obj: object_index, x: x, y: y, depth: depth });
+            array_push(_items, { obj: object_index, x: x, y: y, depth: depth,
+                name: _name, quantity: _quantity, consumed: _consumed });
         }
     }
     var _balloons = [];

@@ -1,12 +1,14 @@
 // Todos os itens do jogo ficam aqui, procurados pelo nome.
 // on_use(player):  roda uma vez quando E é pressionado
 // on_stop(player): roda uma vez quando E é solto
-// consumable:      true = gasta 1 de quantity a cada uso
+// consumable: true = gasta 1 de quantity a cada uso
 // destroy_on_consume: true = item é destruído e retirado do inventário quando quantity chega em 0
+// pickup: objeto que aparece no chão quando o item é largado (tecla G)
 
 global.items = {
 
     flashlight: {
+        pickup: obj_flashlight,
         sprite: spr_flashlight_in,
         consumed_sprite: spr_flashlight_out,
         consumable: true,
@@ -25,6 +27,7 @@ global.items = {
     },
 
     water_cup: {
+        pickup: obj_water_cup,
         sprite: spr_water_cup,
         consumable: true,
         destroy_on_consume: true,
@@ -43,6 +46,7 @@ global.items = {
     },
 
     pill: {
+        pickup: obj_pill,
         sprite: spr_pill,
         consumable: true,
         destroy_on_consume: true,
@@ -61,6 +65,7 @@ global.items = {
     },
 
     glue: {
+        pickup: obj_glue,
         sprite: spr_glue,
         consumable: true,
         destroy_on_consume: true,

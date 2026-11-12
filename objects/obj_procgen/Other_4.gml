@@ -146,6 +146,9 @@ if (!is_undefined(_saved)) {
         var _si = _saved.items[_d];
         var _it = instance_create_layer(_si.x, _si.y, "Instances", _si.obj);
         _it.depth = _si.depth;
+        _it._name = _si.name;
+        _it._quantity = _si.quantity;
+        _it._consumed = _si.consumed;
     }
 } else {
     // sorteia de 1 a 2 itens do andar 
