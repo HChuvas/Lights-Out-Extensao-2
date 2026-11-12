@@ -118,6 +118,9 @@ if (!is_undefined(_saved)) {
 
 procgen_spawn_mimics(plan, cfg, ox, oy, irandom_range(cfg.mimics[0], cfg.mimics[1]), is_undefined(_saved) ? undefined : _saved.mimics);
 
+// monstro do armário
+procgen_spawn_wardrobes(plan, cfg, ox, oy, irandom_range(cfg.wardrobes[0], cfg.wardrobes[1]), is_undefined(_saved) ? undefined : _saved.wardrobes);
+
 // teias e aranhas
 if (!is_undefined(_saved)) {
     for (var _w = 0; _w < array_length(_saved.webs); _w++) {
@@ -149,6 +152,7 @@ if (!is_undefined(_saved)) {
         _it._name = _si.name;
         _it._quantity = _si.quantity;
         _it._consumed = _si.consumed;
+        _it._dropped = _si.dropped;
     }
 } else {
     // sorteia de 1 a 2 itens do andar 

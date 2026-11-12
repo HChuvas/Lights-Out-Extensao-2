@@ -55,3 +55,6 @@ gpu_set_blendmode(bm_normal);
 surface_reset_target();
 
 draw_surface(surf, _cx, _cy);
+
+// olhos do monstro do armário brilham
+with (obj_wardrobe) glow_draw();

@@ -114,6 +114,7 @@ function procgen_config() {
         chasers: [[1, 1], [1, 1], [1, 2]][_f - 1],
         clowns:  [[0, 1], [0, 1], [1, 1]][_f - 1],
         mimics:  [[0, 1], [1, 2], [1, 2]][_f - 1],
+        wardrobes: [[1, 1], [0, 1], [0, 1]][_f - 1],
         balloons: [[1, 2], [2, 3], [2, 4]][_f - 1],
         webs:    [[0, 1], [1, 2], [2, 3]][_f - 1],
         spiders: [[0, 0], [0, 1], [1, 1]][_f - 1],
@@ -192,6 +193,7 @@ function procgen_presets_build() {
         { at: PG_AT.AROUND, prop: "armchair",  lo: 1, hi: 1 },
         { at: PG_AT.NEAR,   near: "armchair",  prop: "plant",    lo: 0, hi: 1, chance: 0.6 },
         { at: PG_AT.SIDE,   prop: "cabinet",   lo: 0, hi: 2 },
+        { at: PG_AT.TOP,    prop: "wardrobe",  lo: 1, hi: 1, chance: 0.35 },
         { at: PG_AT.CORNER, prop: "plant",     lo: 1, hi: 2 },
         { at: PG_AT.WALL,   prop: "picture",   lo: 2, hi: 3 }
     ];
@@ -215,7 +217,7 @@ function procgen_presets_build() {
     _p[PG_ROOM.STORAGE] = [
         { at: PG_AT.RUN,    runs: [["wardrobe", "cabinet", "cabinet", "bench"], ["cabinet", "wardrobe", "wardrobe"]] },
         { at: PG_AT.SIDE,   prop: "cabinet",   lo: 1, hi: 2 },
-        { at: PG_AT.SIDE,   prop: "wardrobe",  lo: 0, hi: 1 },
+        { at: PG_AT.TOP,    prop: "wardrobe",  lo: 0, hi: 1, chance: 0.6 },
         { at: PG_AT.SIDE,   prop: "box",       lo: 2, hi: 3 },
         { at: PG_AT.CORNER, prop: "box",       lo: 1, hi: 2 },
         { at: PG_AT.CORNER, prop: "basket",    lo: 0, hi: 1 },
@@ -225,6 +227,7 @@ function procgen_presets_build() {
         { at: PG_AT.RUN,    runs: [["cabinet", "desk"], ["desk", "cabinet"], ["cabinet", "desk", "cabinet"]] },
         { at: PG_AT.NEAR,   near: "desk",      prop: "bin",      lo: 1, hi: 1, chance: 0.7 },
         { at: PG_AT.SIDE,   prop: "cabinet",   lo: 1, hi: 2 },
+        { at: PG_AT.TOP,    prop: "wardrobe",  lo: 1, hi: 1, chance: 0.4 },
         { at: PG_AT.CORNER, prop: "plant",     lo: 1, hi: 2 },
         { at: PG_AT.CORNER, prop: "bin",       lo: 0, hi: 1 },
         { at: PG_AT.WALL,   prop: "picture",   lo: 1, hi: 2 },
@@ -235,7 +238,7 @@ function procgen_presets_build() {
         { at: PG_AT.NEAR,   near: "sink",      prop: "basket",   lo: 1, hi: 1, chance: 0.7 },
         { at: PG_AT.CORNER, prop: "basket",    lo: 1, hi: 2 },
         { at: PG_AT.CORNER, prop: "bin",       lo: 0, hi: 1 },
-        { at: PG_AT.SIDE,   prop: "wardrobe",  lo: 0, hi: 1 },
+        { at: PG_AT.TOP,    prop: "wardrobe",  lo: 0, hi: 1, chance: 0.5 },
         { at: PG_AT.WALL,   prop: "towel",     lo: 1, hi: 1 },
         { at: PG_AT.WALL,   prop: "note",      lo: 0, hi: 1 }
     ];
@@ -844,6 +847,34 @@ function procgen_decorate(_plan, _cfg) {
         }
         if (_r.type == PG_ROOM.LIVING) procgen_rug_living(_plan, _cfg, _r);
     }
+
+    procgen_ensure_wardrobes(_plan, _defs, _cfg.wardrobes[1]);
+}
+
+// garante móveis de armário suficientes
+function procgen_ensure_wardrobes(_plan, _defs, _need) {
+    var _have = 0;
+    for (var _i = 0; _i < array_length(_plan.props); _i++) {
+        if (_plan.props[_i].kind == "prop" && _plan.props[_i].spr == spr_furniture_83) _have++;
+    }
+    if (_have >= _need) return;
+
+    // depósito, escritório e lavanderia primeiro e sala por último
+    var _order = [PG_ROOM.STORAGE, PG_ROOM.OFFICE, PG_ROOM.LAUNDRY, PG_ROOM.LIVING];
+    var _rule = { at: PG_AT.TOP, prop: "wardrobe" };
+    for (var _o = 0; _o < array_length(_order) && _have < _need; _o++) {
+        var _list = [];
+        for (var _i = 0; _i < array_length(_plan.rooms); _i++) {
+            if (_plan.rooms[_i].type == _order[_o]) array_push(_list, _i);
+        }
+        procgen_shuffle(_list);
+        for (var _k = 0; _k < array_length(_list) && _have < _need; _k++) {
+            _plan.cur_room = _list[_k];
+            _plan.cur_type = _order[_o];
+            global.pg_used = {};
+            if (procgen_place_one(_plan, _defs, _plan.rooms[_list[_k]], _rule)) _have++;
+        }
+    }
 }
 
 function procgen_rug_living(_plan, _cfg, _r) {
@@ -945,7 +976,7 @@ function procgen_put(_plan, _def, _spr, _x, _y, _fw, _fh) {
     var _c = _plan.cell;
     var _w = sprite_get_width(_spr), _h = sprite_get_height(_spr);
     var _p = {
-        spr: _spr, kind: "prop", el: -1,
+        spr: _spr, kind: "prop", el: -1, room: _plan.cur_room,
         x: _x * _c + (_fw * _c - _w) div 2,
         y: (_y + _fh) * _c - _h,
         cx: _x, cy: _y + _fh - 1,
@@ -1544,6 +1575,44 @@ function procgen_spawn_mimics(_plan, _cfg, _ox, _oy, _n, _saved = undefined) {
     }
 }
 
+// desenha por cima dos armários do mapa
+function procgen_spawn_wardrobes(_plan, _cfg, _ox, _oy, _n, _saved = undefined) {
+    var _cells = [];
+    for (var _i = 0; _i < array_length(_plan.props); _i++) {
+        var _p = _plan.props[_i];
+        if (_p.kind != "prop" || _p.spr != spr_furniture_83) continue;
+        var _near_start = (variable_struct_exists(_p, "room") && _plan.rooms[_p.room] == _plan.start);
+        array_push(_cells, { x: _ox * _cfg.cell + _p.x, y: _oy * _cfg.cell + _p.y, el: _p.el, trades: 0, near_start: _near_start });
+    }
+    if (array_length(_cells) == 0) return;
+
+    var _chosen = [];
+    if (!is_undefined(_saved)) {
+        // andar já visitado
+        for (var _s = 0; _s < array_length(_saved); _s++) {
+            for (var _i = 0; _i < array_length(_cells); _i++) {
+                if (point_distance(_cells[_i].x, _cells[_i].y, _saved[_s].x, _saved[_s].y) < 4) {
+                    _cells[_i].trades = _saved[_s].trades;
+                    array_push(_chosen, _cells[_i]);
+                    break;
+                }
+            }
+        }
+    } else {
+        array_shuffle(_cells);
+        // armários longe da escada inicial vêm primeiro
+        var _far = [], _close = [];
+        for (var _i = 0; _i < array_length(_cells); _i++) array_push(_cells[_i].near_start ? _close : _far, _cells[_i]);
+        _cells = array_concat(_far, _close);
+        for (var _i = 0; _i < min(_n, array_length(_cells)); _i++) array_push(_chosen, _cells[_i]);
+    }
+
+    for (var _i = 0; _i < array_length(_chosen); _i++) {
+        var _c = _chosen[_i];
+        instance_create_layer(_c.x, _c.y, "Instances", obj_wardrobe, { el: _c.el, trades: _c.trades });
+    }
+}
+
 function procgen_spawn_balloons(_plan, _cfg, _ox, _oy, _n) {
     var _pool = [];
     for (var _i = 0; _i < array_length(_plan.rooms); _i++) {
@@ -1856,11 +1925,14 @@ function pg_save_floor() {
     if (is_undefined(_pg.plan)) return;
     if (!variable_global_exists("pg_saved")) global.pg_saved = {};
 
+    // não salva com uma troca de armário pela metade
+    with (obj_wardrobe) flush_trade();
+
     var _items = [];
     for (var _d = 0; _d < array_length(_pg.cfg.items); _d++) {
         with (_pg.cfg.items[_d].obj) {
             array_push(_items, { obj: object_index, x: x, y: y, depth: depth,
-                name: _name, quantity: _quantity, consumed: _consumed });
+                name: _name, quantity: _quantity, consumed: _consumed, dropped: _dropped });
         }
     }
     var _balloons = [];
@@ -1878,6 +1950,9 @@ function pg_save_floor() {
     with (Clown)      array_push(_enemies, { obj: object_index, x: x, y: y });
     with (obj_spider) array_push(_enemies, { obj: object_index, x: x, y: y });
 
+    var _wardrobes = [];
+    with (obj_wardrobe) array_push(_wardrobes, { x: x, y: y, trades: trades });
+
     var _mimics = [];
     with (obj_mimic) array_push(_mimics, { x: x, y: y });
 
@@ -1887,6 +1962,7 @@ function pg_save_floor() {
         balloons: _balloons,
         webs: _webs,
         enemies: _enemies,
-        mimics: _mimics
+        mimics: _mimics,
+        wardrobes: _wardrobes
     });
 }

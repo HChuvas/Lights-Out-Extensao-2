@@ -120,6 +120,7 @@ function Inventory () constructor{
         _inst._name = _item.name;
         _inst._quantity = _item.quantity;
         _inst._consumed = _item.consumed;
+        _inst._dropped = true; // só troca itens largados pelo jogador
 
         with (_inst) {
             for (var i = 0; i < array_length(_dists); i++) {
@@ -170,7 +171,7 @@ function item_room_save() {
     with (obj_item_parent) {
         array_push(_list, {
             obj: object_index, x: x, y: y, depth: depth,
-            name: _name, quantity: _quantity, consumed: _consumed
+            name: _name, quantity: _quantity, consumed: _consumed, dropped: _dropped
         });
     }
     variable_struct_set(global.room_items, room_get_name(room), _list);
@@ -181,7 +182,7 @@ function item_room_restore() {
     if (!variable_global_exists("room_items")) return;
 
     var _list = variable_struct_get(global.room_items, room_get_name(room));
-    if (is_undefined(_list)) return; // sala nunca visitada
+    if (is_undefined(_list)) return;   // sala nunca visitada
 
     // lista salva
     with (obj_item_parent) instance_destroy();
@@ -193,5 +194,6 @@ function item_room_restore() {
         _inst._name = _s.name;
         _inst._quantity = _s.quantity;
         _inst._consumed = _s.consumed;
+        _inst._dropped = _s.dropped;
     }
 }

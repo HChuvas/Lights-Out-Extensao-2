@@ -1,5 +1,5 @@
 // Todos os itens do jogo ficam aqui, procurados pelo nome.
-// on_use(player):  roda uma vez quando E é pressionado
+// on_use(player): roda uma vez quando E é pressionado
 // on_stop(player): roda uma vez quando E é solto
 // consumable: true = gasta 1 de quantity a cada uso
 // destroy_on_consume: true = item é destruído e retirado do inventário quando quantity chega em 0
