@@ -77,7 +77,10 @@ global.items = {
                 instance_destroy(timer_instance);
                 timer_instance = noone;
             }
-            else timer_instance = instance_create_layer(_player.x, _player.y, "Instances", obj_pill_timer);
+            else {
+                timer_instance = instance_create_layer(_player.x, _player.y, "Instances", obj_pill_timer);
+                audio_play_sound(gulp, 0, false);
+            }
         },
         check_availability: noone,
         on_stop: function(_player) {},

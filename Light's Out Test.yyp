@@ -143,6 +143,7 @@
     {"id":{"name":"darkness_house_song","path":"sounds/darkness_house_song/darkness_house_song.yy",},},
     {"id":{"name":"death_sound","path":"sounds/death_sound/death_sound.yy",},},
     {"id":{"name":"game_over_song","path":"sounds/game_over_song/game_over_song.yy",},},
+    {"id":{"name":"gulp","path":"sounds/gulp/gulp.yy",},},
     {"id":{"name":"lantern_activate","path":"sounds/lantern_activate/lantern_activate.yy",},},
     {"id":{"name":"light_house_song","path":"sounds/light_house_song/light_house_song.yy",},},
     {"id":{"name":"ploft","path":"sounds/ploft/ploft.yy",},},
