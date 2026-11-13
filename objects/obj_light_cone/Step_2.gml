@@ -1,6 +1,4 @@
 // segue quem está segurando a luz e aponta para onde ele olha
-
-// Segue quem está segurando a luz e aponta para onde ele olha.
 if (!instance_exists(owner))
 {
     with (enemy_parent) in_flashlight_cone = false;

@@ -9,7 +9,7 @@ SHOOT_RANGE = 125;
 SHOOT_ANGLE = [-10 ,0, 10]
 
 //movement params
-VEL = 1.25;
+VEL = 1.2;
 direction = 0;
 
 //states params
@@ -19,7 +19,8 @@ enum SPIDER_STATES {
 	TRAVEL,
 	CHASE,
 	SHOOT,
-	STOP
+	STOP,
+	STUNNED
 }
 CURRENT_STATE = SPIDER_STATES.TRAVEL;
 
@@ -35,7 +36,7 @@ WATCH_TIME_RANGE = [2, 4];
 ATTACK_DAMAGE = 1;
 ATTACK_LIFETIME = 10;
 ATTACKING  = false;
-ATTACK_VEL = 1.5;
+ATTACK_VEL = 1.6;
 STOP_AFTER_ATTACK = 0.75;
 
 //alarm for max action len // avoid infinite action time
@@ -68,6 +69,15 @@ player_last_place_seen = [noone, noone];
 actual_web_id = noone;
 web_counter = 0;
 web_patrol_range = 100;
+
+//latern
+STUN_DURATION = 3 * game_get_speed(gamespeed_fps);
+STUN_TIMER = 0;
+
+STATE_BEFORE_STUN = SPIDER_STATES.WATCH;
+VEL_BEFORE_STUN = VEL;
+
+FLASHLIGHT_STUNNED = false;
 
 //RNG var
 PATROL_TO_TRAVEL_CHANCE = 20;
@@ -439,4 +449,34 @@ function reset_path(){
 		path_point_index = noone;
 		path_number_points = noone;
 
+}
+
+function apply_flashlight_stun()
+{
+    if (CURRENT_STATE != SPIDER_STATES.STUNNED)
+    {
+        STATE_BEFORE_STUN = CURRENT_STATE;
+
+        // Não retoma um ataque interrompido pela lanterna
+        if (STATE_BEFORE_STUN == SPIDER_STATES.SHOOT)
+        {
+            STATE_BEFORE_STUN = SPIDER_STATES.WATCH;
+        }
+
+        VEL_BEFORE_STUN = VEL;
+        CURRENT_STATE = SPIDER_STATES.STUNNED;
+
+        reset_alarms();
+        reset_path();
+
+        ATTACKING = false;
+
+        change_sprite();
+    }
+
+    STUN_TIMER = STUN_DURATION;
+    FLASHLIGHT_STUNNED = true;
+    VEL = 0;
+    image_speed = 0;
+	in_flashlight_cone = false;
 }

@@ -374,4 +374,5 @@ function apply_flashlight_stun()
     FLASHLIGHT_STUNNED = true;
     VEL = 0;
     image_speed = 0;
+	in_flashlight_cone = false;
 }
