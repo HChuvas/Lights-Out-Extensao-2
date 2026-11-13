@@ -69,7 +69,8 @@ else if (instance_exists(Player) && Player.item_held == "") {
     if (!is_undefined(_sel)) {
         var _def = global.items[$ _sel.name];
         var _hint = variable_struct_exists(_def, "hint") ? _def.hint + "   " : "";
-        if (_sel.quantity <= 0) _hint = "Sem carga   ";
+        if (!item_lights_off()) _hint = ""; // luzes acesas: só pegar e largar
+        if (_sel.quantity <= 0 && item_lights_off()) _hint = "Sem carga   ";
         draw_set_halign(fa_center);
         draw_set_valign(fa_bottom);
         draw_set_alpha(0.8);

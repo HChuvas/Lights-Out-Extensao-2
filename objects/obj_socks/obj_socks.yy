@@ -4,7 +4,10 @@
   "eventList":[],
   "managed":true,
   "name":"obj_socks",
-  "overriddenProperties":[],
+  "overriddenProperties":[
+    {"$GMOverriddenProperty":"v1","%Name":"","name":"","objectId":{"name":"obj_item_parent","path":"objects/obj_item_parent/obj_item_parent.yy",},"propertyId":{"name":"_name","path":"objects/obj_item_parent/obj_item_parent.yy",},"resourceType":"GMOverriddenProperty","resourceVersion":"2.0","value":"socks",},
+    {"$GMOverriddenProperty":"v1","%Name":"","name":"","objectId":{"name":"obj_item_parent","path":"objects/obj_item_parent/obj_item_parent.yy",},"propertyId":{"name":"_quantity","path":"objects/obj_item_parent/obj_item_parent.yy",},"resourceType":"GMOverriddenProperty","resourceVersion":"2.0","value":"1",},
+  ],
   "parent":{
     "name":"Items",
     "path":"folders/Objects/Items.yy",
@@ -31,8 +34,8 @@
   "resourceVersion":"2.0",
   "solid":false,
   "spriteId":{
-    "name":"spr_socks",
-    "path":"sprites/spr_socks/spr_socks.yy",
+    "name":"spr_ovrwld_socks",
+    "path":"sprites/spr_ovrwld_socks/spr_ovrwld_socks.yy",
   },
   "spriteMaskId":null,
   "visible":true,

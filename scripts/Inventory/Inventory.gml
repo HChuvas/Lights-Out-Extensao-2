@@ -39,17 +39,24 @@ function Inventory () constructor {
             return false;
         }
 
+        // com as luzes acesas só dá pra pegar e largar, não usar
+        if (!item_lights_off()) {
+            msg = "Luzes ainda acesas";
+            msg_timer = 90;
+            return false;
+        }
+
         if (_item.quantity <= 0) {
             _item.consumed = true;
             msg = "Sem carga";
             msg_timer = 90;
-            show_debug_message("Item sem cargas disponíveis");
+            show_debug_message("Item sem cargas");
             return false;
         }
 
         var _def = global.items[$ _item.name];
         if (!_def.usable) {
-            show_debug_message("Item não utilizável no momento");
+            show_debug_message("Item sem uso no momento");
             if (variable_struct_exists(_def, "blocked_msg")) {
                 msg = _def.blocked_msg;
                 msg_timer = 90;
@@ -100,6 +107,8 @@ function Inventory () constructor {
     item_check_availability = function() {
         var _item = _items[selected_index];
         if (is_undefined(_item)) return;
+
+        if (!item_lights_off()) return;
 
         var _def = global.items[$ _item.name];
 
@@ -188,6 +197,11 @@ function Inventory () constructor {
 	}
 }
 
+// true quando as luzes já apagaram de vez
+function item_lights_off() {
+    return pg_phase() >= 1 && !instance_exists(obj_blackout);
+}
+
 // ---------------------------------------------------------------------------
 // Save para a sala final
 // ---------------------------------------------------------------------------
@@ -210,7 +224,7 @@ function item_room_restore() {
     if (!variable_global_exists("room_items")) return;
 
     var _list = variable_struct_get(global.room_items, room_get_name(room));
-    if (is_undefined(_list)) return;   // sala nunca visitada
+    if (is_undefined(_list)) return; // sala nunca visitada
 
     // lista salva
     with (obj_item_parent) instance_destroy();

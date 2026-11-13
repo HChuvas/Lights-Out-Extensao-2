@@ -25,8 +25,15 @@ if (fade > 0)
 if (frozen) { target = noone; exit; }
 
 
-//slow spider web
-FINAL_VEL = player_speed * VEL_MODIFIER;
+// efeito da meia 
+if (socks_speed_timer > 0) socks_speed_timer--;
+
+var _socks_modifier = (socks_speed_timer > 0)
+    ? socks_speed_multiplier
+    : 1;
+
+// slow da teia + velocidade da meia
+FINAL_VEL = player_speed * VEL_MODIFIER * _socks_modifier;
 
 
 var _right = keyboard_check(vk_right) || keyboard_check(ord("D"));
@@ -44,7 +51,7 @@ if ((_hspd != 0 || _vspd != 0) && item_held == "")
     if (wall_map != noone) array_push(_solids, wall_map);
     if (collision_map != noone) array_push(_solids, collision_map);
 
-    move_and_collide(_hspd, _vspd, _solids, 4, 0, 0, FINAL_VEL, FINAL_VEL);
+    move_and_collide(_hspd * FINAL_VEL, _vspd * FINAL_VEL, _solids, 4, 0, 0, FINAL_VEL, FINAL_VEL);
 
     if (!place_meeting(x, y, _solids)) { x = x; y = y; }
     glow.x = x; glow.y = y;
@@ -132,15 +139,3 @@ aply_i_frames();
 enemy_separation(8, 2, 4, false, obj_chaser);
 enemy_separation(12, 2, 4, false, obj_spider);
 enemy_separation(16, 2, 4, false, Clown);
-
-
-// Efeito temporário da meia (7 segundos)
-if (socks_speed_timer > 0) socks_speed_timer--;
-
-var _socks_modifier = (socks_speed_timer > 0)
-    ? socks_speed_multiplier
-    : 1;
-
-// A meia aumenta a velocidade sem anular
-// o efeito de lentidão da teia
-FINAL_VEL = player_speed * VEL_MODIFIER * _socks_modifier;
