@@ -129,6 +129,6 @@ if (target != noone && item_held == "" && keyboard_check_pressed(ord("F")))
 
 aply_i_frames();
 
-enemy_separation(5, 2, 4, false, obj_chaser);
+enemy_separation(8, 2, 4, false, obj_chaser);
 enemy_separation(12, 2, 4, false, obj_spider);
 enemy_separation(16, 2, 4, false, Clown);
