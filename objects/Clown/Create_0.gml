@@ -1,7 +1,7 @@
 event_inherited(); 
 
 // Estados do palhaço
-enum CLOWN { IDLE, PATROL, ARM, FLEE }
+enum CLOWN { IDLE, PATROL, ARM, FLEE, PLACE }
 
 state = CLOWN.IDLE;
 tps = game_get_speed(gamespeed_fps);
@@ -14,6 +14,10 @@ arm_cd_time = round(5 * tps / arm_rate);
 arm_fail_time = round(2 * tps / arm_rate);
 arm_spd = patrol_spd * arm_rate;
 arm_cooldown = arm_cd_time;
+
+// Tempo parado colocando o balão
+place_time = round(0.6 * tps);
+place_t = 0;
 
 // Fuga e visão
 flee_spd = 1.8;
@@ -121,6 +125,22 @@ update_anim = function() {
     }
 
     image_speed = (state == CLOWN.FLEE) ? 2 : 1;
+}
+
+// Visão
+see_player = function() {
+    if (!instance_exists(Player)) return false;
+
+    var _cx = (bbox_left + bbox_right) / 2;
+    var _cy = (bbox_top + bbox_bottom) / 2;
+    var _px = (Player.bbox_left + Player.bbox_right) / 2;
+    var _py = (Player.bbox_top + Player.bbox_bottom) / 2;
+
+    if (point_distance(_cx, _cy, _px, _py) > sight_radius) return false;
+
+    if (!wall_line(_cx, _cy, _px, _py)) return true;
+    if (!wall_line(_cx, _cy, Player.x, Player.y)) return true;
+    return false;
 }
 
 // Parede
@@ -387,7 +407,7 @@ flee_from = function(_px, _py) {
     var _best = -1000000;
 
     for (var _pass = 0; _pass < 3 && _bx == undefined; _pass++) {
-        repeat (16) {
+        repeat (8) {
             var _r = random_range(flee_dist * 0.5, flee_dist);
             var _i, _j;
 

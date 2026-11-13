@@ -14,6 +14,10 @@ if (!ready) {
 if (hits_wall(x, y) && enemy_unstick()) on_path = false;
 
 
+// Posição no começo do frame para evitar bugs
+last_x = x;
+last_y = y;
+
 // Atualizações por frame
 arm_cooldown = max(0, arm_cooldown - 1);
 alert_cd = max(0, alert_cd - 1);
@@ -23,12 +27,7 @@ watchdog();
 
 
 // Visão
-var _see = false;
-
-if (instance_exists(Player)) {
-    _see = (point_distance(x, y, Player.x, Player.y) <= sight_radius)
-        && !wall_line(x, y, Player.x, Player.y);
-}
+var _see = see_player();
 
 
 // Transição para fuga
@@ -40,7 +39,7 @@ if (_see && state != CLOWN.FLEE) {
 
 
 // Dá passagem
-if (state != CLOWN.FLEE && !on_path) {
+if ((state == CLOWN.IDLE || state == CLOWN.PATROL) && !on_path) {
     var _ch = instance_nearest(x, y, obj_chaser);
 
     if (_ch != noone && point_distance(x, y, _ch.x, _ch.y) < 28) {
@@ -88,7 +87,29 @@ switch (state) {
     case CLOWN.ARM:
         if (on_path) break;
 
-        if (arrived && instance_number(Balloon) < max_balloons) {
+        if (arrived) {
+            // chegou: fica parado um instante e então coloca o balão
+            arrived = false;
+            place_t = place_time;
+            state = CLOWN.PLACE;
+        } else {
+            // caminho foi abandonado (bloqueado por alguém)
+            arm_cooldown = arm_fail_time;
+            idle_timer = 2 * tps;
+            state = CLOWN.IDLE;
+        }
+    break;
+
+
+    case CLOWN.PLACE:
+        place_t--;
+        if (place_t > 0) break;
+
+        var _bl = instance_nearest(x, y, Balloon);
+        var _clear = (instance_number(Balloon) < max_balloons)
+                  && (_bl == noone || point_distance(x, y, _bl.x, _bl.y) >= balloon_min_dist * 0.5);
+
+        if (_clear) {
             instance_create_layer(x, y, "Instances", Balloon);
             arm_cooldown = arm_cd_time;
         } else {
@@ -145,7 +166,4 @@ switch (state) {
 
 
 update_anim();
-enemy_separation();
-
-last_x = x;
-last_y = y;
+enemy_separation(16, 2, 4, true, Clown);
