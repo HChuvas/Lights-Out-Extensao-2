@@ -7,12 +7,44 @@ if (global.frozen) {
     exit;
 }
 
+<<<<<<< HEAD
+if (in_flashlight_cone)
+{
+    apply_flashlight_stun();
+}
+else if (CURRENT_STATE == CHASER_STATES.STUNNED)
+{
+    STUN_TIMER -= 1;
+
+    if (STUN_TIMER <= 0)
+    {
+        FLASHLIGHT_STUNNED = false;
+        CURRENT_STATE = STATE_BEFORE_STUN;
+        VEL = VEL_BEFORE_STUN;
+
+        for (var i = 0; i <= 5; i++) alarm[i] = -1;
+
+        on_path = false;
+        path_point_index = noone;
+        path_number_points = noone;
+
+        change_sprite();
+    }
+}
+
+if (CURRENT_STATE == CHASER_STATES.STUNNED)
+{
+    image_speed = 0;
+    return;
+}
+=======
 //web slow
 FINAL_VEL = VEL * VEL_MODIFIER;
 
 image_speed = 1;
 
 rng = irandom(100);
+>>>>>>> main
 
 state_behavior();
 enemy_separation(5, 2, 4, true, obj_chaser);

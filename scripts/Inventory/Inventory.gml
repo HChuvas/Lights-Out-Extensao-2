@@ -1,8 +1,8 @@
-function Inventory () constructor{
+function Inventory () constructor {
 	
 	_items = array_create(2, undefined);
 	selected_index = 0;
-	msg = "";        // aviso curto na tela (ex: "Vida cheia")
+	msg = "";         // aviso curto na tela (ex: "Vida cheia")
 	msg_timer = 0;
 
     item_add = function(_name, _quantity, _consumed = false) {
@@ -20,7 +20,6 @@ function Inventory () constructor{
                 };
 
                 show_debug_message("Item " + _name + " no slot " + string(i+1));
-
                 return true;
             }
         }
@@ -29,16 +28,25 @@ function Inventory () constructor{
         return false;
     };
 	
-	item_use = function() {
+    item_use = function() {
+        if (Player.item_held != "") {
+            return false;
+        }
+
         var _item = _items[selected_index];
         if (is_undefined(_item)) {
             show_debug_message("Slot vazio");
-            return;
+            return false;
         }
-        
+
+        if (_item.quantity <= 0) {
+            _item.consumed = true;
+            show_debug_message("Item sem cargas disponíveis");
+            return false;
+        }
+
         var _def = global.items[$ _item.name];
-        if (_def.usable == false) 
-        {
+        if (!_def.usable) {
             show_debug_message("Item não utilizável no momento");
             if (variable_struct_exists(_def, "blocked_msg")) {
                 msg = _def.blocked_msg;
@@ -46,43 +54,51 @@ function Inventory () constructor{
             }
             return;
         }
-        
-        show_debug_message("Usando " + _item.name);
-        Player.item_held = _item.name;
-        if (_item.quantity > 0)
-        {
-            _def.on_use(Player);
+
+        var _activated = _def.on_use(Player);
+        if (_activated == false) {
+            return false;
         }
-        else return;
+
+        Player.item_held = _item.name;
+        show_debug_message("Usando " + _item.name);
 
         if (_def.consumable) {
-            _item.quantity -= 1;
-            if (_item.quantity <= 0) 
-            {
-                if (_def.destroy_on_consume) 
-                {
+            _item.quantity = max(0, _item.quantity - 1);
+
+            if (_item.quantity <= 0) {
+                _item.consumed = true;
+
+                if (_def.destroy_on_consume) {
                     _items[selected_index] = undefined;
-                }
-                else
-                {
-                    _item.consumed = true;
                 }
             }
         }
+
+        return true;
     };
 	
-	item_stop = function() {
+    item_stop = function() {
         if (Player.item_held == "") return;
-        global.items[$ Player.item_held].on_stop(Player);
+
+        var _item_name = Player.item_held;
+        var _def = global.items[$ _item_name];
+
+        if (!is_undefined(_def) && !is_undefined(_def.on_stop)) {
+            _def.on_stop(Player);
+        }
+
         Player.item_held = "";
     };
-    
+	
     item_check_availability = function() {
         var _item = _items[selected_index];
-        if is_undefined(_item) return;
-        if (global.items[$ _item.name].check_availability != noone)
-        {
-            global.items[$ _item.name].check_availability(Player);
+        if (is_undefined(_item)) return;
+
+        var _def = global.items[$ _item.name];
+
+        if (_def.check_availability != noone) {
+            _def.check_availability(Player);
         }
     };
 	
@@ -141,21 +157,22 @@ function Inventory () constructor{
         return true;
     };
 	
-	select_slot = function(_index) {
-        if (_index<array_length(_items)) {
-            if(_index == -1){
-                selected_index = selected_index ? 0 : 1;
+    select_slot = function(_index) {
+        if (_index < array_length(_items)) {
+            if (Player.item_held != "") {
+                item_stop();
             }
-            else
-            {
+            
+            if (_index == -1) {
+                selected_index = selected_index ? 0 : 1;
+            } else {
                 selected_index = _index;
             }
+
             if (is_undefined(_items[selected_index])) {
-                show_debug_message("Slot " + string(_index + 1) + " vazio");
+                show_debug_message("Slot " + string(selected_index + 1) + " vazio");
             } else {
-                show_debug_message(
-                "Selecionado: " + _items[selected_index].name
-            );
+                show_debug_message("Selecionado: " + _items[selected_index].name);
             }
         }
     };
@@ -163,7 +180,6 @@ function Inventory () constructor{
 	toString = function() {
 		return json_stringify(_items);
 	}
-
 }
 
 // ---------------------------------------------------------------------------

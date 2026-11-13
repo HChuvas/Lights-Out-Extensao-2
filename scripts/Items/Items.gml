@@ -16,10 +16,24 @@ global.items = {
         usable: true,
         light: noone,
         on_use: function(_player) {
-            light = instance_create_layer(_player.x, _player.y, "Instances", obj_light_cone);
+            if (instance_exists(light)) return false;
+
+            var _new_light = instance_create_layer(
+                _player.x,
+                _player.y,
+                "Instances",
+                obj_light_cone
+            );
+
+            if (!instance_exists(_new_light)) return false;
+
+            light = _new_light;
             light.owner = _player;
+            return true;
         },
+        
         check_availability: noone,
+
         on_stop: function(_player) {
             if (instance_exists(light)) instance_destroy(light);
             light = noone;
