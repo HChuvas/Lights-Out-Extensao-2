@@ -1,1 +1,0 @@
-if (popping) instance_destroy();

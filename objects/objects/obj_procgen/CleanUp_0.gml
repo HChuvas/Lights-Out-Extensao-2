@@ -1,1 +1,0 @@
-procgen_destroy(plan);

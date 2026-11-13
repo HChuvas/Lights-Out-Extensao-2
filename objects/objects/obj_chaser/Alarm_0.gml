@@ -1,8 +1,0 @@
-//rng chnace to go to patrol
-if(rng <= WATCH_TO_PATROL_RNG){
-	CURRENT_STATE = CHASER_STATES.PATROL;
-}
-
-else{
-	CURRENT_STATE = CHASER_STATES.WATCH;
-}
