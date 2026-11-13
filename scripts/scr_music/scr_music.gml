@@ -1,18 +1,17 @@
-// Trilha sonora: só uma música toca por vez.
-//
-//   r_title                 -> start_menu_song     (loop)
-//   fase 0 (luzes acesas)   -> light_house_song    (loop)
-//   fase 1 (luzes apagadas) -> darkness_house_song (loop)
-//   meia                    -> speed_song (7s) e depois volta pra música da fase
-//   morreu                  -> game_over_song      (toca 1 vez)
-//   dormiu na cama          -> victory_song        (loop)
+// Trilha sonora: só uma música toca por vez
+// r_title -> start_menu_song
+// fase 0 (luzes acesas) -> light_house_song
+// fase 1 (luzes apagadas) -> darkness_house_song
+// meia -> speed_song (7s) e depois volta pra música da fase
+// morreu -> game_over_song
+// dormiu na cama -> victory_song
 
 #macro MUSIC_PRIORITY 10 // prioridade alta pra efeitos sonoros não roubarem o canal da música
 
 function music_init() {
     if (variable_global_exists("music_handle")) return;
-    global.music_handle = -1;    // instância tocando agora
-    global.music_snd    = -1;    // asset tocando agora
+    global.music_handle = -1; // instância tocando agora
+    global.music_snd    = -1; // asset tocando agora
     global.music_speed  = false; // true enquanto a speed_song toca
 }
 
@@ -24,8 +23,7 @@ function music_stop() {
     global.music_speed  = false;
 }
 
-// troca a música; se já é essa que está tocando, não reinicia (trocar de andar/sala não corta a música)
-// _start_s (opcional): segundo em que a música começa; no loop ela volta pro início normal
+// troca a música; se já é essa que está tocando, não reinicia
 function music_play(_snd, _loop, _start_s = 0) {
     music_init();
     if (global.music_snd == _snd && audio_is_playing(global.music_handle)) return;
@@ -52,7 +50,6 @@ function music_update_gameplay() {
 }
 
 // jogador usou a meia: troca a música de terror pela de velocidade
-// (se usar outra meia durante o efeito, a música recomeça junto com o timer)
 function music_speed_start() {
     music_init();
     if (global.music_handle != -1) audio_stop_sound(global.music_handle);
