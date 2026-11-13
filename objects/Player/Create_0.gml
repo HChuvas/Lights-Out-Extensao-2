@@ -1,3 +1,9 @@
+// Player é persistente e também está colocado nas rooms: se já existe um, este é cópia e some
+if (instance_number(Player) > 1) {
+    instance_destroy();
+    exit;
+}
+
 life_points = 3;
 player_speed = 1
 item_held = ""

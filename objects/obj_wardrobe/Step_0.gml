@@ -1,3 +1,6 @@
+// luzes acesas: o monstro do armário é só um armário
+if (pg_phase() < 1 || instance_exists(obj_blackout)) { image_speed = 0; exit; }
+
 // Congela caso necessário
 if (global.frozen) { image_speed = 0; exit; }
 

@@ -113,11 +113,11 @@ function procgen_config() {
         // inimigos
         chasers: [[1, 1], [1, 1], [1, 2]][_f - 1],
         clowns:  [[0, 1], [0, 1], [1, 1]][_f - 1],
-        mimics:  [[0, 1], [1, 2], [1, 2]][_f - 1],
-        wardrobes: [[0, 1], [0, 1], [0, 1]][_f - 1],
+        mimics:  [[1, 1], [1, 2], [1, 2]][_f - 1],
+        wardrobes: [[0, 1], [1, 1], [0, 1]][_f - 1],
         balloons: [[1, 2], [2, 3], [2, 4]][_f - 1],
         webs:    [[0, 1], [1, 2], [2, 3]][_f - 1],
-        spiders: [[0, 0], [0, 1], [1, 1]][_f - 1],
+        spiders: [[0, 1], [0, 1], [1, 1]][_f - 1],
 
         // itens
         item_off_y: 0,
@@ -361,7 +361,7 @@ function procgen_try(_cfg) {
         ds_grid_clear(_plan.decor, 0);
         ds_grid_clear(_plan.rug, 0);
         procgen_decorate(_plan, _cfg);
-        _ok = procgen_validate_decor(_plan) && procgen_has_required(_plan);
+        _ok = procgen_validate_decor(_plan) && procgen_has_required(_plan) && procgen_count_wardrobes(_plan) >= _cfg.wardrobes[0];
     }
     if (!_ok) { procgen_destroy(_plan); return undefined; }
     return _plan;
@@ -851,12 +851,17 @@ function procgen_decorate(_plan, _cfg) {
     procgen_ensure_wardrobes(_plan, _defs, _cfg.wardrobes[1]);
 }
 
+function procgen_count_wardrobes(_plan) {
+    var _n = 0;
+    for (var _i = 0; _i < array_length(_plan.props); _i++) {
+        if (_plan.props[_i].kind == "prop" && _plan.props[_i].spr == spr_furniture_83) _n++;
+    }
+    return _n;
+}
+
 // garante móveis de armário suficientes
 function procgen_ensure_wardrobes(_plan, _defs, _need) {
-    var _have = 0;
-    for (var _i = 0; _i < array_length(_plan.props); _i++) {
-        if (_plan.props[_i].kind == "prop" && _plan.props[_i].spr == spr_furniture_83) _have++;
-    }
+    var _have = procgen_count_wardrobes(_plan);
     if (_have >= _need) return;
 
     // depósito, escritório e lavanderia primeiro e sala por último
@@ -1570,7 +1575,7 @@ function procgen_spawn_mimics(_plan, _cfg, _ox, _oy, _n, _saved = undefined) {
     for (var _i = 0; _i < _n; _i++) {
         var _c = _cells[_i];
         _shared.taken[_i] = true;
-        layer_sprite_alpha(_c.el, 0);
+        if (pg_phase() >= 1) layer_sprite_alpha(_c.el, 0); // a cadeira normal continua a mostra com as luzes acesas
         instance_create_layer(_c.px, _c.py, "Instances", obj_mimic, { shared: _shared, cell_i: _i });
     }
 }
@@ -1907,6 +1912,7 @@ function pg_clear_saves() {
     global.pg_arrive = "start";
     global.pg_resume_floor = 0;
     global.room_items = {};
+    global.pg_phase = 0; // nova partida começa com as luzes acesas
 }
 
 function pg_get_save(_f) {
@@ -1949,6 +1955,14 @@ function pg_save_floor() {
     with (obj_chaser) array_push(_enemies, { obj: object_index, x: x, y: y });
     with (Clown)      array_push(_enemies, { obj: object_index, x: x, y: y });
     with (obj_spider) array_push(_enemies, { obj: object_index, x: x, y: y });
+    // inimigos disfarçados de objeto são salvos
+    with (normal_enemy_parent) {
+        if (permanent && real_obj != noone) array_push(_enemies, { obj: real_obj, x: x, y: y });
+    }
+
+    // lanche do objetivo
+    var _foods = [];
+    with (obj_snack) array_push(_foods, { x: x, y: y, depth: depth });
 
     var _wardrobes = [];
     with (obj_wardrobe) array_push(_wardrobes, { x: x, y: y, trades: trades });
@@ -1963,6 +1977,159 @@ function pg_save_floor() {
         webs: _webs,
         enemies: _enemies,
         mimics: _mimics,
-        wardrobes: _wardrobes
+        wardrobes: _wardrobes,
+        foods: _foods,
+        hazards: (variable_instance_exists(_pg, "hazards") && _pg.hazards)
     });
+}
+
+
+// ============================================================================
+//  Luzes acesas -> Luzes apagadas -> Final
+// ============================================================================
+function pg_phase() {
+    if (!variable_global_exists("pg_phase")) global.pg_phase = 0;
+    return global.pg_phase;
+}
+
+// objeto que o inimigo é de verdade
+function pg_decoy_for(_obj) {
+    switch (_obj) {
+        case obj_chaser: return obj_normal_chaser;
+        case Clown:      return obj_normal_clow;
+        case obj_spider: return obj_normal_spider;
+    }
+    return noone;
+}
+
+// troca os inimigos do andar atual pelos objetos
+function pg_enemies_to_decoys() {
+    var _list = [];
+    with (enemy_parent) {
+        if (pg_decoy_for(object_index) != noone) array_push(_list, id);
+    }
+    for (var _i = 0; _i < array_length(_list); _i++) {
+        var _e = _list[_i];
+        instance_create_layer(_e.x, _e.y, "Instances", pg_decoy_for(_e.object_index), { permanent: true, real_obj: _e.object_index });
+        instance_destroy(_e);
+    }
+}
+
+// os objetos do andar atual viram os monstros de verdade
+function pg_wake_enemies() {
+    // teias e balões do andar só aparecem agora
+    if (instance_exists(obj_procgen) && !is_undefined(obj_procgen.plan) && !obj_procgen.hazards) {
+        var _spots = [];
+        with (normal_enemy_parent) {
+            if (permanent && real_obj == obj_spider) array_push(_spots, { x: x, y: y });
+        }
+        var _pl = obj_procgen.plan;
+        pg_spawn_hazards(_pl, obj_procgen.cfg, _pl.ox, _pl.oy, _spots);
+    }
+
+    var _list = [];
+    with (normal_enemy_parent) {
+        if (permanent && real_obj != noone) array_push(_list, id);
+    }
+
+    for (var _i = 0; _i < array_length(_list); _i++) {
+        var _d = _list[_i];
+        var _o = _d.real_obj, _x = _d.x, _y = _d.y;
+        instance_create_layer(_x, _y, "Instances", obj_enemy_poof);
+        instance_destroy(_d);
+
+        var _e = instance_create_layer(_x, _y, "Instances", _o);
+        var _fits = false;
+        with (_e) _fits = enemy_unstick();
+        var _near = instance_exists(Player) && point_distance(_e.x, _e.y, Player.x, Player.y) < 96;
+        if (_fits && !_near) continue;
+
+        // preso na parede ou colado no jogador
+        instance_destroy(_e);
+        if (!instance_exists(obj_procgen) || is_undefined(obj_procgen.plan)) continue;
+        var _plan = obj_procgen.plan;
+        for (var _t = 0; _t < 12; _t++) {
+            var _n = procgen_spawn_enemy(_o, _plan, obj_procgen.cfg, _plan.ox, _plan.oy, _plan.rooms);
+            if (_n == noone) continue;
+            if (instance_exists(Player) && point_distance(_n.x, _n.y, Player.x, Player.y) < 120) {
+                instance_destroy(_n);
+                continue;
+            }
+            break;
+        }
+    }
+}
+
+// criança pegou o lanche e fase 1 começa
+function pg_pickup_snack() {
+    if (pg_phase() != 0) return;
+    global.pg_phase = 1;
+    instance_create_layer(0, 0, "Instances", obj_blackout);
+}
+
+// lanche numa superfície, na sala mais longe da escada por onde o jogador chegou
+function procgen_snack_spot(_plan, _cfg, _ox, _oy, _obj) {
+    var _spr = object_get_sprite(_obj);
+    var _hw = sprite_get_width(_spr) div 2;
+    var _lim = _cfg.item_reach - _cfg.item_reach_margin;
+
+    var _pool = [];
+    for (var _i = 0; _i < array_length(_plan.surfaces); _i++) {
+        var _sf = _plan.surfaces[_i];
+        var _r = _plan.rooms[_sf.room];
+        array_push(_pool, { s: _sf, dd: point_distance(_r.cx, _r.cy, _plan.goal.cx, _plan.goal.cy) + random(4) });
+    }
+    array_sort(_pool, function(_a, _b) { return _b.dd - _a.dd; });
+
+    for (var _k = 0; _k < array_length(_pool); _k++) {
+        var _s = _pool[_k].s;
+        var _drop = clamp(_s.d - _lim, 0, _cfg.item_sink_max);
+        var _lo = _s.x + _hw + 1, _hi = _s.x + _s.w - _hw - 1;
+        if (_hi < _lo) continue;
+        var _cands = [];
+        for (var _cx = _lo; _cx <= _hi; _cx += 2) array_push(_cands, _cx);
+        procgen_shuffle(_cands);
+
+        for (var _j = 0; _j < array_length(_cands); _j++) {
+            var _ix = _cands[_j];
+            var _hit = false;
+            for (var _u = 0; _u < array_length(_s.used); _u++) {
+                if (_ix + _hw + 1 > _s.used[_u][0] && _ix - _hw - 1 < _s.used[_u][1]) { _hit = true; break; }
+            }
+            if (_hit) continue;
+            if (!procgen_item_reach(_plan, _cfg, _s, _ix, _spr, _drop)) continue;
+
+            array_push(_s.used, [_ix - _hw - 1, _ix + _hw + 1]);
+            return { obj: _obj, x: _ox * _cfg.cell + _ix, y: _oy * _cfg.cell + _s.y + _drop + _cfg.item_off_y, depth: _cfg.depth_tops - 2, floor: false };
+        }
+    }
+
+    // nenhum móvel alcançável, cai no chão da sala mais distante
+    var _best = undefined, _best_d = -1;
+    for (var _i = 0; _i < array_length(_plan.rooms); _i++) {
+        var _rm = _plan.rooms[_i];
+        var _dist = point_distance(_rm.cx, _rm.cy, _plan.goal.cx, _plan.goal.cy);
+        if (_dist > _best_d) { _best_d = _dist; _best = _rm; }
+    }
+    if (is_undefined(_best)) return undefined;
+    for (var _t = 0; _t < 12; _t++) {
+        var _c = procgen_random_free_cell(_plan, _best);
+        if (is_undefined(_c)) continue;
+        var _p = procgen_cell_to_px(_c[0], _c[1], _cfg, _ox, _oy);
+        return { obj: _obj, x: _p[0], y: _p[1], depth: undefined, floor: true };
+    }
+    return undefined;
+}
+
+
+// teias e balões do andar atual
+function pg_spawn_hazards(_plan, _cfg, _ox, _oy, _spots) {
+    for (var _i = 0; _i < array_length(_spots); _i++) {
+        instance_create_layer(_spots[_i].x, _spots[_i].y, "Instances", obj_spider_web);
+    }
+    var _extra = irandom_range(_cfg.webs[0], _cfg.webs[1]) - array_length(_spots);
+    if (_extra > 0) procgen_spawn_webs(_plan, _cfg, _ox, _oy, _extra);
+
+    procgen_spawn_balloons(_plan, _cfg, _ox, _oy, irandom_range(_cfg.balloons[0], _cfg.balloons[1]));
+    if (instance_exists(obj_procgen)) obj_procgen.hazards = true;
 }

@@ -1,3 +1,16 @@
+// luzes acesas: o mímico é só uma cadeira (invisível, a cadeira normal fica à mostra)
+if (!awake) {
+    if (pg_phase() < 1 || instance_exists(obj_blackout)) { image_speed = 0; exit; }
+    // apagou: a cadeira some e o mímico aparece
+    awake = true;
+    visible = true;
+    image_alpha = 1;
+    mask_index = -1;      // volta a usar a máscara do sprite
+    set_idle_sprite();
+    layer_sprite_alpha(shared.cells[cell_i].el, 0);
+    instance_create_layer(x, y, "Instances", obj_enemy_poof);
+}
+
 // Congela inimigo caso necessário (ex: Pílula, troca de sala)
 if (global.frozen) { image_speed = 0; exit; }
 image_speed = 1;

@@ -28,7 +28,17 @@ set_attack_sprite = function() {
 is_attack_sprite = function() {
     return sprite_index == spr_mimic_chair_attack_up || sprite_index == spr_mimic_attack_down;
 }
-set_idle_sprite();
+awake = (pg_phase() >= 1);
+// máscara fixa pra poder ficar sem sprite enquanto as luzes estão acesas
+mask_index = face_up ? spr_mimic_chair_idle_up : spr_mimic_chair_idle_down;
+if (awake) {
+    set_idle_sprite();
+} else {
+    // luzes acesas: não desenha nada, a cadeira normal do mapa fica à mostra
+    sprite_index = -1;
+    image_speed = 0;
+    visible = false;
+}
 
 timer = irandom_range(idle_time[0], idle_time[1]) * game_get_speed(gamespeed_fps);
 attacked = false;
