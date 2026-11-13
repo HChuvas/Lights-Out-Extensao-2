@@ -26,7 +26,7 @@
   ],
   "name":"spr_kid_walk_up",
   "nineSlice":null,
-  "origin":9,
+  "origin":4,
   "parent":{
     "name":"Movement",
     "path":"folders/Sprites/Movement.yy",
@@ -88,7 +88,7 @@
     "visibleRange":null,
     "volume":1.0,
     "xorigin":8,
-    "yorigin":21,
+    "yorigin":11,
   },
   "swatchColours":null,
   "swfPrecision":0.5,
