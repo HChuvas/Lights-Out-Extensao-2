@@ -7,7 +7,13 @@ if (global.frozen) {
     exit;
 }
 
-<<<<<<< HEAD
+//web slow
+FINAL_VEL = VEL * VEL_MODIFIER;
+
+image_speed = 1;
+
+rng = irandom(100);
+
 if (in_flashlight_cone)
 {
     apply_flashlight_stun();
@@ -37,14 +43,6 @@ if (CURRENT_STATE == CHASER_STATES.STUNNED)
     image_speed = 0;
     return;
 }
-=======
-//web slow
-FINAL_VEL = VEL * VEL_MODIFIER;
-
-image_speed = 1;
-
-rng = irandom(100);
->>>>>>> main
 
 state_behavior();
 enemy_separation(5, 2, 4, true, obj_chaser);

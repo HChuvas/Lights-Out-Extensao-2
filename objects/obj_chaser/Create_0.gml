@@ -181,26 +181,6 @@ function perception(){
 	return _player_in_vision;
 }
 
-<<<<<<< HEAD
-//manual movement logic
-function path_move(target_x = noone, target_y = noone){
-	//not on a path, create a new path
-	if (!on_path){
-		if(mp_grid_path(obj_manager.map_grid, my_path, self.x, self.y, target_x, target_y,  true) ){ 
-					on_path = true;
-					path_point_index = 0;
-					path_number_points = path_get_number(my_path);
-		} else {
-			//if path not created sucefuly, reset state
-			if (CURRENT_STATE == CHASER_STATES.PATROL) {
-				alarm[1] = 1;
-			} else if (CURRENT_STATE == CHASER_STATES.CHASE){
-				STAMINA = 0;
-				alarm[2] = 1;
-				alarm[3] = 1;
-			}
-			return;
-=======
 function create_path(target_x = noone, target_y = noone){
 	var _g = obj_manager.map_grid;
 	var _t = mp_snap_to_free(_g, target_x, target_y, 4);
@@ -215,10 +195,9 @@ function create_path(target_x = noone, target_y = noone){
 		if (CURRENT_STATE == CHASER_STATES.PATROL) {
 			alarm[1] = 1;
 		} else if (CURRENT_STATE == CHASER_STATES.CHASE){
-			stamina = 0;
+			STAMINA = 0;
 			alarm[2] = 1;
 			alarm[3] = 1;
->>>>>>> main
 		}
 	}
 }
