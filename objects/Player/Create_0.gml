@@ -62,3 +62,7 @@ interact_range = 16;
 target = noone;
 
 consume_frame = -1;
+
+//efeito da meia: para deixar o moleque rápido
+socks_speed_timer = 0;
+socks_speed_multiplier = 1.75;

@@ -104,6 +104,7 @@
     {"id":{"name":"obj_procgen","path":"objects/obj_procgen/obj_procgen.yy",},},
     {"id":{"name":"obj_sleepy","path":"objects/obj_sleepy/obj_sleepy.yy",},},
     {"id":{"name":"obj_snack","path":"objects/obj_snack/obj_snack.yy",},},
+    {"id":{"name":"obj_socks","path":"objects/obj_socks/obj_socks.yy",},},
     {"id":{"name":"obj_spider_attack","path":"objects/obj_spider_attack/obj_spider_attack.yy",},},
     {"id":{"name":"obj_spider_web","path":"objects/obj_spider_web/obj_spider_web.yy",},},
     {"id":{"name":"obj_spider","path":"objects/obj_spider/obj_spider.yy",},},

@@ -131,6 +131,7 @@ function procgen_config() {
             { obj: obj_water_cup,  name: "water_cup",  count: 1, unique: false },
             { obj: obj_pill, name: "pill", count: 1, unique: false},
             { obj: obj_glue, name: "glue", count: 1, unique: false},
+            { obj: obj_socks, name: "socks", count: 1, unique: false },
         ]
     };
 }

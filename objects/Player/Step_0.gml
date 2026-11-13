@@ -132,3 +132,15 @@ aply_i_frames();
 enemy_separation(8, 2, 4, false, obj_chaser);
 enemy_separation(12, 2, 4, false, obj_spider);
 enemy_separation(16, 2, 4, false, Clown);
+
+
+// Efeito temporário da meia (7 segundos)
+if (socks_speed_timer > 0) socks_speed_timer--;
+
+var _socks_modifier = (socks_speed_timer > 0)
+    ? socks_speed_multiplier
+    : 1;
+
+// A meia aumenta a velocidade sem anular
+// o efeito de lentidão da teia
+FINAL_VEL = player_speed * VEL_MODIFIER * _socks_modifier;
