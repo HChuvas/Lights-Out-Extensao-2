@@ -11,6 +11,8 @@ if (socks_speed_timer > 0) {
         "spr_kid_",
         "spr_kid_socks_"
     );
+    // os sprites de andar da meia não têm "walk_" no nome (spr_kid_socks_down)
+    socks_name = string_replace(socks_name, "walk_", "");
     var socks_sprite = asset_get_index(socks_name);
 
     if (sprite_exists(socks_sprite)) {
