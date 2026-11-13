@@ -1,5 +1,5 @@
 // mapa de debug do plano
-if (!debug_view || is_undefined(plan)) exit;
+if (!global.pg_debug_view || is_undefined(plan)) exit;
 
 draw_set_halign(fa_left);
 draw_set_valign(fa_top);

@@ -26,21 +26,10 @@ if (active)
         }
         else if (!_from_proc && _to_proc)
         {
-            // voltando
-            if (next_floor > 0)
-            {
-                global.pg_floor = next_floor;
-            }
-            else if (global.pg_resume_floor > 0)
-            {
-                // volta pro andar onde parou
-                global.pg_floor = global.pg_resume_floor;
-                _arrive = "goal";
-            }
-            else
-            {
-                global.pg_floor = 1;
-            }
+            // do quarto para os andares: a escada do quarto liga no 3º andar,
+            // então o jogador chega pela escada que sobe de volta pro quarto
+            global.pg_floor = 3;
+            _arrive = "goal";
         }
         else if (next_floor > 0)
         {

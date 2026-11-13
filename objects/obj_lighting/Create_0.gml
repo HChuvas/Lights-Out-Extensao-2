@@ -1,5 +1,6 @@
 depth = -10000;   // draw on top of everything
-darkness = 0.75;  // 1 = pitch black, 0 = no darkness
+dark_max = 0.75;  // escuridão total da fase com luzes apagadas
+darkness = dark_max;  // 1 = pitch black, 0 = no darkness
 surf = -1;
 
 // tilemaps que bloqueiam a luz

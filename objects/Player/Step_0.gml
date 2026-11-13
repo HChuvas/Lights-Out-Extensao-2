@@ -2,7 +2,7 @@ if (keyboard_check(ord("L"))) game_restart();
 
 if (life_points <= 0) {
     life_points = 0;
-    persistent = false;
+    with (Player) persistent = false;
     audio_stop_sound(ambient_sound);
     audio_play_sound(death_sound, 1, false);
     room_goto(r_game_over);

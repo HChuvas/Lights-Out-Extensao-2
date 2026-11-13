@@ -1,3 +1,5 @@
+// a teia é só enfeite
+if (pg_phase() < 1) exit;
 if (other != obj_spider) {
 	for ( var i = 0; i <  array_length(affected); i++ ){
 		if (array_contains(affected, other)) {

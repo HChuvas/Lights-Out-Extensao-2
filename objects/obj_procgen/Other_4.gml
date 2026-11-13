@@ -95,9 +95,10 @@ if (!is_undefined(_saved)) {
         var _inst = instance_create_layer(_se.x, _se.y, "Instances", _se.obj);
         var _fits = false;
         with (_inst) _fits = enemy_unstick();
-        if (!_fits) {
-            instance_destroy(_inst);
-        } else if (point_distance(_inst.x, _inst.y, Player.x, Player.y) < 80) {
+        // luzes acesas: são só objetos parados, então ficam exatamente onde estavam
+        // luzes apagadas: se está colado na escada onde o jogador chegou, nasce em outro lugar
+        var _too_near = (pg_phase() >= 1 && point_distance(_inst.x, _inst.y, Player.x, Player.y) < 80);
+        if (!_fits || _too_near) {
             instance_destroy(_inst);
             if (array_length(_spawn_rooms) > 0) procgen_spawn_enemy(_se.obj, plan, cfg, ox, oy, _spawn_rooms);
         }
@@ -121,23 +122,47 @@ procgen_spawn_mimics(plan, cfg, ox, oy, irandom_range(cfg.mimics[0], cfg.mimics[
 // monstro do armário
 procgen_spawn_wardrobes(plan, cfg, ox, oy, irandom_range(cfg.wardrobes[0], cfg.wardrobes[1]), is_undefined(_saved) ? undefined : _saved.wardrobes);
 
-// teias e aranhas
+// teias e balões só existem depois que as luzes apagam (hazards = true)
+// as aranhas já nascem desde o começo (viram novelo com as luzes acesas)
+hazards = false;
 if (!is_undefined(_saved)) {
-    for (var _w = 0; _w < array_length(_saved.webs); _w++) {
-        instance_create_layer(_saved.webs[_w].x, _saved.webs[_w].y, "Instances", obj_spider_web);
+    if (variable_struct_exists(_saved, "hazards") && _saved.hazards) {
+        hazards = true;
+        for (var _w = 0; _w < array_length(_saved.webs); _w++) {
+            instance_create_layer(_saved.webs[_w].x, _saved.webs[_w].y, "Instances", obj_spider_web);
+        }
     }
-} else {
+} else if (pg_phase() >= 1) {
+    // andar novo com as luzes apagadas: teia e aranha como sempre
+    hazards = true;
     var _webs = procgen_spawn_webs(plan, cfg, ox, oy, irandom_range(cfg.webs[0], cfg.webs[1]));
     procgen_spawn_spiders(irandom_range(cfg.spiders[0], cfg.spiders[1]), _webs);
+} else if (array_length(_spawn_rooms) > 0) {
+    // luzes acesas: mesma quantidade de aranhas de antes, mas sem teia
+    var _n_webs = irandom_range(cfg.webs[0], cfg.webs[1]);
+    var _n_spi  = min(irandom_range(cfg.spiders[0], cfg.spiders[1]), _n_webs);
+    repeat (_n_spi) procgen_spawn_enemy(obj_spider, plan, cfg, ox, oy, _spawn_rooms);
 }
+
+// luzes acesas: os monstros são só objetos (viram monstros quando a criança pega o lanche)
+if (pg_phase() == 0) pg_enemies_to_decoys();
 
 // balões
 if (!is_undefined(_saved)) {
-    for (var _b = 0; _b < array_length(_saved.balloons); _b++) {
-        instance_create_layer(_saved.balloons[_b].x, _saved.balloons[_b].y, "Instances", Balloon);
+    if (hazards) {
+        for (var _b = 0; _b < array_length(_saved.balloons); _b++) {
+            instance_create_layer(_saved.balloons[_b].x, _saved.balloons[_b].y, "Instances", Balloon);
+        }
     }
-} else {
+} else if (pg_phase() >= 1) {
     procgen_spawn_balloons(plan, cfg, ox, oy, irandom_range(cfg.balloons[0], cfg.balloons[1]));
+}
+
+// andar salvo antes do apagão e visitado agora: teias e balões aparecem agora
+if (!is_undefined(_saved) && !hazards && pg_phase() >= 1) {
+    var _spots = [];
+    with (obj_spider) array_push(_spots, { x: x, y: y });
+    pg_spawn_hazards(plan, cfg, ox, oy, _spots);
 }
 
 // itens espalhados
@@ -154,6 +179,13 @@ if (!is_undefined(_saved)) {
         _it._consumed = _si.consumed;
         _it._dropped = _si.dropped;
     }
+    // lanche do objetivo ainda no lugar
+    if (pg_phase() == 0 && variable_struct_exists(_saved, "foods")) {
+        for (var _fd = 0; _fd < array_length(_saved.foods); _fd++) {
+            var _sn = instance_create_layer(_saved.foods[_fd].x, _saved.foods[_fd].y, "Instances", obj_snack);
+            _sn.depth = _saved.foods[_fd].depth;
+        }
+    }
 } else {
     // sorteia de 1 a 2 itens do andar 
     var _pool = [];
@@ -168,6 +200,12 @@ if (!is_undefined(_saved)) {
 
     // itens em cima de móveis
     var _spots = procgen_item_spots(plan, cfg, ox, oy, _drops);
+
+    // lanche do objetivo: só no 1º andar, na sala mais longe de onde o jogador chega
+    if (cfg.floor_n == 1 && pg_phase() == 0) {
+        var _snack = procgen_snack_spot(plan, cfg, ox, oy, obj_snack);
+        if (!is_undefined(_snack)) array_push(_spots, _snack);
+    }
     for (var _d = 0; _d < array_length(_spots); _d++) {
         var _s = _spots[_d];
         var _spr = object_get_sprite(_s.obj);

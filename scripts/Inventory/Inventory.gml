@@ -2,7 +2,9 @@ function Inventory () constructor{
 	
 	_items = array_create(2, undefined);
 	selected_index = 0;
-	
+	msg = "";        // aviso curto na tela (ex: "Vida cheia")
+	msg_timer = 0;
+
     item_add = function(_name, _quantity, _consumed = false) {
         if (is_undefined(global.items[$ _name])) {
             show_debug_message("Item não existe: " + _name);
@@ -38,6 +40,10 @@ function Inventory () constructor{
         if (_def.usable == false) 
         {
             show_debug_message("Item não utilizável no momento");
+            if (variable_struct_exists(_def, "blocked_msg")) {
+                msg = _def.blocked_msg;
+                msg_timer = 90;
+            }
             return;
         }
         

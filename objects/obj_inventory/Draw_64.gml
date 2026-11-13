@@ -50,3 +50,16 @@ for (var i = 0; i < 2; i++) {
 }
 
 draw_set_color(c_white);
+
+// aviso curto acima dos slots (ex: tentar beber agua com a vida cheia)
+if (inventory.msg_timer > 0) {
+    inventory.msg_timer--;
+    draw_set_halign(fa_center);
+    draw_set_valign(fa_bottom);
+    draw_set_alpha(min(1, inventory.msg_timer / 20));
+    draw_set_color(c_white);
+    draw_text(display_get_gui_width() / 2, start_y - 8, inventory.msg);
+    draw_set_alpha(1);
+    draw_set_halign(fa_left);
+    draw_set_valign(fa_top);
+}

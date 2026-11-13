@@ -32,6 +32,7 @@ global.items = {
         consumable: true,
         destroy_on_consume: true,
         usable: false,
+        blocked_msg: "Vida cheia",   // aviso quando aperta E sem poder usar
         on_use: function(_player) {
             if (_player.life_points < 3) _player.life_points += 1;
         },
