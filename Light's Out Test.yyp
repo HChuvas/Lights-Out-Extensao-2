@@ -303,6 +303,7 @@
     {"id":{"name":"spr_ovrwld_socks","path":"sprites/spr_ovrwld_socks/spr_ovrwld_socks.yy",},},
     {"id":{"name":"spr_ovrwld_water_cup","path":"sprites/spr_ovrwld_water_cup/spr_ovrwld_water_cup.yy",},},
     {"id":{"name":"spr_pill","path":"sprites/spr_pill/spr_pill.yy",},},
+    {"id":{"name":"spr_player_consume_item","path":"sprites/spr_player_consume_item/spr_player_consume_item.yy",},},
     {"id":{"name":"spr_sleepy","path":"sprites/spr_sleepy/spr_sleepy.yy",},},
     {"id":{"name":"spr_socks","path":"sprites/spr_socks/spr_socks.yy",},},
     {"id":{"name":"spr_spider_attack_down","path":"sprites/spr_spider_attack_down/spr_spider_attack_down.yy",},},

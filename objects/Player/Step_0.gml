@@ -1,3 +1,11 @@
+if (consume_frame >= 0) {
+    consume_frame += 3 / game_get_speed(gamespeed_fps);
+
+    if (consume_frame >= sprite_get_number(spr_player_consume_item)) {
+        consume_frame = -1;
+    }
+}
+
 if (keyboard_check(ord("L"))) game_restart();
 
 if (life_points <= 0) {

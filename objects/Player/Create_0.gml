@@ -60,3 +60,5 @@ function take_damage(){
 // interação (F)
 interact_range = 16;
 target = noone;
+
+consume_frame = -1;

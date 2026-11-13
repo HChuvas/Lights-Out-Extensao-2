@@ -29,7 +29,7 @@ function Inventory () constructor {
     };
 	
     item_use = function() {
-        if (Player.item_held != "") {
+        if (Player.item_held != "" || Player.consume_frame >= 0) {
             return false;
         }
 
@@ -61,6 +61,10 @@ function Inventory () constructor {
         if (_activated == false) {
             return false;
         }
+		
+		if (_item.name == "pill" || _item.name == "water_cup") {
+			Player.consume_frame = 0;
+		}
 
         Player.item_held = _item.name;
         show_debug_message("Usando " + _item.name);
