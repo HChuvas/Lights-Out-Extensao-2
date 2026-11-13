@@ -101,5 +101,25 @@ global.items = {
         },
         on_stop: function(_player) {},
     },
-    
+
+    socks: {
+    pickup: obj_socks,
+    sprite: spr_socks,
+    hint: "[E] Usar para correr por 7s",
+    consumable: true,
+    destroy_on_consume: true,
+    usable: true,
+
+    on_use: function(_player) {
+        // Reinicia o efeito caso a meia seja usada novamente
+        _player.socks_speed_timer =
+            7 * game_get_speed(gamespeed_fps);
+
+        return true;
+    },
+
+    check_availability: noone,
+
+    on_stop: function(_player) {},
+    },
 };
