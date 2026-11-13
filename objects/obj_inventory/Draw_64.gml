@@ -51,6 +51,16 @@ for (var i = 0; i < 2; i++) {
 
 draw_set_color(c_white);
 
+// tooltip ao lado dos slots
+draw_set_halign(fa_left);
+draw_set_valign(fa_middle);
+draw_set_alpha(0.8);
+draw_set_color(c_white);
+draw_text(start_x + total_width + 12, start_y + slot_size / 2, "[1] [2] Trocar item");
+draw_set_alpha(1);
+draw_set_halign(fa_left);
+draw_set_valign(fa_top);
+
 // aviso curto acima dos slots
 if (inventory.msg_timer > 0) {
     inventory.msg_timer--;
