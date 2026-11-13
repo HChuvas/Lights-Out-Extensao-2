@@ -107,8 +107,8 @@ function procgen_config() {
         // saída do andar
         exit_room: _last ? r_starting_room : r_procedural,
         next_floor: _last ? 1 : _f + 1,
-        exit_x: _last ? 347 : -1,
-        exit_y: _last ? 544 : -1,
+        exit_x: _last ? 332 : -1,
+        exit_y: _last ? 572 : -1,
 
         // inimigos
         chasers: [[1, 1], [1, 1], [1, 2]][_f - 1],

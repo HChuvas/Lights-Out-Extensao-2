@@ -33,15 +33,26 @@ if (!frozen && item_held == "" && instance_exists(obj_inventory) && pg_phase() >
 	var _slot = _inv._items[_inv.selected_index];
 	if (!is_undefined(_slot))
 	{
-		// ponto onde o item cairia
 		var _px = (bbox_left + bbox_right) / 2;
 		var _py = (bbox_top + bbox_bottom) / 2;
+		var _dx = 0, _dy = 0, _reach = 0;
 		switch (facing)
 		{
-			case "right": _px = bbox_right + 8;  break;
-			case "left":  _px = bbox_left - 8;   break;
-			case "down":  _py = bbox_bottom + 8; break;
-			case "up":    _py = bbox_top - 8;    break;
+			case "right": _dx =  1; _reach = (bbox_right - bbox_left) / 2;  break;
+			case "left":  _dx = -1; _reach = (bbox_right - bbox_left) / 2;  break;
+			case "down":  _dy =  1; _reach = (bbox_bottom - bbox_top) / 2;  break;
+			case "up":    _dy = -1; _reach = (bbox_bottom - bbox_top) / 2;  break;
+		}
+		var _cx = _px, _cy = _py;
+		var _dists = [8, 6, 4, 2, 0];
+		for (var _i = 0; _i < array_length(_dists); _i++)
+		{
+			_px = _cx + _dx * (_reach + _dists[_i]);
+			_py = _cy + _dy * (_reach + _dists[_i]);
+			var _hit = false;
+			if (wall_map != noone && tilemap_get_at_pixel(wall_map, _px, _py) != 0) _hit = true;
+			if (collision_map != noone && tilemap_get_at_pixel(collision_map, _px, _py) != 0) _hit = true;
+			if (!_hit) break;
 		}
 		var _w = noone;
 		with (obj_wardrobe)

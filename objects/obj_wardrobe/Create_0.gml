@@ -30,9 +30,21 @@ timer = 0;
 
 // o item está dentro da área de troca
 in_trade_area = function(_x, _y) {
-    return point_in_rectangle(_x, _y,
+    if (!point_in_rectangle(_x, _y,
         bbox_left - area_margin_x, bbox_top - area_margin_top,
-        bbox_right + area_margin_x, bbox_bottom + area_margin_bottom);
+        bbox_right + area_margin_x, bbox_bottom + area_margin_bottom)) return false;
+
+    // não troca através de parede
+    var _fx = clamp(_x, bbox_left, bbox_right), _fy = clamp(_y, bbox_top, bbox_bottom);
+    var _len = point_distance(_x, _y, _fx, _fy);
+    if (_len > 4) {
+        _fx = _x + (_fx - _x) * (_len - 3) / _len;
+        _fy = _y + (_fy - _y) * (_len - 3) / _len;
+        for (var _i = 0; _i < array_length(global.solid_maps); _i++) {
+            if (collision_line(_x, _y, _fx, _fy, global.solid_maps[_i], false, true) != noone) return false;
+        }
+    }
+    return true;
 }
 
 // primeiro item largado pelo jogador dentro da área
