@@ -1,6 +1,6 @@
 {
   "$GMSprite":"v2",
-  "%Name":"spr_kid_socks_walk_left",
+  "%Name":"spr_kid_socks_right",
   "bboxMode":0,
   "bbox_bottom":20,
   "bbox_left":0,
@@ -12,18 +12,18 @@
   "edgeFiltering":false,
   "For3D":false,
   "frames":[
-    {"$GMSpriteFrame":"v1","%Name":"90e363ec-3187-4d91-9edc-41d91498f085","name":"90e363ec-3187-4d91-9edc-41d91498f085","resourceType":"GMSpriteFrame","resourceVersion":"2.0",},
+    {"$GMSpriteFrame":"v1","%Name":"5db1ec1e-5fe6-4f8d-b457-71567d7f6156","name":"5db1ec1e-5fe6-4f8d-b457-71567d7f6156","resourceType":"GMSpriteFrame","resourceVersion":"2.0",},
   ],
   "gridX":0,
   "gridY":0,
   "height":21,
   "HTile":false,
   "layers":[
-    {"$GMImageLayer":"","%Name":"d8f58cc5-5fe5-430c-ab65-e784e439a358","blendMode":0,"displayName":"default","isLocked":false,"name":"d8f58cc5-5fe5-430c-ab65-e784e439a358","opacity":100.0,"resourceType":"GMImageLayer","resourceVersion":"2.0","visible":true,},
+    {"$GMImageLayer":"","%Name":"60456a0f-1508-4700-ae38-8ce70bc6820e","blendMode":0,"displayName":"default","isLocked":false,"name":"60456a0f-1508-4700-ae38-8ce70bc6820e","opacity":100.0,"resourceType":"GMImageLayer","resourceVersion":"2.0","visible":true,},
   ],
-  "name":"spr_kid_socks_walk_left",
+  "name":"spr_kid_socks_right",
   "nineSlice":null,
-  "origin":0,
+  "origin":9,
   "parent":{
     "name":"Movement",
     "path":"folders/Sprites/Player/Movement.yy",
@@ -33,7 +33,7 @@
   "resourceVersion":"2.0",
   "sequence":{
     "$GMSequence":"v1",
-    "%Name":"spr_kid_socks_walk_left",
+    "%Name":"spr_kid_socks_right",
     "autoRecord":true,
     "backdropHeight":768,
     "backdropImageOpacity":0.5,
@@ -57,7 +57,7 @@
       "resourceType":"KeyframeStore<MomentsEventKeyframe>",
       "resourceVersion":"2.0",
     },
-    "name":"spr_kid_socks_walk_left",
+    "name":"spr_kid_socks_right",
     "playback":1,
     "playbackSpeed":30.0,
     "playbackSpeedType":0,
@@ -69,14 +69,14 @@
     "tracks":[
       {"$GMSpriteFramesTrack":"","builtinName":0,"events":[],"inheritsTrackColour":true,"interpolation":1,"isCreationTrack":false,"keyframes":{"$KeyframeStore<SpriteFrameKeyframe>":"","Keyframes":[
             {"$Keyframe<SpriteFrameKeyframe>":"","Channels":{
-                "0":{"$SpriteFrameKeyframe":"","Id":{"name":"90e363ec-3187-4d91-9edc-41d91498f085","path":"sprites/spr_kid_socks_walk_left/spr_kid_socks_walk_left.yy",},"resourceType":"SpriteFrameKeyframe","resourceVersion":"2.0",},
-              },"Disabled":false,"id":"b7806415-5e48-4591-93c4-12c86e033321","IsCreationKey":false,"Key":0.0,"Length":1.0,"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"2.0","Stretch":false,},
+                "0":{"$SpriteFrameKeyframe":"","Id":{"name":"5db1ec1e-5fe6-4f8d-b457-71567d7f6156","path":"sprites/spr_kid_socks_right/spr_kid_socks_right.yy",},"resourceType":"SpriteFrameKeyframe","resourceVersion":"2.0",},
+              },"Disabled":false,"id":"cd80b2a0-acb6-409e-bda4-49f8f97b0292","IsCreationKey":false,"Key":0.0,"Length":1.0,"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"2.0","Stretch":false,},
           ],"resourceType":"KeyframeStore<SpriteFrameKeyframe>","resourceVersion":"2.0",},"modifiers":[],"name":"frames","resourceType":"GMSpriteFramesTrack","resourceVersion":"2.0","spriteId":null,"trackColour":0,"tracks":[],"traits":0,},
     ],
     "visibleRange":null,
     "volume":1.0,
-    "xorigin":0,
-    "yorigin":0,
+    "xorigin":8,
+    "yorigin":10,
   },
   "swatchColours":null,
   "swfPrecision":0.5,
