@@ -19,8 +19,8 @@
   "resourceType":"GMTileSet",
   "resourceVersion":"2.0",
   "spriteId":{
-    "name":"spr_empty",
-    "path":"sprites/spr_empty/spr_empty.yy",
+    "name":"spr_grey",
+    "path":"sprites/spr_grey/spr_grey.yy",
   },
   "spriteNoExport":false,
   "textureGroupId":{

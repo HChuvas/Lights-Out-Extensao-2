@@ -1,17 +1,20 @@
 {
   "$GMObject":"",
   "%Name":"obj_water_cup",
-  "eventList":[
-    {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":4,"eventType":6,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
-  ],
+  "eventList":[],
   "managed":true,
   "name":"obj_water_cup",
-  "overriddenProperties":[],
+  "overriddenProperties":[
+    {"$GMOverriddenProperty":"v1","%Name":"","name":"","objectId":{"name":"obj_item_parent","path":"objects/obj_item_parent/obj_item_parent.yy",},"propertyId":{"name":"_name","path":"objects/obj_item_parent/obj_item_parent.yy",},"resourceType":"GMOverriddenProperty","resourceVersion":"2.0","value":"water_cup",},
+  ],
   "parent":{
-    "name":"Objects",
-    "path":"folders/Objects.yy",
+    "name":"Items",
+    "path":"folders/Objects/Items.yy",
   },
-  "parentObjectId":null,
+  "parentObjectId":{
+    "name":"obj_item_parent",
+    "path":"objects/obj_item_parent/obj_item_parent.yy",
+  },
   "persistent":false,
   "physicsAngularDamping":0.1,
   "physicsDensity":0.5,
@@ -30,8 +33,8 @@
   "resourceVersion":"2.0",
   "solid":false,
   "spriteId":{
-    "name":"spr_water_cup",
-    "path":"sprites/spr_water_cup/spr_water_cup.yy",
+    "name":"spr_ovrwld_water_cup",
+    "path":"sprites/spr_ovrwld_water_cup/spr_ovrwld_water_cup.yy",
   },
   "spriteMaskId":null,
   "visible":true,

@@ -26,7 +26,7 @@
   "origin":4,
   "parent":{
     "name":"Movement",
-    "path":"folders/Sprites/Movement.yy",
+    "path":"folders/Sprites/Player/Movement.yy",
   },
   "preMultiplyAlpha":false,
   "resourceType":"GMSprite",

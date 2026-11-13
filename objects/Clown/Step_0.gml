@@ -1,30 +1,35 @@
+// Congela inimigo no lugar caso necessário (ex: Pílula, troca de sala)
+if (global.frozen == true) exit;
+
 // Checagem inicial
 if (!variable_global_exists("cell") || !variable_global_exists("solid_maps")) exit;
 
-// Inicializa a grid
+// Cria o grid uma vez
 if (!ready) {
-    cell = global.cell;
-    cols = ceil(room_width / cell);
-    rows = ceil(room_height / cell);
-
-    if (!variable_global_exists("grid_safe") || !variable_global_exists("grid_room") || global.grid_room != room) {
-        build_safe_grid();
-    }
-    build_reachable();
+    enemy_unstick();
+    build_grid();
     ready = true;
 }
 
+if (hits_wall(x, y) && enemy_unstick()) on_path = false;
+
+
 // Atualizações por frame
-unstick();
 arm_cooldown = max(0, arm_cooldown - 1);
+alert_cd = max(0, alert_cd - 1);
+
 follow_path();
 watchdog();
 
-// Sistema de visão
+
+// Visão
 var _see = false;
+
 if (instance_exists(Player)) {
-    _see = (point_distance(x, y, Player.x, Player.y) <= sight_radius) && !wall_line(x, y, Player.x, Player.y);
+    _see = (point_distance(x, y, Player.x, Player.y) <= sight_radius)
+        && !wall_line(x, y, Player.x, Player.y);
 }
+
 
 // Transição para fuga
 if (_see && state != CLOWN.FLEE) {
@@ -32,6 +37,17 @@ if (_see && state != CLOWN.FLEE) {
     update_anim();
     exit;
 }
+
+
+// Dá passagem
+if (state != CLOWN.FLEE && !on_path) {
+    var _ch = instance_nearest(x, y, obj_chaser);
+
+    if (_ch != noone && point_distance(x, y, _ch.x, _ch.y) < 28) {
+        if (go_random(patrol_spd)) state = CLOWN.PATROL;
+    }
+}
+
 
 // Máquina de estados
 switch (state) {
@@ -41,12 +57,12 @@ switch (state) {
 
         if (arm_cooldown <= 0 && instance_number(Balloon) < max_balloons) {
 
-            var _pa = free_point(balloon_min_dist, true)
-                   ?? free_point(balloon_min_dist)
-                   ?? free_point(balloon_min_dist * 0.5);
+            if (go_random(arm_spd, balloon_min_dist, true)
+             || go_random(arm_spd, balloon_min_dist)
+             || go_random(arm_spd, balloon_min_dist * 0.5)) {
 
-            if (_pa != undefined && go_to(_pa.x, _pa.y, arm_spd)) {
                 state = CLOWN.ARM;
+
             } else {
                 arm_cooldown = tps;
             }
@@ -54,17 +70,16 @@ switch (state) {
         else if (idle_timer <= 0) {
             idle_timer = 2 * tps;
 
-            if (irandom(99) < 40) {
-                var _pp = free_point();
-                if (_pp != undefined && go_to(_pp.x, _pp.y, patrol_spd)) {
-                    state = CLOWN.PATROL;
-                }
+            if (irandom(99) < 40 && go_random(patrol_spd)) {
+                state = CLOWN.PATROL;
             }
         }
     break;
 
+
     case CLOWN.PATROL:
         if (on_path) break;
+
         idle_timer = 2 * tps;
         state = CLOWN.IDLE;
     break;
@@ -84,6 +99,7 @@ switch (state) {
         state = CLOWN.IDLE;
     break;
 
+
     case CLOWN.FLEE:
         flee_timer--;
         repath_t--;
@@ -95,7 +111,9 @@ switch (state) {
             var _pd = point_distance(x, y, Player.x, Player.y);
 
             if (repath_t <= 0 && _pd < sight_radius * 1.5 && (!on_path || path_near_player())) {
-                repath_t = flee_from(Player.x, Player.y) ? round(0.5 * tps) : round(0.2 * tps);
+                repath_t = flee_from(Player.x, Player.y)
+                    ? round(0.5 * tps)
+                    : round(0.2 * tps);
             }
 
             // Fallback anti-bodyblock
@@ -103,11 +121,12 @@ switch (state) {
                 var _away = point_direction(Player.x, Player.y, x, y);
                 var _offs = [0, 45, -45, 90, -90];
 
-                panic = step_toward(_away + panic_off, flee_spd);
+                panic = step_toward(_away + panic_off, flee_spd * VEL_MODIFIER);
 
                 for (var _k = 0; _k < 5 && !panic; _k++) {
                     if (_offs[_k] == panic_off) continue;
-                    if (step_toward(_away + _offs[_k], flee_spd)) {
+
+                    if (step_toward(_away + _offs[_k], flee_spd * VEL_MODIFIER)) {
                         panic = true;
                         panic_off = _offs[_k];
                     }
@@ -124,5 +143,9 @@ switch (state) {
     break;
 }
 
-// Animação
+
 update_anim();
+enemy_separation();
+
+last_x = x;
+last_y = y;
