@@ -19,7 +19,8 @@ enum CHASER_STATES {
 	PATROL,
 	CHASE,
 	ATTACK,
-	REST
+	REST,
+	STUNNED
 }
 CURRENT_STATE = CHASER_STATES.WATCH;
 
@@ -36,6 +37,14 @@ ATTACK_DURATION_TIME = 40;  //time to use the sprite animation
 ATTACK_DAMAGE = 1;
 ATTACK_LIFETIME = 0.5;
 ATTACKING  = false;
+
+STUN_DURATION = 3 * game_get_speed(gamespeed_fps);
+STUN_TIMER = 0;
+
+STATE_BEFORE_STUN = CHASER_STATES.WATCH;
+VEL_BEFORE_STUN = VEL;
+
+FLASHLIGHT_STUNNED = false;
 
 //alarm for watch state
 alarm[0] = -1;
@@ -117,6 +126,9 @@ function state_behavior(){
 					alarm[5] = REST_INTEVAL_TIME*fps;
 				}
 				return;
+			
+			case(CHASER_STATES.STUNNED):
+    		return;
 	}
 }
 
@@ -180,7 +192,7 @@ function path_move(target_x = noone, target_y = noone){
 			if (CURRENT_STATE == CHASER_STATES.PATROL) {
 				alarm[1] = 1;
 			} else if (CURRENT_STATE == CHASER_STATES.CHASE){
-				stamina = 0;
+				STAMINA = 0;
 				alarm[2] = 1;
 				alarm[3] = 1;
 			}
@@ -198,7 +210,7 @@ function path_move(target_x = noone, target_y = noone){
 			if (CURRENT_STATE == CHASER_STATES.PATROL) {
 				alarm[1] = 1;
 			} else if (CURRENT_STATE == CHASER_STATES.CHASE){
-				stamina = 0;
+				STAMINA = 0;
 				alarm[2] = 1;
 				alarm[3] = 1;
 			}
@@ -272,15 +284,8 @@ function change_sprite() {
             break;
 
         case CHASER_STATES.REST:
-            switch (_dir) {
-                case "right": _new_sprite = spr_evil_kid_idle_right; break;
-                case "up":    _new_sprite = spr_evil_kid_idle_up;    break;
-                case "left":  _new_sprite = spr_evil_kid_idle_left;  break;
-                case "down":  _new_sprite = spr_evil_kid_idle_down;  break;
-            }
-            break;
-
-        case CHASER_STATES.WATCH:
+		case CHASER_STATES.STUNNED:
+		case CHASER_STATES.WATCH:
             switch (_dir) {
                 case "right": _new_sprite = spr_evil_kid_idle_right; break;
                 case "up":    _new_sprite = spr_evil_kid_idle_up;    break;
@@ -303,4 +308,50 @@ function change_sprite() {
 		sprite_index = _new_sprite;
 		last_sprite = _new_sprite;
 	}
+}
+
+function apply_flashlight_stun()
+{
+    if (CURRENT_STATE != CHASER_STATES.STUNNED)
+    {
+        STATE_BEFORE_STUN = CURRENT_STATE;
+
+        // Não retoma um ataque interrompido pela lanterna.
+        if (STATE_BEFORE_STUN == CHASER_STATES.ATTACK)
+        {
+            STATE_BEFORE_STUN = CHASER_STATES.REST;
+            STAMINA = 0;
+        }
+
+        VEL_BEFORE_STUN = VEL;
+        CURRENT_STATE = CHASER_STATES.STUNNED;
+
+        // Cancela alarmes e caminhos.
+        for (var i = 0; i <= 5; i++)
+        {
+            alarm[i] = -1;
+        }
+
+        on_path = false;
+        path_point_index = noone;
+        path_number_points = noone;
+
+        // Cancela hitboxes de ataque deste inimigo.
+        with (obj_chaser_attack_HB)
+        {
+            if (owner == other.id)
+            {
+                instance_destroy();
+            }
+        }
+
+        ATTACKING = false;
+        change_sprite();
+    }
+
+    // Mantém o atordoamento enquanto estiver no cone.
+    STUN_TIMER = STUN_DURATION;
+    FLASHLIGHT_STUNNED = true;
+    VEL = 0;
+    image_speed = 0;
 }
