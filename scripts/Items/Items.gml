@@ -95,6 +95,7 @@ global.items = {
         on_use: function(_player) {
             instance_create_layer(_player.x, _player.y, "Instances", obj_glue_throw,
                 { owner: _player, size: irandom_range(puddle_min, puddle_max) });
+            audio_play_sound(ploft, 0, false);
         },
         check_availability: function(_player) {
             usable = !instance_exists(obj_glue_throw); // não joga outra no meio do arremesso
