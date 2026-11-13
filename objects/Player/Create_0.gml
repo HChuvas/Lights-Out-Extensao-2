@@ -39,6 +39,7 @@ damage_taken = 0;
 
 function aply_i_frames(){
 	if (!hited){return}
+	if (pg_god()) { hited = false; return; } // debug: god mode
 	
 	take_damage();
 	hited = false;

@@ -225,3 +225,9 @@ if (!is_undefined(_saved)) {
         if (!_s.floor) _inst.depth = _s.depth; // desenha por cima do móvel
     }
 }
+
+// debug
+if (variable_global_exists("pg_debug_snack") && global.pg_debug_snack) {
+    global.pg_debug_snack = false;
+    pg_debug_place_at_snack();
+}

@@ -5,6 +5,7 @@ hover = point_in_rectangle(_mx, _my, btn_x - btn_w/2, btn_y - btn_h/2, btn_x + b
 if ((hover && mouse_check_button_pressed(mb_left)) || keyboard_check_pressed(vk_enter))
 {
     global.pg_floor = 3;
+	global.pg_god = false;
 	pg_clear_saves();
     room_goto(r_starting_room);
 }

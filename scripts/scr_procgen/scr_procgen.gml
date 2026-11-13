@@ -2133,3 +2133,95 @@ function pg_spawn_hazards(_plan, _cfg, _ox, _oy, _spots) {
     procgen_spawn_balloons(_plan, _cfg, _ox, _oy, irandom_range(_cfg.balloons[0], _cfg.balloons[1]));
     if (instance_exists(obj_procgen)) obj_procgen.hazards = true;
 }
+
+// ============================================================================
+//  DEBUG: pular fases (botões do mapa de debug)
+// ============================================================================
+function pg_debug_travel(_room, _x = -1, _y = -1) {
+    if (instance_exists(Player)) {
+        if (_x >= 0 && _y >= 0) { Player.x = _x; Player.y = _y; }
+        Player.frozen = true;
+        Player.fade = 1; // some sozinho, igual na escada
+    }
+    room_goto(_room);
+}
+
+// vai pro lanche (luzes acesas). Se o apagão já rolou, reinicia a partida pra ele existir de novo
+function pg_debug_goto_snack() {
+    with (obj_blackout) instance_destroy();
+
+    // já está no 1º andar com o lanche: só teleporta
+    if (pg_phase() == 0 && room == r_procedural && procgen_floor() == 1 && instance_exists(obj_snack)) {
+        pg_debug_place_at_snack();
+        return;
+    }
+
+    if (pg_phase() != 0) pg_clear_saves();
+    else if (room == r_procedural) pg_save_floor();
+
+    global.pg_floor = 1;
+    global.pg_arrive = "start";
+    global.pg_debug_snack = true;
+    pg_debug_travel(r_procedural);
+}
+
+// vai pro quarto com as luzes já apagadas (cama liberada)
+function pg_debug_goto_bedroom() {
+    with (obj_blackout) instance_destroy();
+
+    if (room == r_procedural) {
+        pg_save_floor();
+        global.pg_resume_floor = procgen_floor();
+    }
+    global.pg_phase = 1;
+    global.pg_arrive = "start";
+    pg_debug_travel(r_starting_room, 347, 544); // mesma posição de chegada da escada do 3º andar
+}
+
+// põe o Player num ponto livre de frente pro lanche
+function pg_debug_place_at_snack() {
+    if (!instance_exists(Player) || !instance_exists(obj_snack)) return;
+    var _snack = instance_nearest(Player.x, Player.y, obj_snack);
+    var _sx = (_snack.bbox_left + _snack.bbox_right) / 2;
+    var _sy = (_snack.bbox_top + _snack.bbox_bottom) / 2;
+    var _found = false;
+
+    with (Player) {
+        var _l = bbox_left - x, _r = bbox_right - x, _t = bbox_top - y, _b = bbox_bottom - y;
+        var _faces = ["up", "down", "left", "right"];
+        var _side = 6;
+
+        for (var _rad = 0; _rad <= 128 && !_found; _rad += 2) {
+            for (var _a = 0; _a < 360 && !_found; _a += 15) {
+                var _nx = _sx + lengthdir_x(_rad, _a);
+                var _ny = _sy + lengthdir_y(_rad, _a);
+                if (enemy_blocked_at(_nx, _ny)) continue;
+
+                for (var _f = 0; _f < 4; _f++) {
+                    var _x1 = _nx + _l, _y1 = _ny + _t, _x2 = _nx + _r, _y2 = _ny + _b;
+                    switch (_faces[_f]) {
+                        case "up":    _y2 = _y1; _y1 -= interact_range; _x1 -= _side; _x2 += _side; break;
+                        case "down":  _y1 = _y2; _y2 += interact_range; _x1 -= _side; _x2 += _side; break;
+                        case "left":  _x2 = _x1; _x1 -= interact_range; _y1 -= _side; _y2 += _side; break;
+                        case "right": _x1 = _x2; _x2 += interact_range; _y1 -= _side; _y2 += _side; break;
+                    }
+                    if (collision_rectangle(_x1, _y1, _x2, _y2, _snack, false, true) != noone) {
+                        x = _nx;
+                        y = _ny;
+                        facing = _faces[_f];
+                        glow.x = x;
+                        glow.y = y;
+                        _found = true;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// debug: god mode (não leva dano)
+function pg_god() {
+    if (!variable_global_exists("pg_god")) global.pg_god = false;
+    return global.pg_god;
+}
