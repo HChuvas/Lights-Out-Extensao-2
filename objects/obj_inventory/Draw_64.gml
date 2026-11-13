@@ -51,7 +51,7 @@ for (var i = 0; i < 2; i++) {
 
 draw_set_color(c_white);
 
-// aviso curto acima dos slots (ex: tentar beber agua com a vida cheia)
+// aviso curto acima dos slots
 if (inventory.msg_timer > 0) {
     inventory.msg_timer--;
     draw_set_halign(fa_center);
@@ -62,4 +62,21 @@ if (inventory.msg_timer > 0) {
     draw_set_alpha(1);
     draw_set_halign(fa_left);
     draw_set_valign(fa_top);
+}
+// dica do item selecionado
+else if (instance_exists(Player) && Player.item_held == "") {
+    var _sel = inventory._items[inventory.selected_index];
+    if (!is_undefined(_sel)) {
+        var _def = global.items[$ _sel.name];
+        var _hint = variable_struct_exists(_def, "hint") ? _def.hint + "   " : "";
+        if (_sel.quantity <= 0) _hint = "Sem carga   ";
+        draw_set_halign(fa_center);
+        draw_set_valign(fa_bottom);
+        draw_set_alpha(0.8);
+        draw_set_color(c_white);
+        draw_text(display_get_gui_width() / 2, start_y - 8, _hint + "[G] Largar");
+        draw_set_alpha(1);
+        draw_set_halign(fa_left);
+        draw_set_valign(fa_top);
+    }
 }

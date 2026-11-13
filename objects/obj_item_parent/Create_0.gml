@@ -8,4 +8,8 @@ if (!variable_instance_exists(id, "_dropped")) _dropped = false; // true = larga
 interact = function() {
     if (!instance_exists(obj_inventory)) return;
     if (obj_inventory.inventory.item_add(_name, _quantity, _consumed)) instance_destroy();
+    else {
+        obj_inventory.inventory.msg = "Inventário cheio";
+        obj_inventory.inventory.msg_timer = 90;
+    }
 };

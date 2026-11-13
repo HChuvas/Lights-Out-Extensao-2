@@ -2,7 +2,7 @@ function Inventory () constructor {
 	
 	_items = array_create(2, undefined);
 	selected_index = 0;
-	msg = "";         // aviso curto na tela (ex: "Vida cheia")
+	msg = ""; // aviso curto na tela
 	msg_timer = 0;
 
     item_add = function(_name, _quantity, _consumed = false) {
@@ -41,6 +41,8 @@ function Inventory () constructor {
 
         if (_item.quantity <= 0) {
             _item.consumed = true;
+            msg = "Sem carga";
+            msg_timer = 90;
             show_debug_message("Item sem cargas disponíveis");
             return false;
         }
