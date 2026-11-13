@@ -1,4 +1,4 @@
-if (CURRENT_STATE != CHASER_STATES.REST and CURRENT_STATE != CHASER_STATES.ATTACK ){
+if (CURRENT_STATE != CHASER_STATES.REST and CURRENT_STATE != CHASER_STATES.ATTACK and CURRENT_STATE != CHASER_STATES.STUNNED ){
 	var _player_in_vision = self.perception();
 	if ( _player_in_vision != noone ){
 		if ( !_player_in_vision.imune ){

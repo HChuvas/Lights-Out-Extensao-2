@@ -195,7 +195,7 @@ function create_path(target_x = noone, target_y = noone){
 		if (CURRENT_STATE == CHASER_STATES.PATROL) {
 			alarm[1] = 1;
 		} else if (CURRENT_STATE == CHASER_STATES.CHASE){
-			STAMINA = 0;
+			stamina = 0;
 			alarm[2] = 1;
 			alarm[3] = 1;
 		}
@@ -217,7 +217,7 @@ function path_move(){
 			if (CURRENT_STATE == CHASER_STATES.PATROL) {
 				alarm[1] = 1;
 			} else if (CURRENT_STATE == CHASER_STATES.CHASE){
-				STAMINA = 0;
+				stamina = 0;
 				alarm[2] = 1;
 				alarm[3] = 1;
 			}
@@ -335,7 +335,7 @@ function apply_flashlight_stun()
     {
         STATE_BEFORE_STUN = CURRENT_STATE;
 
-        // Não retoma um ataque interrompido pela lanterna.
+        // Não retoma um ataque interrompido pela lanterna
         if (STATE_BEFORE_STUN == CHASER_STATES.ATTACK)
         {
             STATE_BEFORE_STUN = CHASER_STATES.REST;
@@ -345,7 +345,7 @@ function apply_flashlight_stun()
         VEL_BEFORE_STUN = VEL;
         CURRENT_STATE = CHASER_STATES.STUNNED;
 
-        // Cancela alarmes e caminhos.
+        // Cancela alarmes e caminhos
         for (var i = 0; i <= 5; i++)
         {
             alarm[i] = -1;
@@ -355,7 +355,7 @@ function apply_flashlight_stun()
         path_point_index = noone;
         path_number_points = noone;
 
-        // Cancela hitboxes de ataque deste inimigo.
+        // Cancela hitboxes de ataque deste inimigo
         with (obj_chaser_attack_HB)
         {
             if (owner == other.id)
@@ -365,10 +365,11 @@ function apply_flashlight_stun()
         }
 
         ATTACKING = false;
+        PREPARING_ATTACK = false;
         change_sprite();
     }
 
-    // Mantém o atordoamento enquanto estiver no cone.
+    // Mantém o atordoamento enquanto estiver no cone
     STUN_TIMER = STUN_DURATION;
     FLASHLIGHT_STUNNED = true;
     VEL = 0;

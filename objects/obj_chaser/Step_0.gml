@@ -1,7 +1,7 @@
 // Congela iminigo caso necessário (ex: Pílula, troca de sala)
 if (global.frozen) {
-    image_speed = 0;                 // para a animação
-    for (var i = 0; i < 8; i++) {    // pausa todos os alarms
+    image_speed = 0; // para a animação
+    for (var i = 0; i < 8; i++) { // pausa todos os alarms
         if (alarm[i] > 0) alarm[i] += 1;
     }
     exit;
@@ -26,7 +26,7 @@ else if (CURRENT_STATE == CHASER_STATES.STUNNED)
     {
         FLASHLIGHT_STUNNED = false;
         CURRENT_STATE = STATE_BEFORE_STUN;
-        VEL = VEL_BEFORE_STUN;
+        VEL = max(VEL_BEFORE_STUN, 1); //never come back from a stun with VEL 0
 
         for (var i = 0; i <= 5; i++) alarm[i] = -1;
 
