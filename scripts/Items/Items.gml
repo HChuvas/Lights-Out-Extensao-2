@@ -115,6 +115,8 @@ global.items = {
         _player.socks_speed_timer =
             7 * game_get_speed(gamespeed_fps);
 
+        music_speed_start(); // 7 segundos de música de velocidade
+
         return true;
     },
 

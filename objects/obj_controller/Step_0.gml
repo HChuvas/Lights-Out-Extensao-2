@@ -1,5 +1,7 @@
 if (id != instance_find(obj_controller, 0)) exit;
 
+music_speed_check();
+
 if (keyboard_check_pressed(vk_f11)) {
     window_set_fullscreen(!window_get_fullscreen());
 }

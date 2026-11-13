@@ -5,8 +5,7 @@ if (alpha < 1) {
 } else {
     timer += _dt;
     if (timer >= hold_time) {
-        audio_stop_sound(ambient_sound);
-        audio_sound_gain(ambient_sound, 1, 0);
+        music_stop();
         if (instance_exists(Player)) Player.persistent = false;
         room_goto(r_win_screen);
     }

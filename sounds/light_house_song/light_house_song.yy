@@ -1,6 +1,6 @@
 {
   "$GMSound":"v2",
-  "%Name":"ambient_sound",
+  "%Name":"light_house_song",
   "audioGroupId":{
     "name":"audiogroup_default",
     "path":"audiogroups/audiogroup_default",
@@ -10,17 +10,17 @@
   "compression":0,
   "compressionQuality":4,
   "conversionMode":0,
-  "duration":25.05433,
+  "duration":191.98259,
   "exportDir":"",
-  "name":"ambient_sound",
+  "name":"light_house_song",
   "parent":{
-    "name":"Sounds",
-    "path":"folders/Sounds.yy",
+    "name":"Songs",
+    "path":"folders/Songs.yy",
   },
   "preload":false,
   "resourceType":"GMSound",
   "resourceVersion":"2.0",
   "sampleRate":44100,
-  "soundFile":"ambient_sound.mp3",
-  "volume":0.8,
+  "soundFile":"light_house_song.mp3",
+  "volume":0.35,
 }

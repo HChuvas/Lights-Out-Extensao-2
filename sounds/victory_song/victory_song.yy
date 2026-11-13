@@ -1,0 +1,26 @@
+{
+  "$GMSound":"v2",
+  "%Name":"victory_song",
+  "audioGroupId":{
+    "name":"audiogroup_default",
+    "path":"audiogroups/audiogroup_default",
+  },
+  "bitDepth":1,
+  "channelFormat":0,
+  "compression":0,
+  "compressionQuality":4,
+  "conversionMode":0,
+  "duration":143.05814,
+  "exportDir":"",
+  "name":"victory_song",
+  "parent":{
+    "name":"Songs",
+    "path":"folders/Songs.yy",
+  },
+  "preload":false,
+  "resourceType":"GMSound",
+  "resourceVersion":"2.0",
+  "sampleRate":44100,
+  "soundFile":"victory_song.mp3",
+  "volume":0.45,
+}

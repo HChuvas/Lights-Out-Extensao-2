@@ -1,0 +1,26 @@
+{
+  "$GMSound":"v2",
+  "%Name":"darkness_house_song",
+  "audioGroupId":{
+    "name":"audiogroup_default",
+    "path":"audiogroups/audiogroup_default",
+  },
+  "bitDepth":1,
+  "channelFormat":0,
+  "compression":0,
+  "compressionQuality":4,
+  "conversionMode":0,
+  "duration":216.17068,
+  "exportDir":"",
+  "name":"darkness_house_song",
+  "parent":{
+    "name":"Songs",
+    "path":"folders/Songs.yy",
+  },
+  "preload":false,
+  "resourceType":"GMSound",
+  "resourceVersion":"2.0",
+  "sampleRate":44100,
+  "soundFile":"darkness_house_song.mp3",
+  "volume":0.67,
+}

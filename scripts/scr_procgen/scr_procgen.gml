@@ -2065,6 +2065,7 @@ function pg_wake_enemies() {
 function pg_pickup_snack() {
     if (pg_phase() != 0) return;
     global.pg_phase = 1;
+    music_stop(); // a música de luz para 
     instance_create_layer(0, 0, "Instances", obj_blackout);
 }
 
@@ -2147,7 +2148,7 @@ function pg_debug_travel(_room, _x = -1, _y = -1) {
     room_goto(_room);
 }
 
-// vai pro lanche (luzes acesas). Se o apagão já rolou, reinicia a partida pra ele existir de novo
+// vai pro lanche (luzes acesas)
 function pg_debug_goto_snack() {
     with (obj_blackout) instance_destroy();
 
@@ -2176,7 +2177,7 @@ function pg_debug_goto_bedroom() {
     }
     global.pg_phase = 1;
     global.pg_arrive = "start";
-    pg_debug_travel(r_starting_room, 347, 544); // mesma posição de chegada da escada do 3º andar
+    pg_debug_travel(r_starting_room, 347, 544); // mesma posição de chegada da escada do terceiro andar
 }
 
 // põe o Player num ponto livre de frente pro lanche
