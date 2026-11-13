@@ -4,9 +4,9 @@ hover = point_in_rectangle(_mx, _my, btn_x - btn_w/2, btn_y - btn_h/2, btn_x + b
 
 if ((hover && mouse_check_button_pressed(mb_left)) || keyboard_check_pressed(vk_enter))
 {
-    global.pg_floor = 1;
+    global.pg_floor = 3;
 	pg_clear_saves();
-    room_goto(r_procedural);
+    room_goto(r_starting_room);
 }
 
 if (keyboard_check_pressed(vk_f11)) {

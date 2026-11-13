@@ -111,16 +111,26 @@ function procgen_config() {
         exit_y: _last ? 544 : -1,
 
         // inimigos
-        chasers: [[1, 1], [1, 2], [2, 2]][_f - 1],
+        chasers: [[1, 1], [1, 1], [1, 2]][_f - 1],
         clowns:  [[0, 1], [0, 1], [1, 1]][_f - 1],
-        mimics:  [[0, 1], [1, 1], [1, 2]][_f - 1],
+        mimics:  [[1, 1], [1, 2], [1, 2]][_f - 1],
+        wardrobes: [[0, 1], [1, 1], [0, 1]][_f - 1],
         balloons: [[1, 2], [2, 3], [2, 4]][_f - 1],
+        webs:    [[0, 1], [1, 2], [2, 3]][_f - 1],
+        spiders: [[0, 1], [0, 1], [1, 1]][_f - 1],
 
         // itens
         item_off_y: 0,
+        items_per_floor: [1, 2], // itens por andar
+        item_reach: 16, // range do player
+        item_reach_side: 6, // folga
+        item_reach_margin: 3, // sobra 
+        item_sink_max: 4,
         items: [
             { obj: obj_flashlight, name: "flashlight", count: 1, unique: true  },
-            { obj: obj_water_cup,  name: "water_cup",  count: 1, unique: false }
+            { obj: obj_water_cup,  name: "water_cup",  count: 1, unique: false },
+            { obj: obj_pill, name: "pill", count: 1, unique: false},
+            { obj: obj_glue, name: "glue", count: 1, unique: false},
         ]
     };
 }
@@ -183,6 +193,7 @@ function procgen_presets_build() {
         { at: PG_AT.AROUND, prop: "armchair",  lo: 1, hi: 1 },
         { at: PG_AT.NEAR,   near: "armchair",  prop: "plant",    lo: 0, hi: 1, chance: 0.6 },
         { at: PG_AT.SIDE,   prop: "cabinet",   lo: 0, hi: 2 },
+        { at: PG_AT.TOP,    prop: "wardrobe",  lo: 1, hi: 1, chance: 0.35 },
         { at: PG_AT.CORNER, prop: "plant",     lo: 1, hi: 2 },
         { at: PG_AT.WALL,   prop: "picture",   lo: 2, hi: 3 }
     ];
@@ -206,7 +217,7 @@ function procgen_presets_build() {
     _p[PG_ROOM.STORAGE] = [
         { at: PG_AT.RUN,    runs: [["wardrobe", "cabinet", "cabinet", "bench"], ["cabinet", "wardrobe", "wardrobe"]] },
         { at: PG_AT.SIDE,   prop: "cabinet",   lo: 1, hi: 2 },
-        { at: PG_AT.SIDE,   prop: "wardrobe",  lo: 0, hi: 1 },
+        { at: PG_AT.TOP,    prop: "wardrobe",  lo: 0, hi: 1, chance: 0.6 },
         { at: PG_AT.SIDE,   prop: "box",       lo: 2, hi: 3 },
         { at: PG_AT.CORNER, prop: "box",       lo: 1, hi: 2 },
         { at: PG_AT.CORNER, prop: "basket",    lo: 0, hi: 1 },
@@ -216,6 +227,7 @@ function procgen_presets_build() {
         { at: PG_AT.RUN,    runs: [["cabinet", "desk"], ["desk", "cabinet"], ["cabinet", "desk", "cabinet"]] },
         { at: PG_AT.NEAR,   near: "desk",      prop: "bin",      lo: 1, hi: 1, chance: 0.7 },
         { at: PG_AT.SIDE,   prop: "cabinet",   lo: 1, hi: 2 },
+        { at: PG_AT.TOP,    prop: "wardrobe",  lo: 1, hi: 1, chance: 0.4 },
         { at: PG_AT.CORNER, prop: "plant",     lo: 1, hi: 2 },
         { at: PG_AT.CORNER, prop: "bin",       lo: 0, hi: 1 },
         { at: PG_AT.WALL,   prop: "picture",   lo: 1, hi: 2 },
@@ -226,7 +238,7 @@ function procgen_presets_build() {
         { at: PG_AT.NEAR,   near: "sink",      prop: "basket",   lo: 1, hi: 1, chance: 0.7 },
         { at: PG_AT.CORNER, prop: "basket",    lo: 1, hi: 2 },
         { at: PG_AT.CORNER, prop: "bin",       lo: 0, hi: 1 },
-        { at: PG_AT.SIDE,   prop: "wardrobe",  lo: 0, hi: 1 },
+        { at: PG_AT.TOP,    prop: "wardrobe",  lo: 0, hi: 1, chance: 0.5 },
         { at: PG_AT.WALL,   prop: "towel",     lo: 1, hi: 1 },
         { at: PG_AT.WALL,   prop: "note",      lo: 0, hi: 1 }
     ];
@@ -349,7 +361,7 @@ function procgen_try(_cfg) {
         ds_grid_clear(_plan.decor, 0);
         ds_grid_clear(_plan.rug, 0);
         procgen_decorate(_plan, _cfg);
-        _ok = procgen_validate_decor(_plan) && procgen_has_required(_plan);
+        _ok = procgen_validate_decor(_plan) && procgen_has_required(_plan) && procgen_count_wardrobes(_plan) >= _cfg.wardrobes[0];
     }
     if (!_ok) { procgen_destroy(_plan); return undefined; }
     return _plan;
@@ -835,6 +847,39 @@ function procgen_decorate(_plan, _cfg) {
         }
         if (_r.type == PG_ROOM.LIVING) procgen_rug_living(_plan, _cfg, _r);
     }
+
+    procgen_ensure_wardrobes(_plan, _defs, _cfg.wardrobes[1]);
+}
+
+function procgen_count_wardrobes(_plan) {
+    var _n = 0;
+    for (var _i = 0; _i < array_length(_plan.props); _i++) {
+        if (_plan.props[_i].kind == "prop" && _plan.props[_i].spr == spr_furniture_83) _n++;
+    }
+    return _n;
+}
+
+// garante móveis de armário suficientes
+function procgen_ensure_wardrobes(_plan, _defs, _need) {
+    var _have = procgen_count_wardrobes(_plan);
+    if (_have >= _need) return;
+
+    // depósito, escritório e lavanderia primeiro e sala por último
+    var _order = [PG_ROOM.STORAGE, PG_ROOM.OFFICE, PG_ROOM.LAUNDRY, PG_ROOM.LIVING];
+    var _rule = { at: PG_AT.TOP, prop: "wardrobe" };
+    for (var _o = 0; _o < array_length(_order) && _have < _need; _o++) {
+        var _list = [];
+        for (var _i = 0; _i < array_length(_plan.rooms); _i++) {
+            if (_plan.rooms[_i].type == _order[_o]) array_push(_list, _i);
+        }
+        procgen_shuffle(_list);
+        for (var _k = 0; _k < array_length(_list) && _have < _need; _k++) {
+            _plan.cur_room = _list[_k];
+            _plan.cur_type = _order[_o];
+            global.pg_used = {};
+            if (procgen_place_one(_plan, _defs, _plan.rooms[_list[_k]], _rule)) _have++;
+        }
+    }
 }
 
 function procgen_rug_living(_plan, _cfg, _r) {
@@ -936,11 +981,12 @@ function procgen_put(_plan, _def, _spr, _x, _y, _fw, _fh) {
     var _c = _plan.cell;
     var _w = sprite_get_width(_spr), _h = sprite_get_height(_spr);
     var _p = {
-        spr: _spr, kind: "prop", el: -1,
+        spr: _spr, kind: "prop", el: -1, room: _plan.cur_room,
         x: _x * _c + (_fw * _c - _w) div 2,
         y: (_y + _fh) * _c - _h,
         cx: _x, cy: _y + _fh - 1,
-        chair: variable_struct_exists(_def, "chair") && _def.chair
+        chair: variable_struct_exists(_def, "chair") && _def.chair,
+        up: _spr == spr_furniture_68 // cadeira de costas
     };
     array_push(_plan.props, _p);
     var _id = array_length(_plan.props);
@@ -967,7 +1013,8 @@ function procgen_put(_plan, _def, _spr, _x, _y, _fw, _fh) {
     var _sf = undefined;
     var _sy = variable_struct_exists(_def, "top_y") ? _def.top_y : (variable_struct_exists(_def, "surf_y") ? _def.surf_y : -1);
     if (_sy >= 0) {
-        _sf = { x: _p.x, y: _p.y + _sy, w: _w, cx: _x, cy: _y + _fh - 1, fw: _fw, room: _plan.cur_room, used: [] };
+        _sf = { x: _p.x, y: _p.y + _sy, w: _w, d: _h - _sy, fx: _x * _c, fpw: _fw * _c,
+                cx: _x, cy: _y + _fh - 1, fw: _fw, room: _plan.cur_room, used: [] };
         array_push(_plan.surfaces, _sf);
     }
 
@@ -1490,7 +1537,9 @@ function procgen_spawn_enemy(_obj, _plan, _cfg, _ox, _oy, _rooms) {
     return noone;
 }
 
-function procgen_spawn_mimics(_plan, _cfg, _ox, _oy, _n) {
+function procgen_spawn_mimics(_plan, _cfg, _ox, _oy, _n, _saved = undefined) {
+    // andar já visitado tem a mesma quantidade de antes
+    if (!is_undefined(_saved)) _n = array_length(_saved);
     if (_n <= 0) return;
 
     var _cells = [];
@@ -1498,19 +1547,74 @@ function procgen_spawn_mimics(_plan, _cfg, _ox, _oy, _n) {
         var _p = _plan.props[_i];
         if (!_p.chair) continue;
         var _px = procgen_cell_to_px(_p.cx, _p.cy, _cfg, _ox, _oy);
-        array_push(_cells, { px: _px[0], py: _px[1], el: _p.el });
+        array_push(_cells, { px: _px[0], py: _px[1], el: _p.el, up: _p.up });
     }
     _n = min(_n, array_length(_cells) - 1);
     if (_n <= 0) return;
 
     array_shuffle(_cells);
+
+    // leva para o começo as cadeiras onde os mímicos estavam
+    if (!is_undefined(_saved)) {
+        var _front = 0;
+        for (var _s = 0; _s < array_length(_saved); _s++) {
+            for (var _i = _front; _i < array_length(_cells); _i++) {
+                if (point_distance(_cells[_i].px, _cells[_i].py, _saved[_s].x, _saved[_s].y) < 4) {
+                    var _tmp = _cells[_front];
+                    _cells[_front] = _cells[_i];
+                    _cells[_i] = _tmp;
+                    _front++;
+                    break;
+                }
+            }
+        }
+    }
+
     var _shared = { cells: _cells, taken: array_create(array_length(_cells), false) };
 
     for (var _i = 0; _i < _n; _i++) {
         var _c = _cells[_i];
         _shared.taken[_i] = true;
-        layer_sprite_alpha(_c.el, 0);
+        if (pg_phase() >= 1) layer_sprite_alpha(_c.el, 0); // a cadeira normal continua a mostra com as luzes acesas
         instance_create_layer(_c.px, _c.py, "Instances", obj_mimic, { shared: _shared, cell_i: _i });
+    }
+}
+
+// desenha por cima dos armários do mapa
+function procgen_spawn_wardrobes(_plan, _cfg, _ox, _oy, _n, _saved = undefined) {
+    var _cells = [];
+    for (var _i = 0; _i < array_length(_plan.props); _i++) {
+        var _p = _plan.props[_i];
+        if (_p.kind != "prop" || _p.spr != spr_furniture_83) continue;
+        var _near_start = (variable_struct_exists(_p, "room") && _plan.rooms[_p.room] == _plan.start);
+        array_push(_cells, { x: _ox * _cfg.cell + _p.x, y: _oy * _cfg.cell + _p.y, el: _p.el, trades: 0, near_start: _near_start });
+    }
+    if (array_length(_cells) == 0) return;
+
+    var _chosen = [];
+    if (!is_undefined(_saved)) {
+        // andar já visitado
+        for (var _s = 0; _s < array_length(_saved); _s++) {
+            for (var _i = 0; _i < array_length(_cells); _i++) {
+                if (point_distance(_cells[_i].x, _cells[_i].y, _saved[_s].x, _saved[_s].y) < 4) {
+                    _cells[_i].trades = _saved[_s].trades;
+                    array_push(_chosen, _cells[_i]);
+                    break;
+                }
+            }
+        }
+    } else {
+        array_shuffle(_cells);
+        // armários longe da escada inicial vêm primeiro
+        var _far = [], _close = [];
+        for (var _i = 0; _i < array_length(_cells); _i++) array_push(_cells[_i].near_start ? _close : _far, _cells[_i]);
+        _cells = array_concat(_far, _close);
+        for (var _i = 0; _i < min(_n, array_length(_cells)); _i++) array_push(_chosen, _cells[_i]);
+    }
+
+    for (var _i = 0; _i < array_length(_chosen); _i++) {
+        var _c = _chosen[_i];
+        instance_create_layer(_c.x, _c.y, "Instances", obj_wardrobe, { el: _c.el, trades: _c.trades });
     }
 }
 
@@ -1538,62 +1642,135 @@ function procgen_spawn_balloons(_plan, _cfg, _ox, _oy, _n) {
 }
 
 
+function procgen_spawn_webs(_plan, _cfg, _ox, _oy, _n) {
+    var _webs = [];
+    var _pool = [];
+    for (var _i = 0; _i < array_length(_plan.rooms); _i++) {
+        if (_plan.rooms[_i].dist >= 1) array_push(_pool, _plan.rooms[_i]);
+    }
+    if (array_length(_pool) == 0 || _n <= 0) return _webs;
+
+    for (var _t = 0; _t < _n * 20 && array_length(_webs) < _n; _t++) {
+        var _room = _pool[irandom(array_length(_pool) - 1)];
+        var _c = procgen_random_free_cell(_plan, _room, true);
+        if (is_undefined(_c)) continue;
+        // não trava a escada de entrada nem a de saída
+        if (abs(_c[0] - _plan.goal.cx)  <= 2 && abs(_c[1] - _plan.goal.cy)  <= 2) continue;
+        if (abs(_c[0] - _plan.start.cx) <= 2 && abs(_c[1] - _plan.start.cy) <= 2) continue;
+
+        var _p = procgen_cell_to_px(_c[0], _c[1], _cfg, _ox, _oy);
+        var _near = instance_nearest(_p[0], _p[1], obj_spider_web);
+        if (_near != noone && point_distance(_p[0], _p[1], _near.x, _near.y) < 96) continue;
+
+        array_push(_webs, instance_create_layer(_p[0], _p[1], "Instances", obj_spider_web));
+    }
+    return _webs;
+}
+
+function procgen_spawn_spiders(_n, _webs) {
+    // a aranha viaja entre teias, sem teia ela não spawna
+    if (_n <= 0 || array_length(_webs) == 0) return;
+
+    // prefere teias longe de onde o player chegou
+    var _pool = [];
+    for (var _i = 0; _i < array_length(_webs); _i++) {
+        var _w = _webs[_i];
+        if (!instance_exists(Player) || point_distance(_w.x, _w.y, Player.x, Player.y) > 96) array_push(_pool, _w);
+    }
+    if (array_length(_pool) == 0) _pool = _webs;
+    procgen_shuffle(_pool);
+
+    _n = min(_n, array_length(_pool)); // uma aranha por teia
+    for (var _i = 0; _i < _n; _i++) {
+        var _s = instance_create_layer(_pool[_i].x, _pool[_i].y, "Instances", obj_spider);
+        var _fits = false;
+        with (_s) _fits = enemy_unstick();
+        if (!_fits) instance_destroy(_s);
+    }
+}
+
+
 // ============================================================================
 //  ITENS NAS SUPERFÍCIES
 // ============================================================================
 
-function procgen_item_spots(_plan, _cfg, _ox, _oy, _n) {
-    var _cols = _plan.cols;
-    var _pool = [];
-    for (var _i = 0; _i < array_length(_plan.surfaces); _i++) {
-        var _s = _plan.surfaces[_i];
-        if (_plan.rooms[_s.room].dist < 1) continue; // fora da sala inicial
+function procgen_item_reach(_plan, _cfg, _s, _ix, _spr, _drop) {
+    var _c = _cfg.cell, _cols = _plan.cols;
+    var _lim = _cfg.item_reach - _cfg.item_reach_margin;
+    var _w = sprite_get_width(_spr);
+    var _il = _ix - _w div 2, _ir = _il + _w;
+    var _d = _s.d - _drop; // distância
 
-        // o jogador precisa alcançar a frente ou as laterais do móvel
-        var _reach = false;
-        for (var _dx = 0; _dx < _s.fw && !_reach; _dx++) {
-            var _fx = _s.cx + _dx, _fy = _s.cy + 1;
-            if (_fy < _plan.rows && _plan.walk[_fx + _fy * _cols]) _reach = true;
-        }
-        if (!_reach && _s.cx - 1 >= 0 && _plan.walk[(_s.cx - 1) + _s.cy * _cols]) _reach = true;
-        if (!_reach && _s.cx + _s.fw < _cols && _plan.walk[(_s.cx + _s.fw) + _s.cy * _cols]) _reach = true;
-        if (_reach) array_push(_pool, _s);
+    // frente
+    var _col = _ix div _c, _fy = _s.cy + 1;
+    if (_d <= _lim && _col >= 0 && _col < _cols && _fy < _plan.rows && _plan.walk[_col + _fy * _cols]) return true;
+
+    // laterais
+    if (_d <= _lim + _cfg.item_reach_side) {
+        if (_s.cx - 1 >= 0 && _plan.walk[(_s.cx - 1) + _s.cy * _cols] && (_il - _s.fx) <= _lim) return true;
+        if (_s.cx + _s.fw < _cols && _plan.walk[(_s.cx + _s.fw) + _s.cy * _cols] && ((_s.fx + _s.fpw) - _ir) <= _lim) return true;
     }
+    return false;
+}
+
+function procgen_item_spots(_plan, _cfg, _ox, _oy, _objs) {
+    var _pool = [];
+    for (var _i = 0; _i < array_length(_plan.surfaces); _i++) array_push(_pool, _plan.surfaces[_i]);
     procgen_shuffle(_pool);
 
+    // salas longe da entrada -> sala nova -> sala repetida -> sala inicial
+    var _tiers = [[1, true], [1, false], [0, true], [0, false]];
     var _out = [], _used_rooms = {};
-    for (var _pass = 0; _pass < 2 && array_length(_out) < _n; _pass++) {
-        for (var _i = 0; _i < array_length(_pool) && array_length(_out) < _n; _i++) {
-            var _s = _pool[_i];
-            if (_pass == 0 && variable_struct_exists(_used_rooms, string(_s.room))) continue; // 1a passada: salas diferentes
-            var _ix = -1;
-            for (var _t = 0; _t < 8 && _ix < 0; _t++) {
-                var _cand = (_s.w > 12) ? _s.x + 6 + irandom(_s.w - 12) : _s.x + _s.w div 2;
-                var _hit = false;
-                for (var _u = 0; _u < array_length(_s.used); _u++)
-                    if (_cand + 5 > _s.used[_u][0] && _cand - 5 < _s.used[_u][1]) _hit = true;
-                if (!_hit) _ix = _cand;
+
+    for (var _k = 0; _k < array_length(_objs); _k++) {
+        var _spr = object_get_sprite(_objs[_k]);
+        var _hw = sprite_get_width(_spr) div 2;
+        var _placed = false;
+        var _lim = _cfg.item_reach - _cfg.item_reach_margin;
+
+        for (var _t = 0; _t < array_length(_tiers) && !_placed; _t++) {
+            for (var _i = 0; _i < array_length(_pool) && !_placed; _i++) {
+                var _s = _pool[_i];
+                if (_plan.rooms[_s.room].dist < _tiers[_t][0]) continue;
+                if (_tiers[_t][1] && variable_struct_exists(_used_rooms, string(_s.room))) continue;
+
+                var _drop = clamp(_s.d - _lim, 0, _cfg.item_sink_max);
+                var _lo = _s.x + _hw + 1, _hi = _s.x + _s.w - _hw - 1;
+                if (_hi < _lo) continue;
+                var _cands = [];
+                for (var _x = _lo; _x <= _hi; _x += 2) array_push(_cands, _x);
+                procgen_shuffle(_cands);
+
+                for (var _j = 0; _j < array_length(_cands) && !_placed; _j++) {
+                    var _ix = _cands[_j];
+                    var _hit = false;
+                    for (var _u = 0; _u < array_length(_s.used); _u++)
+                        if (_ix + _hw + 1 > _s.used[_u][0] && _ix - _hw - 1 < _s.used[_u][1]) { _hit = true; break; }
+                    if (_hit) continue;
+                    if (!procgen_item_reach(_plan, _cfg, _s, _ix, _spr, _drop)) continue;
+
+                    array_push(_s.used, [_ix - _hw - 1, _ix + _hw + 1]);
+                    variable_struct_set(_used_rooms, string(_s.room), true);
+                    array_push(_out, { obj: _objs[_k], x: _ox * _cfg.cell + _ix, y: _oy * _cfg.cell + _s.y + _drop + _cfg.item_off_y, depth: _cfg.depth_tops - 2, floor: false });
+                    _placed = true;
+                }
             }
-            if (_ix < 0) continue;
-            array_push(_s.used, [_ix - 5, _ix + 5]);
-            variable_struct_set(_used_rooms, string(_s.room), true);
-            array_push(_out, { x: _ox * _cfg.cell + _ix, y: _oy * _cfg.cell + _s.y + _cfg.item_off_y, depth: _cfg.depth_tops - 2, floor: false });
         }
+        if (!_placed) show_debug_message("procgen: sem móvel alcançável para " + object_get_name(_objs[_k]) + " (item descartado)");
     }
 
-    // fallback no chão se faltar superfície
-    var _miss = _n - array_length(_out);
-    if (_miss > 0) {
-        var _fc = procgen_item_cells(_plan, _miss);
-        for (var _i = 0; _i < array_length(_fc); _i++) {
-            var _p = procgen_cell_to_px(_fc[_i][0], _fc[_i][1], _cfg, _ox, _oy);
-            array_push(_out, { x: _p[0], y: _p[1], depth: undefined, floor: true });
+    if (array_length(_out) == 0 && array_length(_objs) > 0) {
+        var _fc = procgen_item_cells(_plan, 1);
+        if (array_length(_fc) > 0) {
+            var _p = procgen_cell_to_px(_fc[0][0], _fc[0][1], _cfg, _ox, _oy);
+            array_push(_out, { obj: _objs[0], x: _p[0], y: _p[1], depth: undefined, floor: true });
+            show_debug_message("procgen: nenhum móvel alcançável, item caiu no chão");
         }
     }
     return _out;
 }
 
-// células de chão para n itens, em salas diferentes, longe da entrada e da saída
+// células de chão para n itens
 function procgen_item_cells(_plan, _n) {
     var _pool = [];
     for (var _i = 0; _i < array_length(_plan.rooms); _i++) {
@@ -1660,14 +1837,25 @@ function procgen_debug_draw(_plan, _px, _py, _s) {
         draw_circle(_px + _pcx*_s + _s/2, _py + _pcy*_s + _s/2, _s/2 + 1, false);
     }
 
-    // laranja: lanterna, verde: copo de água
-    var _items = [[obj_flashlight, c_orange], [obj_water_cup, c_lime]];
-    for (var _k = 0; _k < array_length(_items); _k++) {
-        draw_set_color(_items[_k][1]);
-        with (_items[_k][0]) {
-            var _icx = floor(x / _plan.cell) - _plan.ox;
-            var _icy = floor(y / _plan.cell) - _plan.oy;
+    // laranja: lanterna, verde: copo de água, azul: remédio, amarelo claro: cola
+    var _item_col = {
+        obj_flashlight: c_orange,
+        obj_water_cup:  c_lime,
+        obj_pill:       make_color_rgb(100, 160, 255),
+        obj_glue:       make_color_rgb(255, 255, 150)
+    };
+    for (var _k = 0; _k < array_length(obj_procgen.cfg.items); _k++) {
+        var _o = obj_procgen.cfg.items[_k].obj;
+        var _nm = object_get_name(_o);
+        draw_set_color(variable_struct_exists(_item_col, _nm) ? variable_struct_get(_item_col, _nm) : c_white);
+        with (_o) {
+            // centro X e base do sprite
+            var _icx = floor(((bbox_left + bbox_right) / 2) / _plan.cell) - _plan.ox;
+            var _icy = floor((bbox_bottom - 1) / _plan.cell) - _plan.oy;
             draw_circle(_px + _icx*_s + _s/2, _py + _icy*_s + _s/2, max(2, _s * 0.6), false);
+            draw_set_color(c_black);
+            draw_circle(_px + _icx*_s + _s/2, _py + _icy*_s + _s/2, max(2, _s * 0.6), true);
+            draw_set_color(variable_struct_exists(_item_col, _nm) ? variable_struct_get(_item_col, _nm) : c_white);
         }
     }
 
@@ -1690,7 +1878,6 @@ function procgen_debug_draw(_plan, _px, _py, _s) {
     draw_text_transformed(_px, _py + _plan.rows*_s + 2, "seed " + string(_plan.seed) + "  salas " + string(array_length(_plan.rooms)) + "  portas " + string(array_length(_plan.doors)), 0.5, 0.5, 0);
     draw_text_transformed(_px, _py + _plan.rows*_s + 10, "F2 oculta  F3 novo andar", 0.5, 0.5, 0);
 }
-
 
 // ============================================================================
 //  UTILITÁRIOS
@@ -1724,6 +1911,8 @@ function pg_clear_saves() {
     global.pg_saved = {};
     global.pg_arrive = "start";
     global.pg_resume_floor = 0;
+    global.room_items = {};
+    global.pg_phase = 0; // nova partida começa com as luzes acesas
 }
 
 function pg_get_save(_f) {
@@ -1742,10 +1931,14 @@ function pg_save_floor() {
     if (is_undefined(_pg.plan)) return;
     if (!variable_global_exists("pg_saved")) global.pg_saved = {};
 
+    // não salva com uma troca de armário pela metade
+    with (obj_wardrobe) flush_trade();
+
     var _items = [];
     for (var _d = 0; _d < array_length(_pg.cfg.items); _d++) {
         with (_pg.cfg.items[_d].obj) {
-            array_push(_items, { obj: object_index, x: x, y: y, depth: depth });
+            array_push(_items, { obj: object_index, x: x, y: y, depth: depth,
+                name: _name, quantity: _quantity, consumed: _consumed, dropped: _dropped });
         }
     }
     var _balloons = [];
@@ -1753,9 +1946,190 @@ function pg_save_floor() {
         if (!popping) array_push(_balloons, { x: x, y: y });
     }
 
+    // teias
+    var _webs = [];
+    with (obj_spider_web) array_push(_webs, { x: x, y: y });
+
+    // inimigos
+    var _enemies = [];
+    with (obj_chaser) array_push(_enemies, { obj: object_index, x: x, y: y });
+    with (Clown)      array_push(_enemies, { obj: object_index, x: x, y: y });
+    with (obj_spider) array_push(_enemies, { obj: object_index, x: x, y: y });
+    // inimigos disfarçados de objeto são salvos
+    with (normal_enemy_parent) {
+        if (permanent && real_obj != noone) array_push(_enemies, { obj: real_obj, x: x, y: y });
+    }
+
+    // lanche do objetivo
+    var _foods = [];
+    with (obj_snack) array_push(_foods, { x: x, y: y, depth: depth });
+
+    var _wardrobes = [];
+    with (obj_wardrobe) array_push(_wardrobes, { x: x, y: y, trades: trades });
+
+    var _mimics = [];
+    with (obj_mimic) array_push(_mimics, { x: x, y: y });
+
     variable_struct_set(global.pg_saved, "f" + string(procgen_floor()), {
         seed: _pg.plan.seed,
         items: _items,
-        balloons: _balloons
+        balloons: _balloons,
+        webs: _webs,
+        enemies: _enemies,
+        mimics: _mimics,
+        wardrobes: _wardrobes,
+        foods: _foods,
+        hazards: (variable_instance_exists(_pg, "hazards") && _pg.hazards)
     });
+}
+
+
+// ============================================================================
+//  Luzes acesas -> Luzes apagadas -> Final
+// ============================================================================
+function pg_phase() {
+    if (!variable_global_exists("pg_phase")) global.pg_phase = 0;
+    return global.pg_phase;
+}
+
+// objeto que o inimigo é de verdade
+function pg_decoy_for(_obj) {
+    switch (_obj) {
+        case obj_chaser: return obj_normal_chaser;
+        case Clown:      return obj_normal_clow;
+        case obj_spider: return obj_normal_spider;
+    }
+    return noone;
+}
+
+// troca os inimigos do andar atual pelos objetos
+function pg_enemies_to_decoys() {
+    var _list = [];
+    with (enemy_parent) {
+        if (pg_decoy_for(object_index) != noone) array_push(_list, id);
+    }
+    for (var _i = 0; _i < array_length(_list); _i++) {
+        var _e = _list[_i];
+        instance_create_layer(_e.x, _e.y, "Instances", pg_decoy_for(_e.object_index), { permanent: true, real_obj: _e.object_index });
+        instance_destroy(_e);
+    }
+}
+
+// os objetos do andar atual viram os monstros de verdade
+function pg_wake_enemies() {
+    // teias e balões do andar só aparecem agora
+    if (instance_exists(obj_procgen) && !is_undefined(obj_procgen.plan) && !obj_procgen.hazards) {
+        var _spots = [];
+        with (normal_enemy_parent) {
+            if (permanent && real_obj == obj_spider) array_push(_spots, { x: x, y: y });
+        }
+        var _pl = obj_procgen.plan;
+        pg_spawn_hazards(_pl, obj_procgen.cfg, _pl.ox, _pl.oy, _spots);
+    }
+
+    var _list = [];
+    with (normal_enemy_parent) {
+        if (permanent && real_obj != noone) array_push(_list, id);
+    }
+
+    for (var _i = 0; _i < array_length(_list); _i++) {
+        var _d = _list[_i];
+        var _o = _d.real_obj, _x = _d.x, _y = _d.y;
+        instance_create_layer(_x, _y, "Instances", obj_enemy_poof);
+        instance_destroy(_d);
+
+        var _e = instance_create_layer(_x, _y, "Instances", _o);
+        var _fits = false;
+        with (_e) _fits = enemy_unstick();
+        var _near = instance_exists(Player) && point_distance(_e.x, _e.y, Player.x, Player.y) < 96;
+        if (_fits && !_near) continue;
+
+        // preso na parede ou colado no jogador
+        instance_destroy(_e);
+        if (!instance_exists(obj_procgen) || is_undefined(obj_procgen.plan)) continue;
+        var _plan = obj_procgen.plan;
+        for (var _t = 0; _t < 12; _t++) {
+            var _n = procgen_spawn_enemy(_o, _plan, obj_procgen.cfg, _plan.ox, _plan.oy, _plan.rooms);
+            if (_n == noone) continue;
+            if (instance_exists(Player) && point_distance(_n.x, _n.y, Player.x, Player.y) < 120) {
+                instance_destroy(_n);
+                continue;
+            }
+            break;
+        }
+    }
+}
+
+// criança pegou o lanche e fase 1 começa
+function pg_pickup_snack() {
+    if (pg_phase() != 0) return;
+    global.pg_phase = 1;
+    instance_create_layer(0, 0, "Instances", obj_blackout);
+}
+
+// lanche numa superfície, na sala mais longe da escada por onde o jogador chegou
+function procgen_snack_spot(_plan, _cfg, _ox, _oy, _obj) {
+    var _spr = object_get_sprite(_obj);
+    var _hw = sprite_get_width(_spr) div 2;
+    var _lim = _cfg.item_reach - _cfg.item_reach_margin;
+
+    var _pool = [];
+    for (var _i = 0; _i < array_length(_plan.surfaces); _i++) {
+        var _sf = _plan.surfaces[_i];
+        var _r = _plan.rooms[_sf.room];
+        array_push(_pool, { s: _sf, dd: point_distance(_r.cx, _r.cy, _plan.goal.cx, _plan.goal.cy) + random(4) });
+    }
+    array_sort(_pool, function(_a, _b) { return _b.dd - _a.dd; });
+
+    for (var _k = 0; _k < array_length(_pool); _k++) {
+        var _s = _pool[_k].s;
+        var _drop = clamp(_s.d - _lim, 0, _cfg.item_sink_max);
+        var _lo = _s.x + _hw + 1, _hi = _s.x + _s.w - _hw - 1;
+        if (_hi < _lo) continue;
+        var _cands = [];
+        for (var _cx = _lo; _cx <= _hi; _cx += 2) array_push(_cands, _cx);
+        procgen_shuffle(_cands);
+
+        for (var _j = 0; _j < array_length(_cands); _j++) {
+            var _ix = _cands[_j];
+            var _hit = false;
+            for (var _u = 0; _u < array_length(_s.used); _u++) {
+                if (_ix + _hw + 1 > _s.used[_u][0] && _ix - _hw - 1 < _s.used[_u][1]) { _hit = true; break; }
+            }
+            if (_hit) continue;
+            if (!procgen_item_reach(_plan, _cfg, _s, _ix, _spr, _drop)) continue;
+
+            array_push(_s.used, [_ix - _hw - 1, _ix + _hw + 1]);
+            return { obj: _obj, x: _ox * _cfg.cell + _ix, y: _oy * _cfg.cell + _s.y + _drop + _cfg.item_off_y, depth: _cfg.depth_tops - 2, floor: false };
+        }
+    }
+
+    // nenhum móvel alcançável, cai no chão da sala mais distante
+    var _best = undefined, _best_d = -1;
+    for (var _i = 0; _i < array_length(_plan.rooms); _i++) {
+        var _rm = _plan.rooms[_i];
+        var _dist = point_distance(_rm.cx, _rm.cy, _plan.goal.cx, _plan.goal.cy);
+        if (_dist > _best_d) { _best_d = _dist; _best = _rm; }
+    }
+    if (is_undefined(_best)) return undefined;
+    for (var _t = 0; _t < 12; _t++) {
+        var _c = procgen_random_free_cell(_plan, _best);
+        if (is_undefined(_c)) continue;
+        var _p = procgen_cell_to_px(_c[0], _c[1], _cfg, _ox, _oy);
+        return { obj: _obj, x: _p[0], y: _p[1], depth: undefined, floor: true };
+    }
+    return undefined;
+}
+
+
+// teias e balões do andar atual
+function pg_spawn_hazards(_plan, _cfg, _ox, _oy, _spots) {
+    for (var _i = 0; _i < array_length(_spots); _i++) {
+        instance_create_layer(_spots[_i].x, _spots[_i].y, "Instances", obj_spider_web);
+    }
+    var _extra = irandom_range(_cfg.webs[0], _cfg.webs[1]) - array_length(_spots);
+    if (_extra > 0) procgen_spawn_webs(_plan, _cfg, _ox, _oy, _extra);
+
+    procgen_spawn_balloons(_plan, _cfg, _ox, _oy, irandom_range(_cfg.balloons[0], _cfg.balloons[1]));
+    if (instance_exists(obj_procgen)) obj_procgen.hazards = true;
 }

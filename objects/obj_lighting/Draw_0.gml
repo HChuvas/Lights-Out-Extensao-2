@@ -1,3 +1,9 @@
+// fase 0 (luzes acesas): sem efeito de escuridão
+if (pg_phase() < 1) exit;
+
+// final: com a tela já toda preta não precisa gastar nada com a iluminação
+if (instance_exists(obj_ending) && obj_ending.alpha >= 1) exit;
+
 var _cam = view_camera[0];
 var _cx = camera_get_view_x(_cam);
 var _cy = camera_get_view_y(_cam);
@@ -55,3 +61,6 @@ gpu_set_blendmode(bm_normal);
 surface_reset_target();
 
 draw_surface(surf, _cx, _cy);
+
+// olhos do monstro do armário brilham
+with (obj_wardrobe) glow_draw();

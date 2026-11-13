@@ -1,3 +1,6 @@
+// Congelado (Pílula): não ataca
+if (global.frozen) exit;
+
 //atack if not resting
 if ( CURRENT_STATE != CHASER_STATES.REST and !other.imune ) {
 	//reset path and vel aceleration

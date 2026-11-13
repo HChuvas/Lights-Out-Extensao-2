@@ -25,3 +25,17 @@ if (_player != noone) {
         );
     }
 }
+
+// objetivo atual
+var _goal = "";
+switch (pg_phase()) {
+    case 0: _goal = "Siga para o primeiro andar e pegue um lanche"; break;
+    case 1: _goal = "Volte para o quarto"; break;
+}
+if (_goal != "") {
+    draw_set_halign(fa_left);
+    draw_set_valign(fa_top);
+    draw_set_alpha(1);
+    draw_set_color(c_white);
+    draw_text(16, 56, _goal);
+}

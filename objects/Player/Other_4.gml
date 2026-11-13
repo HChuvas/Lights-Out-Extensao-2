@@ -1,3 +1,4 @@
+global.frozen = false;
 collision_map   = layer_tilemap_first(["Collision"]);
 wall_map        = layer_tilemap_first(["Walls"]);
 bottom_wall_map = layer_tilemap_first(["BottomWalls"]);

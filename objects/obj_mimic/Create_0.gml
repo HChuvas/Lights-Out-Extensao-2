@@ -2,18 +2,43 @@ event_inherited();
 
 enum MIMIC_STATES { IDLE, ATTACK }
 state = MIMIC_STATES.IDLE;
-sprite_index = spr_mimic_idle;
 
 // ajustes
-trigger_dist    = 24;
+trigger_dist    = 36;
 idle_time       = [20, 40];
-windup_time     = 0.3;
+hit_frame       = 9; // frame da animação de ataque em que o golpe acontece
 attack_time     = 5;
 attack_damage   = 1;
 attack_lifetime = 0.5;
 
 // preenchidos pelo procgen_spawn_mimics
 if (!variable_instance_exists(id, "shared")) { shared = undefined; cell_i = -1; }
+
+// cadeira virada para cima
+face_up = (shared != undefined && cell_i >= 0) ? shared.cells[cell_i].up : false;
+
+set_idle_sprite = function() {
+    sprite_index = face_up ? spr_mimic_chair_idle_up : spr_mimic_chair_idle_down;
+    image_index = 0;
+}
+set_attack_sprite = function() {
+    sprite_index = face_up ? spr_mimic_chair_attack_up : spr_mimic_attack_down;
+    image_index = 0;
+}
+is_attack_sprite = function() {
+    return sprite_index == spr_mimic_chair_attack_up || sprite_index == spr_mimic_attack_down;
+}
+awake = (pg_phase() >= 1);
+// máscara fixa pra poder ficar sem sprite enquanto as luzes estão acesas
+mask_index = face_up ? spr_mimic_chair_idle_up : spr_mimic_chair_idle_down;
+if (awake) {
+    set_idle_sprite();
+} else {
+    // luzes acesas: não desenha nada, a cadeira normal do mapa fica à mostra
+    sprite_index = -1;
+    image_speed = 0;
+    visible = false;
+}
 
 timer = irandom_range(idle_time[0], idle_time[1]) * game_get_speed(gamespeed_fps);
 attacked = false;
@@ -57,5 +82,7 @@ relocate = function() {
     cell_i = _new;
     x = _n.px;
     y = _n.py;
+    face_up = _n.up;
+    set_idle_sprite();
     return true;
 }
