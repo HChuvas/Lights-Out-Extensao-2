@@ -1,10 +1,14 @@
 event_inherited(); 
 
 // Estados do palhaço
-enum CLOWN { IDLE, PATROL, ARM, FLEE, PLACE }
+enum CLOWN { IDLE, PATROL, ARM, FLEE, PLACE, STUNNED }
 
 state = CLOWN.IDLE;
 tps = game_get_speed(gamespeed_fps);
+STUN_DURATION = 3 * tps;
+STUN_TIMER = 0;
+STATE_BEFORE_STUN = CLOWN.IDLE;
+FLASHLIGHT_STUNNED = false;
 
 patrol_spd = 0.5;
 
@@ -459,4 +463,29 @@ start_flee = function() {
     flee_from(Player.x, Player.y);
     state = CLOWN.FLEE;
     call_enemy();
+}
+
+apply_flashlight_stun = function() {
+    if (state != CLOWN.STUNNED) {
+        if (state == CLOWN.ARM || state == CLOWN.PLACE) arm_cooldown = arm_fail_time;
+        STATE_BEFORE_STUN = (state == CLOWN.FLEE) ? CLOWN.FLEE : CLOWN.IDLE;
+
+        state = CLOWN.STUNNED;
+
+        // Cancela o caminho sem marcar o destino como ruim
+        on_path = false;
+        arrived = false;
+        stuck_t = 0;
+        wd_t = 0;
+        panic = false;
+        walk_t = 0;
+
+        sprite_index = variable_struct_get(spr_idle, face);
+        image_index = 0;
+    }
+
+    // Renova o atordoamento enquanto estiver no cone
+    STUN_TIMER = STUN_DURATION;
+    FLASHLIGHT_STUNNED = true;
+    in_flashlight_cone = false;
 }

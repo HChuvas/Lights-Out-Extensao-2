@@ -13,6 +13,26 @@ if (!ready) {
 
 if (hits_wall(x, y) && enemy_unstick()) on_path = false;
 
+// Lanterna atordoa o palhaço
+if (in_flashlight_cone) {
+    apply_flashlight_stun();
+}
+else if (state == CLOWN.STUNNED) {
+    STUN_TIMER--;
+
+    if (STUN_TIMER <= 0) {
+        FLASHLIGHT_STUNNED = false;
+        state = STATE_BEFORE_STUN;
+        idle_timer = 2 * tps;
+    }
+}
+
+if (state == CLOWN.STUNNED) {
+    image_speed = 0;
+    last_x = x;
+    last_y = y;
+    exit;
+}
 
 // Posição no começo do frame para evitar bugs
 last_x = x;
@@ -47,8 +67,7 @@ if ((state == CLOWN.IDLE || state == CLOWN.PATROL) && !on_path) {
     }
 }
 
-
-// Máquina de estados
+// Máquina de estados :3
 switch (state) {
 
     case CLOWN.IDLE:

@@ -5,7 +5,7 @@ if (!awake) {
     awake = true;
     visible = true;
     image_alpha = 1;
-    mask_index = -1;      // volta a usar a máscara do sprite
+    mask_index = -1; // volta a usar a máscara do sprite
     set_idle_sprite();
     layer_sprite_alpha(shared.cells[cell_i].el, 0);
     instance_create_layer(x, y, "Instances", obj_enemy_poof);
