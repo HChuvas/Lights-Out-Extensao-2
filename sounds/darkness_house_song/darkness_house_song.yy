@@ -22,5 +22,5 @@
   "resourceVersion":"2.0",
   "sampleRate":44100,
   "soundFile":"darkness_house_song.mp3",
-  "volume":0.67,
+  "volume":0.8,
 }
