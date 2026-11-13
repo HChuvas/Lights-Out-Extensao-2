@@ -11,11 +11,7 @@
     {"name":"inst_2A2C63DD","path":"rooms/r_starting_room/r_starting_room.yy",},
     {"name":"inst_1A678D8C","path":"rooms/r_starting_room/r_starting_room.yy",},
     {"name":"inst_FF1CBCD","path":"rooms/r_starting_room/r_starting_room.yy",},
-<<<<<<< HEAD
-    {"name":"inst_663E106","path":"rooms/r_starting_room/r_starting_room.yy",},
-=======
     {"name":"inst_5B2E91C4","path":"rooms/r_starting_room/r_starting_room.yy",},
->>>>>>> 4e1a21a98f2237d2770fbcc4c83d62420580492b
   ],
   "isDnd":false,
   "layers":[
