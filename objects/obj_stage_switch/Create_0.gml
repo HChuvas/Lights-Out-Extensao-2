@@ -1,3 +1,4 @@
+depth = enemy_depth() + 2; // escada fica embaixo dos inimigos
 alpha = 0;
 active = false;
 armed = false;

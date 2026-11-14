@@ -7,7 +7,7 @@ if (!variable_instance_exists(id, "size")) size = 20;
 
 x = round(x);
 y = round(y);
-depth = layer_get_depth("Instances") + 1;   // desenha embaixo dos personagens
+depth = enemy_depth() + 1; // desenha embaixo dos personagens
 glue_color = make_color_rgb(235, 232, 210);
 
 // quanto tempo a poça dura (a cola seca e some)

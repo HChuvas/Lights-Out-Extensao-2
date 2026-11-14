@@ -1,3 +1,4 @@
+enemy_put_on_layer(); // passa por baixo de portas e batentes
 tps = game_get_speed(gamespeed_fps);
 FRAME_INTEVAL = 1;
 

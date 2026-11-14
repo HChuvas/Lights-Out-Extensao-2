@@ -1,3 +1,4 @@
+enemy_put_on_layer(); // passa por baixo de portas e batentes
 VEL_MODIFIER = 1;
 FINAL_VEL = 1;
 
