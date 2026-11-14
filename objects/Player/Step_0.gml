@@ -65,6 +65,30 @@ if ((_hspd != 0 || _vspd != 0) && item_held == "")
 
 }
 
+// porta sólida
+var _dp_key = string(room) + ":" + (variable_global_exists("pg_frames_map") ? string(global.pg_frames_map) : "-");
+door_posts_timer--;
+if (_dp_key != door_posts_key || door_posts_timer <= 0) {
+    door_posts_key = _dp_key;
+    door_posts_timer = 30;
+    rebuild_door_posts();
+}
+for (var _d = 0; _d < array_length(door_posts); _d++) {
+    var _dr = door_posts[_d];
+    if (bbox_right > _dr.x1 && bbox_left < _dr.x2 && bbox_bottom > _dr.y1 && bbox_top < _dr.y2) {
+        var _pl = bbox_right - _dr.x1;
+        var _pr = _dr.x2 - bbox_left;
+        var _pu = bbox_bottom - _dr.y1;
+        var _pd = _dr.y2 - bbox_top;
+        var _pm = min(_pl, _pr, _pu, _pd);
+        if (_pm == _pl) x -= _pl;
+        else if (_pm == _pr) x += _pr;
+        else if (_pm == _pu) y -= _pu;
+        else y += _pd;
+        glow.x = x; glow.y = y;
+    }
+}
+
 var _still_held = (facing == "right" && _hspd > 0)
                || (facing == "left"  && _hspd < 0)
                || (facing == "down"  && _vspd > 0)

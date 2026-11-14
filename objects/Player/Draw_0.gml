@@ -53,7 +53,7 @@ if (variable_global_exists("pg_front") && global.pg_front_room == room) {
 
 // paredes desenhadas por cima do player
 var _wmaps = [];
-var _wnames = ["Walls", "WallLayer"];
+var _wnames = ["Walls", "WallLayer", "Tiles_1"]; // Tiles_1: portas da sala inicial
 for (var _wn = 0; _wn < array_length(_wnames); _wn++) {
     if (layer_exists(_wnames[_wn])) {
         var _wlm = layer_tilemap_get_id(_wnames[_wn]);
@@ -67,6 +67,19 @@ var _wl = x - sprite_get_xoffset(visual_sprite) * abs(image_xscale);
 var _wt = y - sprite_get_yoffset(visual_sprite) * abs(image_yscale);
 var _wr = _wl + sprite_get_width(visual_sprite) * abs(image_xscale);
 var _wb = _wt + sprite_get_height(visual_sprite) * abs(image_yscale);
+
+// recorta o redesenho das paredes à área do sprite (senão o tile inteiro cobre quadros e móveis)
+var _clip = view_enabled && view_visible[0];
+if (_clip) {
+    var _cam = view_camera[0];
+    var _vx = camera_get_view_x(_cam), _vy = camera_get_view_y(_cam);
+    var _kx = surface_get_width(application_surface) / camera_get_view_width(_cam);
+    var _ky = surface_get_height(application_surface) / camera_get_view_height(_cam);
+    var _sx0 = floor((_wl - _vx) * _kx), _sy0 = floor((_wt - _vy) * _ky);
+    var _sx1 = ceil((_wr - _vx) * _kx),  _sy1 = ceil((_wb - _vy) * _ky);
+    var _old_scissor = gpu_get_scissor();
+    gpu_set_scissor(_sx0, _sy0, _sx1 - _sx0, _sy1 - _sy0);
+}
 
 for (var _m = 0; _m < array_length(_wmaps); _m++) {
     var _wm = _wmaps[_m];
@@ -89,3 +102,5 @@ for (var _m = 0; _m < array_length(_wmaps); _m++) {
         }
     }
 }
+
+if (_clip) gpu_set_scissor(_old_scissor);

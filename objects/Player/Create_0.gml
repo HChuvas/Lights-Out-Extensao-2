@@ -66,3 +66,34 @@ consume_frame = -1;
 //efeito da meia: para deixar o moleque rápido
 socks_speed_timer = 0;
 socks_speed_multiplier = 1.75;
+
+// portas
+door_posts = [];
+door_posts_key = "";
+door_posts_timer = 0;
+
+function rebuild_door_posts() {
+    door_posts = [];
+    var _maps = [];
+    if (layer_exists("Tiles_1")) {
+        var _m1 = layer_tilemap_get_id("Tiles_1");
+        if (_m1 != -1) array_push(_maps, _m1);
+    }
+    if (variable_global_exists("pg_frames_map") && variable_global_exists("pg_front_room") && global.pg_front_room == room && global.pg_frames_map != -1) array_push(_maps, global.pg_frames_map);
+
+    for (var _i = 0; _i < array_length(_maps); _i++) {
+        var _m = _maps[_i];
+        var _tw = tilemap_get_tile_width(_m), _th = tilemap_get_tile_height(_m);
+        var _mx = tilemap_get_x(_m), _my = tilemap_get_y(_m);
+        for (var _cx = 0; _cx < tilemap_get_width(_m); _cx++) {
+            for (var _cy = 0; _cy < tilemap_get_height(_m); _cy++) {
+                var _td = tilemap_get(_m, _cx, _cy);
+                if (_td == -1) continue;
+                var _idx = tile_get_index(_td);
+                var _px = _mx + _cx * _tw, _py = _my + _cy * _th;
+                if (_idx == 112 || _idx == 134) array_push(door_posts, { x1: _px, x2: _px + 5, y1: _py, y2: _py + _th });
+                else if (_idx == 113 || _idx == 135) array_push(door_posts, { x1: _px + 14, x2: _px + 16, y1: _py, y2: _py + _th });
+            }
+        }
+    }
+}

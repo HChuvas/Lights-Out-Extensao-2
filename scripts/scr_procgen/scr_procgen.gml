@@ -100,7 +100,7 @@ function procgen_config() {
         depth_rugs: 590,
         depth_props: 350,
         depth_tops: 345,
-        depth_frames: 250,
+        depth_frames: 320, // atrás do Player
 
         decor_blocks: true,
 

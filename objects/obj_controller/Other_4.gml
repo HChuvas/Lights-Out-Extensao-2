@@ -7,3 +7,6 @@ if (room == r_starting_room && !instance_exists(Player)) {
 if (room != r_game_over && room != r_title && room != r_win_screen) {
     music_update_gameplay();
 }
+
+// portas da sala inicial
+if (layer_exists("Tiles_1")) layer_depth("Tiles_1", 450);
