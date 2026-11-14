@@ -1034,7 +1034,7 @@ function procgen_put(_plan, _def, _spr, _x, _y, _fw, _fh) {
             }
             var _tw = sprite_get_width(_t), _th = sprite_get_height(_t);
             var _tx = _p.x + _s * _sw + irandom(max(0, _sw - _tw));
-            array_push(_plan.props, { spr: _t, kind: "top", chair: false, el: -1, x: _tx, y: _p.y + _def.top_y - _th });
+            array_push(_plan.props, { spr: _t, kind: "top", chair: false, el: -1, x: _tx, y: _p.y + _def.top_y - _th, base: _p.y + _h });
             if (!is_undefined(_sf)) array_push(_sf.used, [_tx, _tx + _tw]);
         }
     }
@@ -1375,12 +1375,27 @@ function procgen_apply_props(_plan, _cfg, _ox, _oy) {
     }
     var _map = layer_tilemap_create(_ly[0], 0, 0, _cfg.tileset_rugs, room_width div _cfg.cell, room_height div _cfg.cell);
     _plan.map_frames = layer_tilemap_create(_ly[3], 0, 0, _cfg.tileset_rugs, room_width div _cfg.cell, room_height div _cfg.cell);
+	global.pg_frames_map = _plan.map_frames;
+	
+    // lista para o Player redesenhar os móveis por cima quando passa atrás deles
+    global.pg_front = [];
+    global.pg_front_room = room;
 
     for (var _i = 0; _i < array_length(_plan.props); _i++) {
         var _p = _plan.props[_i];
         var _l = (_p.kind == "rug") ? _ly[0] : ((_p.kind == "top") ? _ly[2] : _ly[1]);
         _p.el = layer_sprite_create(_l, _ox * _cfg.cell + _p.x, _oy * _cfg.cell + _p.y, _p.spr);
         layer_sprite_speed(_p.el, 0);
+
+        if (_p.kind != "rug") {
+            var _tlx = _ox * _cfg.cell + _p.x - sprite_get_xoffset(_p.spr);
+            var _tly = _oy * _cfg.cell + _p.y - sprite_get_yoffset(_p.spr);
+            var _base = variable_struct_exists(_p, "base")
+                ? _oy * _cfg.cell + _p.base
+                : _tly + sprite_get_height(_p.spr);
+            array_push(global.pg_front, { spr: _p.spr, x: _tlx, y: _tly, base: _base,
+                                          w: sprite_get_width(_p.spr), h: sprite_get_height(_p.spr) });
+        }
     }
     return _map;
 }
